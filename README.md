@@ -1,0 +1,2 @@
+# SpinRate
+ Music review platform
