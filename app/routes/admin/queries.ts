@@ -2,10 +2,10 @@ import { Album, AlbumType } from "@prisma/client";
 import { prisma } from "~/db/prisma";
 
 export async function findOrCreateArtist(name: string) {
-  console.log("Finding or creating artist...");
   let artist = await prisma.artist.findFirst({ where: { name } });
   if (!artist) {
     artist = await prisma.artist.create({ data: { name } });
+    console.log("Created artist: " + artist.name);
   }
   return artist;
 }
@@ -36,12 +36,22 @@ export async function findOrCreateAlbum(
 
     const albumSongs = await fetchAlbumSongs(albumId, accessToken);
     await addSongsToDatabase(albumSongs, artistId, album.id);
+    console.log("Created album: " + album.name);
   }
   return album;
 }
 
 async function fetchAlbumSongs(albumId: string, accessToken: string) {
   console.log(albumId + "albumId");
+
+  const albumResponse = await fetch(
+    `https://api.spotify.com/v1/albums/${albumId}`,
+    {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    }
+  );
+  const albumData = await albumResponse.json();
+
   const response = await fetch(
     `https://api.spotify.com/v1/albums/${albumId}/tracks`,
     {
@@ -49,7 +59,11 @@ async function fetchAlbumSongs(albumId: string, accessToken: string) {
     }
   );
   const data = await response.json();
-  console.log(data.items + "data.items");
+
+  data.items.forEach((item: any) => {
+    item.album = { images: albumData.images };
+  });
+
   return data.items;
 }
 
@@ -60,7 +74,6 @@ export async function addSongsToDatabase(
 ) {
   console.log("Adding songs to database...");
   for (const song of songs) {
-    console.log(JSON.stringify(song, null, 2)); // Print the entire song object
     const imageUrl = song.album?.images?.[0]?.url || "default_image_url";
     await findOrCreateSong(
       song.name,
@@ -88,7 +101,6 @@ export async function findOrCreateSong(
   spotifyUrl: string,
   imageUrl: string
 ) {
-  console.log("Finding or creating song...");
   let song = await prisma.song.findFirst({
     where: { name, artistId },
   });
@@ -107,6 +119,7 @@ export async function findOrCreateSong(
         imageUrl,
       },
     });
+    console.log("Created song: " + song.name);
   }
   return song;
 }
@@ -114,4 +127,14 @@ export async function findOrCreateSong(
 export async function getCollectedSongs() {
   console.log("Getting collected songs...");
   return await prisma.song.findMany();
+}
+
+export async function getArtists() {
+  console.log("Getting artists...");
+  return await prisma.artist.findMany();
+}
+
+export async function getArtistSongs(artistId: string) {
+  console.log("Getting artist songs...");
+  return await prisma.song.findMany({ where: { artistId } });
 }

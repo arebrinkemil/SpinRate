@@ -6,12 +6,16 @@ import {
   findOrCreateAlbum,
   findOrCreateSong,
   getCollectedSongs,
+  getArtistSongs,
+  getArtists,
 } from "./queries";
 
 type LoaderData = {
   accessToken: string;
   playlistTracks: any[];
   collectedSongs: any[];
+  getArtistsData: any[];
+  artistSongs: { [key: string]: any[] };
 };
 
 async function getAccessToken() {
@@ -43,14 +47,25 @@ async function fetchPlaylistTracks(playlistId: string, accessToken: string) {
   const data = await response.json();
   return data.items;
 }
-
 export const loader: LoaderFunction = async () => {
   const accessToken = await getAccessToken();
-  const playlistId = "1OV6HLjKJ36SySkN9xulU5";
+  const playlistId = "5uxoGDLtXIygC6pphI9Qsn";
   const playlistTracks = await fetchPlaylistTracks(playlistId, accessToken);
   const collectedSongs = await getCollectedSongs();
+  const getArtistsData = await getArtists();
 
-  return json<LoaderData>({ accessToken, playlistTracks, collectedSongs });
+  const artistSongs: { [key: string]: any[] } = {};
+  for (const artist of getArtistsData) {
+    artistSongs[artist.id] = await getArtistSongs(artist.id);
+  }
+
+  return json<LoaderData>({
+    accessToken,
+    playlistTracks,
+    collectedSongs,
+    getArtistsData,
+    artistSongs,
+  });
 };
 
 export const action: ActionFunction = async ({ request }) => {
@@ -105,8 +120,13 @@ export const action: ActionFunction = async ({ request }) => {
 };
 
 export default function SpotifyPlaylistTracks() {
-  const { accessToken, playlistTracks, collectedSongs } =
-    useLoaderData<LoaderData>();
+  const {
+    accessToken,
+    playlistTracks,
+    collectedSongs,
+    getArtistsData,
+    artistSongs,
+  } = useLoaderData<LoaderData>();
   const actionData = useActionData<{ success: boolean }>();
 
   return (
@@ -124,12 +144,28 @@ export default function SpotifyPlaylistTracks() {
       {actionData?.success && (
         <p>Playlist processed and saved to the database!</p>
       )}
+
       <div>
-        <h3>Collected Songs</h3>
-        <ul>
-          {collectedSongs.map((song: any) => (
-            <li key={song.id}>
-              {song.name} by {song.artist}
+        <h3>Artists</h3>
+        <ul className="grid grid-cols-3 gap-4">
+          {getArtistsData.map((artist: any) => (
+            <li className="bg-slate-600" key={artist.id}>
+              <h1 className="text-2xl text-white">{artist.name}</h1>
+              <ul className="grid grid-cols-2 gap-2">
+                {artistSongs[artist.id].map((song: any) => (
+                  <li
+                    className="flex flex-row items-center gap-5 bg-slate-800 p-2 text-white"
+                    key={song.id}
+                  >
+                    {song.name} by {song.artist}
+                    <img
+                      className="w-10 h-10 "
+                      src={song.imageUrl}
+                      alt={song.name}
+                    />
+                  </li>
+                ))}
+              </ul>
             </li>
           ))}
         </ul>
