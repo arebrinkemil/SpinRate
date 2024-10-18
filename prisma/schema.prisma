@@ -6,22 +6,21 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
-
-
 model Account {
-  id     String  @id @default(uuid())
-  email  String  @unique
-  items Item[]
-
+  id       String   @id @default(uuid())
+  email    String   @unique
+  items    Item[]
+  ratings  Rating[]
+  reviews  Review[]
   Password Password?
 }
 
 model Password {
-  id        String  @id @default(uuid())
+  id        String   @id @default(uuid())
   salt      String
   hash      String
-  Account   Account @relation(fields: [accountId], references: [id])
-  accountId String  @unique
+  Account   Account  @relation(fields: [accountId], references: [id])
+  accountId String   @unique
 }
 
 model Item {
@@ -32,4 +31,75 @@ model Item {
   accountId String
 }
 
+model Artist {
+  id       String    @id @default(uuid())
+  name     String
+  albums   Album[]
+  songs    Song[]
+  ratings  Rating[]     
+  reviews  Review[]
+}
 
+model Album {
+  id             String     @id @default(uuid())
+  name           String
+  releaseDate    DateTime
+  type           AlbumType
+  artist         Artist     @relation(fields: [artistId], references: [id])
+  artistId       String
+  songs          Song[]
+  ratings        Rating[]
+  reviews        Review[]
+  spotifyUrl     String     @unique
+  imageUrl       String?
+}
+
+model Song {
+  id             String     @id @default(uuid())
+  name           String
+  duration       Int        // Duration in milliseconds
+  releaseDate    DateTime   // Includes release date for singles
+  album          Album?     @relation(fields: [albumId], references: [id])
+  albumId        String?
+  artist         Artist     @relation(fields: [artistId], references: [id])
+  artistId       String
+  isSingle       Boolean    @default(false) // Identifies if the song is a single
+  ratings        Rating[]
+  reviews        Review[]
+  spotifyUrl     String     @unique
+  imageUrl       String?
+}
+
+model Rating {
+  id           String   @id @default(uuid())
+  ratingValue  Int      @default(0) // 1-10 scale
+  user         Account  @relation(fields: [userId], references: [id])
+  userId       String
+  album        Album?   @relation(fields: [albumId], references: [id])
+  albumId      String?
+  song         Song?    @relation(fields: [songId], references: [id])
+  songId       String?
+  artist       Artist?  @relation(fields: [artistId], references: [id]) 
+  artistId     String?
+}
+model Review {
+  id           String   @id @default(uuid())
+  content      String   @db.Text
+  user         Account  @relation(fields: [userId], references: [id])
+  userId       String
+  album        Album?   @relation(fields: [albumId], references: [id])
+  albumId      String?
+  song         Song?    @relation(fields: [songId], references: [id])
+  songId       String?
+  artist       Artist?  @relation(fields: [artistId], references: [id])
+  artistId     String?
+}
+
+enum AlbumType {
+  ALBUM
+  EP
+  COMPILATION
+  album
+  ep
+  compilation
+}

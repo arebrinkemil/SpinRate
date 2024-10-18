@@ -43,26 +43,10 @@ export default function App() {
         <div className='flex h-full min-h-0 flex-col'>
           <div className='box-border flex items-center justify-between border-b border-slate-800 bg-slate-900 px-8 py-4'>
             <Link to='/' className='block w-1/3 leading-3'>
-              <div className='text-2xl font-black text-white'>Trellix</div>
-              <div className='text-slate-500'>a Remix Demo</div>
+              <div className='text-2xl font-black text-white'>SpinRate</div>
+              <div className='text-slate-500'>Rate music</div>
             </Link>
-            <div className='flex items-center gap-6'>
-              <IconLink
-                href='https://www.youtube.com/watch?v=RTHzZVbTl6c&list=PLXoynULbYuED9b2k5LS44v9TQjfXifwNu&pp=gAQBiAQB'
-                icon='/yt_icon_mono_dark.png'
-                label='Videos'
-              />
-              <IconLink
-                href='https://github.com/remix-run/example-trellix'
-                label='Source'
-                icon='/github-mark-white.png'
-              />
-              <IconLink
-                href='https://remix.run/docs/en/main'
-                icon='/r.png'
-                label='Docs'
-              />
-            </div>
+            <div className='flex items-center gap-6'></div>
             <div className='flex w-1/3 justify-end'>
               {userId ? (
                 <form method='post' action='/logout'>
