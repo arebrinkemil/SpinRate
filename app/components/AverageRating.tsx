@@ -5,7 +5,7 @@ export default function AverageRating({
 }) {
   return (
     <div>
-      <h3>{averageRating !== null ? averageRating.toFixed(1) : '-'}</h3>
+      <h3>{averageRating !== null ? averageRating : '-'}</h3>
     </div>
   )
 }
