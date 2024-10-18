@@ -1,8 +1,7 @@
-// app/routes/spotify.tsx
 import { json, LoaderFunction, ActionFunction } from '@remix-run/node'
 import { useLoaderData, Form, useActionData, Link } from '@remix-run/react'
 import { requireAuthCookie } from '~/auth/auth'
-
+import AverageRating from '../../components/AverageRating'
 import {
   findOrCreateArtist,
   findOrCreateAlbum,
@@ -11,6 +10,7 @@ import {
   getArtistSongs,
   getArtists,
 } from './queries'
+import { getAverageRating } from '~/utils/averageRating'
 
 type LoaderData = {
   accessToken: string
@@ -18,6 +18,7 @@ type LoaderData = {
   collectedSongs: any[]
   getArtistsData: any[]
   artistSongs: { [key: string]: any[] }
+  ratings: { [key: string]: number | null }
 }
 
 async function getAccessToken() {
@@ -48,8 +49,9 @@ async function fetchPlaylistTracks(playlistId: string, accessToken: string) {
   const data = await response.json()
   return data.items
 }
+
 export const loader: LoaderFunction = async ({ request }) => {
-  let userId = await requireAuthCookie(request)
+  const userId = await requireAuthCookie(request)
   const accessToken = await getAccessToken()
   const playlistId = '4erzmKG4dT6khLDqq2tIqE'
   const playlistTracks = await fetchPlaylistTracks(playlistId, accessToken)
@@ -57,9 +59,20 @@ export const loader: LoaderFunction = async ({ request }) => {
   const getArtistsData = await getArtists()
 
   const artistSongs: { [key: string]: any[] } = {}
-  for (const artist of getArtistsData) {
-    artistSongs[artist.id] = await getArtistSongs(artist.id)
-  }
+  const ratings: { [key: string]: number | null } = {}
+
+  await Promise.all(
+    getArtistsData.map(async artist => {
+      const songs = await getArtistSongs(artist.id)
+      artistSongs[artist.id] = songs
+
+      await Promise.all(
+        songs.map(async song => {
+          ratings[song.id] = await getAverageRating(song.id)
+        }),
+      )
+    }),
+  )
 
   return json<LoaderData>({
     accessToken,
@@ -67,6 +80,7 @@ export const loader: LoaderFunction = async ({ request }) => {
     collectedSongs,
     getArtistsData,
     artistSongs,
+    ratings,
   })
 }
 
@@ -128,7 +142,9 @@ export default function SpotifyPlaylistTracks() {
     collectedSongs,
     getArtistsData,
     artistSongs,
+    ratings,
   } = useLoaderData<LoaderData>()
+
   const actionData = useActionData<{ success: boolean }>()
 
   return (
@@ -158,14 +174,13 @@ export default function SpotifyPlaylistTracks() {
                   <Link
                     to={`/song/${song.id}`}
                     className='rounded border-b-8 bg-white p-1 shadow hover:shadow-lg'
+                    key={song.id}
                   >
-                    <li
-                      className='flex flex-row items-center gap-5 bg-slate-800 p-2 text-white'
-                      key={song.id}
-                    >
-                      {song.name} by {song.artist}
+                    <li className='flex flex-row items-center gap-5 bg-slate-800 p-2 text-white'>
+                      {song.name} by {song.artist} and rating{' '}
+                      <AverageRating averageRating={ratings[song.id]} />{' '}
                       <img
-                        className='h-10 w-10 '
+                        className='h-10 w-10'
                         src={song.imageUrl}
                         alt={song.name}
                       />
