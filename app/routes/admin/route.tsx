@@ -96,6 +96,7 @@ export const action: ActionFunction = async ({ request }) => {
   const formData = await request.formData()
   const accessToken = formData.get('accessToken') as string
   const playlistId = formData.get('playlistId') as string
+  const addAlbum = formData.get('addFromAlbum') as string
 
   const playlistTracks = await fetchPlaylistTracks(playlistId, accessToken)
 
@@ -112,7 +113,7 @@ export const action: ActionFunction = async ({ request }) => {
     const albumName = track.album.name
     const artistName = track.artists[0].name
 
-    if (track.album.album_type !== 'single') {
+    if (track.album.album_type !== 'single' && addAlbum) {
       const album = await findOrCreateAlbum(
         albumName,
         artistIds[0],
@@ -163,17 +164,40 @@ export default function SpotifyPlaylistTracks() {
 
   return (
     <div className='px-10'>
-      <h2>Spotify Playlist Tracks</h2>
+      <h1 className='text-2xl'>Add songs to database</h1>
       <Form method='post'>
-        <label htmlFor='playlistId'>Enter Spotify Playlist ID:</label>
-        <input type='text' name='playlistId' id='playlistId' required />
-        <input type='hidden' name='accessToken' value={accessToken} />
-        <input
-          type='hidden'
-          name='playlistTracks'
-          value={JSON.stringify(playlistTracks)}
-        />
-        <button type='submit'>Process Playlist</button>
+        <div className='flex flex-col'>
+          <div className='flex flex-row'>
+            <label htmlFor='playlistId'>Enter Spotify Playlist ID:</label>
+            <input type='text' name='playlistId' id='playlistId' required />
+          </div>
+          <label>
+            <input type='checkbox' name='addFromAlbum' value='true' /> Add all
+            songs from related albums
+          </label>{' '}
+          <input type='hidden' name='accessToken' value={accessToken} />
+          <input
+            type='hidden'
+            name='playlistTracks'
+            value={JSON.stringify(playlistTracks)}
+          />
+          <motion.div
+            className='relative w-20 p-4'
+            initial={{ padding: '0.5rem' }}
+            whileHover={{ padding: '0rem' }}
+            transition={{ duration: 0.3 }}
+          >
+            <div className='pointer-events-none absolute inset-0'>
+              <span className='corner-mark top-left'></span>
+              <span className='corner-mark top-right'></span>
+              <span className='corner-mark bottom-left'></span>
+              <span className='corner-mark bottom-right'></span>
+            </div>
+            <button className='p-2' type='submit'>
+              Process Playlist
+            </button>
+          </motion.div>
+        </div>
       </Form>
       {actionData?.success && (
         <p>Playlist processed and saved to the database!</p>
