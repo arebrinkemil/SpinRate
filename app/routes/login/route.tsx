@@ -94,7 +94,7 @@ export default function Signup() {
             <div>
               <Button type='submit'>Sign in</Button>
             </div>
-            <div className='text-sm text-slate-500'>
+            <div className='text-gray text-sm'>
               Don't have an account?{' '}
               <Link className='underline' to='/signup'>
                 Sign up

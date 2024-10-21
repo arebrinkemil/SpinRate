@@ -11,6 +11,7 @@ import {
   getArtists,
 } from './queries'
 import { getAverageRating } from '~/utils/averageRating'
+import { motion } from 'framer-motion'
 
 type LoaderData = {
   accessToken: string
@@ -53,7 +54,7 @@ async function fetchPlaylistTracks(playlistId: string, accessToken: string) {
 export const loader: LoaderFunction = async ({ request }) => {
   const userId = await requireAuthCookie(request)
   const accessToken = await getAccessToken()
-  const playlistId = '4erzmKG4dT6khLDqq2tIqE'
+  const playlistId = '2wDIRH4ybDVKtCg2IM2quj'
   const playlistTracks = await fetchPlaylistTracks(playlistId, accessToken)
   const collectedSongs = await getCollectedSongs()
   const getArtistsData = await getArtists()
@@ -165,30 +166,44 @@ export default function SpotifyPlaylistTracks() {
 
       <div>
         <h3>Artists</h3>
-        <ul className='grid grid-cols-3 gap-4'>
+        <ul className='grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3'>
           {getArtistsData.map((artist: any) => (
-            <li className='bg-slate-600' key={artist.id}>
-              <h1 className='text-2xl text-white'>{artist.name}</h1>
-              <ul className='grid grid-cols-2 gap-2'>
-                {artistSongs[artist.id].map((song: any) => (
-                  <Link
-                    to={`/song/${song.id}`}
-                    className='rounded border-b-8 bg-white p-1 shadow hover:shadow-lg'
-                    key={song.id}
-                  >
-                    <li className='flex flex-row items-center gap-5 bg-slate-800 p-2 text-white'>
-                      {song.name} by {song.artist} and rating{' '}
-                      <AverageRating averageRating={ratings[song.id]} />{' '}
-                      <img
-                        className='h-10 w-10'
-                        src={song.imageUrl}
-                        alt={song.name}
-                      />
-                    </li>
-                  </Link>
-                ))}
-              </ul>
-            </li>
+            <motion.div
+              className='relative p-2'
+              key={artist.id}
+              initial={{ padding: '0.5rem' }}
+              whileHover={{ padding: '0rem' }}
+              transition={{ duration: 0.3 }}
+            >
+              <div className='pointer-events-none absolute inset-0'>
+                <span className='corner-mark top-left'></span>
+                <span className='corner-mark top-right'></span>
+                <span className='corner-mark bottom-left'></span>
+                <span className='corner-mark bottom-right'></span>
+              </div>
+              <li className='bg-black'>
+                <h1 className='text-platinum text-2xl'>{artist.name}</h1>
+                <ul className='grid grid-cols-2 gap-2 p-4'>
+                  {artistSongs[artist.id].map((song: any) => (
+                    <Link
+                      to={`/song/${song.id}`}
+                      className='rounded'
+                      key={song.id}
+                    >
+                      <li className='bg-blue hover:bg-hallon flex flex-row items-center gap-5 p-2 text-white'>
+                        {song.name} by {song.artist} and rating{' '}
+                        <AverageRating averageRating={ratings[song.id]} />{' '}
+                        <img
+                          className='h-10 w-10'
+                          src={song.imageUrl}
+                          alt={song.name}
+                        />
+                      </li>
+                    </Link>
+                  ))}
+                </ul>
+              </li>
+            </motion.div>
           ))}
         </ul>
       </div>

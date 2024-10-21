@@ -89,7 +89,7 @@ export default function Signup() {
 
             <Button type='submit'>Sign in</Button>
 
-            <div className='text-sm text-slate-500'>
+            <div className='text-gray text-sm'>
               Already have an account?{' '}
               <Link className='underline' to='/login'>
                 Log in

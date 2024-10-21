@@ -17,7 +17,7 @@ export default function Index() {
         >
           Sign up
         </Link>
-        <div className='h-full border-r border-slate-500' />
+        <div className='border-gray h-full border-r' />
         <Link
           to='/login'
           className='text-brand-aqua text-xl font-medium underline'
