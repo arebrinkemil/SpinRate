@@ -12,6 +12,7 @@ import {
 } from './queries'
 import { getAverageRating } from '~/utils/averageRating'
 import { motion } from 'framer-motion'
+import { truncateText } from '~/utils/truncate'
 
 type LoaderData = {
   accessToken: string
@@ -54,8 +55,14 @@ async function fetchPlaylistTracks(playlistId: string, accessToken: string) {
 export const loader: LoaderFunction = async ({ request }) => {
   const userId = await requireAuthCookie(request)
   const accessToken = await getAccessToken()
-  const playlistId = '2wDIRH4ybDVKtCg2IM2quj'
-  const playlistTracks = await fetchPlaylistTracks(playlistId, accessToken)
+
+  const playlistId = '4Dp9GntziqpMwIs1oAoMUC'
+
+  let playlistTracks = []
+  if (playlistId) {
+    playlistTracks = await fetchPlaylistTracks(playlistId, accessToken)
+  }
+
   const collectedSongs = await getCollectedSongs()
   const getArtistsData = await getArtists()
 
@@ -88,7 +95,9 @@ export const loader: LoaderFunction = async ({ request }) => {
 export const action: ActionFunction = async ({ request }) => {
   const formData = await request.formData()
   const accessToken = formData.get('accessToken') as string
-  const playlistTracks = JSON.parse(formData.get('playlistTracks') as string)
+  const playlistId = formData.get('playlistId') as string
+
+  const playlistTracks = await fetchPlaylistTracks(playlistId, accessToken)
 
   for (const item of playlistTracks) {
     const track = item.track
@@ -101,6 +110,8 @@ export const action: ActionFunction = async ({ request }) => {
     }
 
     const albumName = track.album.name
+    const artistName = track.artists[0].name
+
     if (track.album.album_type !== 'single') {
       const album = await findOrCreateAlbum(
         albumName,
@@ -119,6 +130,7 @@ export const action: ActionFunction = async ({ request }) => {
         track.album.release_date,
         track.external_urls.spotify,
         track.album.images[0].url,
+        artistName,
       )
     } else {
       await findOrCreateSong(
@@ -129,6 +141,7 @@ export const action: ActionFunction = async ({ request }) => {
         track.album.release_date,
         track.external_urls.spotify,
         track.album.images[0].url,
+        artistName,
       )
     }
   }
@@ -149,9 +162,11 @@ export default function SpotifyPlaylistTracks() {
   const actionData = useActionData<{ success: boolean }>()
 
   return (
-    <div>
+    <div className='px-10'>
       <h2>Spotify Playlist Tracks</h2>
       <Form method='post'>
+        <label htmlFor='playlistId'>Enter Spotify Playlist ID:</label>
+        <input type='text' name='playlistId' id='playlistId' required />
         <input type='hidden' name='accessToken' value={accessToken} />
         <input
           type='hidden'
@@ -181,23 +196,25 @@ export default function SpotifyPlaylistTracks() {
                 <span className='corner-mark bottom-left'></span>
                 <span className='corner-mark bottom-right'></span>
               </div>
-              <li className='bg-black'>
+              <li className='h-full bg-black'>
                 <h1 className='text-platinum text-2xl'>{artist.name}</h1>
                 <ul className='grid grid-cols-2 gap-2 p-4'>
                   {artistSongs[artist.id].map((song: any) => (
-                    <Link
-                      to={`/song/${song.id}`}
-                      className='rounded'
-                      key={song.id}
-                    >
-                      <li className='bg-blue hover:bg-hallon flex flex-row items-center gap-5 p-2 text-white'>
-                        {song.name} by {song.artist} and rating{' '}
-                        <AverageRating averageRating={ratings[song.id]} />{' '}
-                        <img
-                          className='h-10 w-10'
-                          src={song.imageUrl}
-                          alt={song.name}
-                        />
+                    <Link to={`/song/${song.id}`} key={song.id}>
+                      <li
+                        className='bg-blue hover:bg-hallon relative flex h-full flex-col items-center justify-between gap-5 p-2 text-white'
+                        style={{
+                          backgroundImage: `url(${song.imageUrl})`,
+                          backgroundSize: 'cover',
+                          backgroundPosition: 'center',
+                        }}
+                      >
+                        <div className='rounded bg-black bg-opacity-50 p-2'>
+                          {truncateText(song.name, 16)}
+                        </div>
+                        <div className='rounded bg-black bg-opacity-50 p-2'>
+                          <AverageRating averageRating={ratings[song.id]} />
+                        </div>
                       </li>
                     </Link>
                   ))}

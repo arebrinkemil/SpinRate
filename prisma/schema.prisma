@@ -61,6 +61,7 @@ model Song {
   releaseDate    DateTime   // Includes release date for singles
   album          Album?     @relation(fields: [albumId], references: [id])
   albumId        String?
+  artistName     String?
   artist         Artist     @relation(fields: [artistId], references: [id])
   artistId       String
   isSingle       Boolean    @default(false) // Identifies if the song is a single
