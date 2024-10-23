@@ -13,6 +13,7 @@ import {
 import { getAverageRating } from '~/utils/averageRating'
 import { motion } from 'framer-motion'
 import { truncateText } from '~/utils/truncate'
+import CornerMarkings from '~/components/CornerMarkings'
 
 type LoaderData = {
   accessToken: string
@@ -181,22 +182,11 @@ export default function SpotifyPlaylistTracks() {
             name='playlistTracks'
             value={JSON.stringify(playlistTracks)}
           />
-          <motion.div
-            className='relative w-20 p-4'
-            initial={{ padding: '0.5rem' }}
-            whileHover={{ padding: '0rem' }}
-            transition={{ duration: 0.3 }}
-          >
-            <div className='pointer-events-none absolute inset-0'>
-              <span className='corner-mark top-left'></span>
-              <span className='corner-mark top-right'></span>
-              <span className='corner-mark bottom-left'></span>
-              <span className='corner-mark bottom-right'></span>
-            </div>
+          <CornerMarkings hoverEffect={false} className='w-1/3'>
             <button className='p-2' type='submit'>
               Process Playlist
             </button>
-          </motion.div>
+          </CornerMarkings>
         </div>
       </Form>
       {actionData?.success && (
@@ -207,19 +197,7 @@ export default function SpotifyPlaylistTracks() {
         <h3>Artists</h3>
         <ul className='grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3'>
           {getArtistsData.map((artist: any) => (
-            <motion.div
-              className='relative p-2'
-              key={artist.id}
-              initial={{ padding: '0.5rem' }}
-              whileHover={{ padding: '0rem' }}
-              transition={{ duration: 0.3 }}
-            >
-              <div className='pointer-events-none absolute inset-0'>
-                <span className='corner-mark top-left'></span>
-                <span className='corner-mark top-right'></span>
-                <span className='corner-mark bottom-left'></span>
-                <span className='corner-mark bottom-right'></span>
-              </div>
+            <CornerMarkings key={artist.id} hoverEffect={true}>
               <li className='h-full bg-black'>
                 <h1 className='text-platinum text-2xl'>{artist.name}</h1>
                 <ul className='grid grid-cols-2 gap-2 p-4'>
@@ -244,7 +222,7 @@ export default function SpotifyPlaylistTracks() {
                   ))}
                 </ul>
               </li>
-            </motion.div>
+            </CornerMarkings>
           ))}
         </ul>
       </div>

@@ -10,9 +10,8 @@ import {
 } from '@remix-run/react'
 import { redirect, type DataFunctionArgs } from '@remix-run/node'
 
-import { LoginIcon, LogoutIcon } from './icons/icons'
 import { getAuthFromRequest } from './auth/auth'
-
+import { NavBar } from './components/NavBar'
 import './tailwind.css'
 
 export async function loader({ request }: DataFunctionArgs) {
@@ -46,34 +45,7 @@ export default function App() {
       </head>
       <body className='bg-platinum h-screen text-black'>
         <div className='flex h-full min-h-0 flex-col'>
-          <div className='box-border flex items-center justify-between bg-black px-8 py-4'>
-            <Link to='/' className='block w-1/3 leading-3'>
-              <div className='text-platinum text-4xl font-black'>SpinRate</div>
-              <div className='text-gray'>Rate music</div>
-            </Link>
-            <div className='flex items-center gap-6'></div>
-            <div className='flex w-1/3 justify-end'>
-              {userId ? (
-                <form method='post' action='/logout'>
-                  <button className='block text-center'>
-                    <LogoutIcon />
-                    <br />
-                    <span className='text-gray text-xs font-bold uppercase'>
-                      Log out
-                    </span>
-                  </button>
-                </form>
-              ) : (
-                <Link to='/login' className='block text-center'>
-                  <LoginIcon />
-                  <br />
-                  <span className='text-gray text-xs font-bold uppercase'>
-                    Log in
-                  </span>
-                </Link>
-              )}
-            </div>
-          </div>
+          <NavBar userId={userId} />
 
           <div className='h-full min-h-0 flex-grow'>
             <Outlet />
