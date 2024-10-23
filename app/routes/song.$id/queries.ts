@@ -33,13 +33,3 @@ export async function hasUserRated(
   })
   return rating !== null
 }
-
-export async function getAverageRating(songId: string): Promise<number> {
-  const ratings = await prisma.rating.findMany({
-    where: {
-      songId: songId,
-    },
-  })
-  const total = ratings.reduce((acc, rating) => acc + rating.ratingValue, 0)
-  return total / ratings.length
-}

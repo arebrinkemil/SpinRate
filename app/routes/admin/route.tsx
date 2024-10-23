@@ -10,7 +10,7 @@ import {
   getArtistSongs,
   getArtists,
 } from './queries'
-import { getAverageRating } from '~/utils/averageRating'
+import { getAverageSongRating } from '~/utils/averageRating'
 import { motion } from 'framer-motion'
 import { truncateText } from '~/utils/truncate'
 import CornerMarkings from '~/components/CornerMarkings'
@@ -77,7 +77,7 @@ export const loader: LoaderFunction = async ({ request }) => {
 
       await Promise.all(
         songs.map(async song => {
-          ratings[song.id] = await getAverageRating(song.id)
+          ratings[song.id] = await getAverageSongRating(song.id)
         }),
       )
     }),
@@ -123,6 +123,7 @@ export const action: ActionFunction = async ({ request }) => {
         track.album.album_type,
         track.album.external_urls.spotify,
         track.album.id,
+        track.album.images[0].url,
       )
       await findOrCreateSong(
         track.name,
@@ -182,7 +183,7 @@ export default function SpotifyPlaylistTracks() {
             name='playlistTracks'
             value={JSON.stringify(playlistTracks)}
           />
-          <CornerMarkings hoverEffect={false} className='w-1/3'>
+          <CornerMarkings hoverEffect={false} className='aspect-square w-1/3'>
             <button className='p-2' type='submit'>
               Process Playlist
             </button>
@@ -197,7 +198,11 @@ export default function SpotifyPlaylistTracks() {
         <h3>Artists</h3>
         <ul className='grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3'>
           {getArtistsData.map((artist: any) => (
-            <CornerMarkings key={artist.id} hoverEffect={true}>
+            <CornerMarkings
+              className='aspect-square'
+              key={artist.id}
+              hoverEffect={true}
+            >
               <li className='h-full bg-black'>
                 <h1 className='text-platinum text-2xl'>{artist.name}</h1>
                 <ul className='grid grid-cols-2 gap-2 p-4'>

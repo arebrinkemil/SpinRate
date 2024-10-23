@@ -2,15 +2,11 @@ import { useLoaderData, useActionData, Form, Link } from '@remix-run/react'
 import type { LoaderFunctionArgs, ActionFunctionArgs } from '@remix-run/node'
 import { redirect } from '@remix-run/node'
 import { notFound } from '~/http/bad-request'
-import {
-  getAlbumData,
-  giveRating,
-  hasUserRated,
-  getAverageRating,
-} from './queries'
+import { getAlbumData, giveRating, hasUserRated } from './queries'
 import { requireAuthCookie } from '~/auth/auth'
 import AverageRating from '~/components/AverageRating'
 import { truncateText } from '~/utils/truncate'
+import { getAverageAlbumRating } from '~/utils/averageRating'
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
   const accountId = await requireAuthCookie(request)
@@ -23,7 +19,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   if (!album) throw notFound()
 
   const hasRated = await hasUserRated(albumId, accountId)
-  const averageRating = await getAverageRating(albumId)
+  const averageRating = await getAverageAlbumRating(albumId)
 
   return { album, hasRated, averageRating }
 }

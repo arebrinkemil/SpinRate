@@ -5,7 +5,7 @@ import { notFound } from '~/http/bad-request'
 import { getSongData, giveRating, hasUserRated } from './queries'
 import { requireAuthCookie } from '~/auth/auth'
 import AverageRating from '~/components/AverageRating'
-import { getAverageRating } from '~/utils/averageRating'
+import { getAverageSongRating } from '~/utils/averageRating'
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
   const accountId = await requireAuthCookie(request)
@@ -18,7 +18,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   if (!song) throw notFound()
 
   const hasRated = await hasUserRated(songId, accountId)
-  const averageRating = await getAverageRating(songId)
+  const averageRating = await getAverageSongRating(songId)
 
   return { song, hasRated, averageRating }
 }

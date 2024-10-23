@@ -68,9 +68,18 @@ export default function Profile() {
             <li key={index}>
               {rating.type === 'album' && (
                 <CornerMarkings hoverEffect={true}>
-                  <div>
-                    <h2>Album: {rating.data.name}</h2>
-                    <p>Rating: {rating.ratingValue}</p>
+                  <div className='flex w-full flex-row justify-between'>
+                    <div>
+                      <h2>
+                        {rating.data.name} - {rating.data.name}
+                      </h2>
+                      <p>Rating: {rating.ratingValue}</p>
+                    </div>
+                    <img
+                      src={rating.data.imageUrl ?? ''}
+                      alt={rating.data.name}
+                      className='h-20 w-20'
+                    />
                   </div>
                 </CornerMarkings>
               )}

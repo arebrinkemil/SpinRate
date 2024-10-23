@@ -18,6 +18,7 @@ export async function findOrCreateAlbum(
   type: AlbumType,
   spotifyUrl: string,
   albumId: string,
+  imageUrl: string,
 ) {
   console.log('Finding or creating album...')
   let album = await prisma.album.findFirst({
@@ -31,6 +32,7 @@ export async function findOrCreateAlbum(
         releaseDate: new Date(releaseDate),
         type,
         spotifyUrl,
+        imageUrl,
       },
     })
 
