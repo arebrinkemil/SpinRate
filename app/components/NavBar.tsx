@@ -1,5 +1,5 @@
 import { Form, Link } from '@remix-run/react'
-import { LoginIcon, LogoutIcon } from '~/icons/icons'
+import { GrLogin, GrLogout } from 'react-icons/gr'
 
 interface NavBarProps {
   userId: string | null
@@ -14,24 +14,27 @@ export const NavBar: React.FC<NavBarProps> = ({ userId }) => {
           <div className='text-gray'>Rate music</div>
         </Link>
         <div className='flex items-center gap-6'></div>
+        <div className='flex w-1/3 justify-center'>
+          {userId ? (
+            <Link to={`/profile/${userId}`} className='block text-center'>
+              <h2 className='text-2xl text-white'>PROFILE</h2>
+            </Link>
+          ) : (
+            <></>
+          )}
+        </div>
         <div className='flex w-1/3 justify-end'>
           {userId ? (
             <form method='post' action='/logout'>
-              <button className='block text-center'>
-                <LogoutIcon />
-                <br />
-                <span className='text-gray text-xs font-bold uppercase'>
-                  Log out
-                </span>
+              <button className='flex flex-col items-center'>
+                <GrLogout color='white' size={40} />
               </button>
             </form>
           ) : (
             <Link to='/login' className='block text-center'>
-              <LoginIcon />
-              <br />
-              <span className='text-gray text-xs font-bold uppercase'>
-                Log in
-              </span>
+              <button className='flex flex-col items-center'>
+                <GrLogin color='white' size={40} />
+              </button>
             </Link>
           )}
         </div>

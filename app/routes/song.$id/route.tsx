@@ -9,6 +9,7 @@ import { getAverageRating } from '~/utils/averageRating'
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
   const accountId = await requireAuthCookie(request)
+  console.log('accountId', accountId)
   const songId = String(params.id)
 
   if (!params.id) throw notFound()

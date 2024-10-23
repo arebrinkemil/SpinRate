@@ -29,7 +29,7 @@ export async function action({ request }: DataFunctionArgs) {
     return json({ ok: false, errors: { password: 'Invalid credentials' } }, 400)
   }
 
-  let response = redirect('/home')
+  let response = redirect(`/profile/${userId}`)
   return setAuthOnResponse(response, userId)
 }
 

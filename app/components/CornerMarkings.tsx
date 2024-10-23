@@ -13,7 +13,7 @@ const CornerMarkings: React.FC<CornerMarkingsProps> = ({
   hoverEffect = true,
   className = '',
 }) => {
-  const mergedClasses = twMerge('relative p-4', className)
+  const mergedClasses = twMerge('aspect-square relative p-4', className)
 
   return (
     <>
