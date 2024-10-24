@@ -57,6 +57,7 @@ export function SongBox({ song }: SongBoxProps) {
             />
           </div>
           <h1 className='text-platinum text-xl'>{song.name}</h1>
+
           <p className='text-lg text-white'>{song.artistName}</p>
         </li>
       </CornerMarkings>

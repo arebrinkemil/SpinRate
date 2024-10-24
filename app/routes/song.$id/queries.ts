@@ -1,4 +1,4 @@
-import { Song } from '@prisma/client'
+import { Song, Review } from '@prisma/client'
 import { prisma } from '~/db/prisma'
 
 export async function getSongData(id: string) {
@@ -32,4 +32,37 @@ export async function hasUserRated(
     },
   })
   return rating !== null
+}
+
+export async function addReview(
+  songId: string,
+  review: string,
+  accountId: string,
+): Promise<Review> {
+  return await prisma.review.create({
+    data: {
+      content: review,
+      userId: accountId,
+      songId: songId,
+    },
+  })
+}
+
+export type ReviewWithUser = Review & {
+  user: {
+    username: string
+  }
+}
+
+export async function getAllReviews(songId: string): Promise<ReviewWithUser[]> {
+  return await prisma.review.findMany({
+    where: { songId },
+    include: {
+      user: {
+        select: {
+          username: true,
+        },
+      },
+    },
+  })
 }
