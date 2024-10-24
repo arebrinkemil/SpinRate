@@ -1,4 +1,4 @@
-import { useLoaderData, useActionData, Form, Link } from '@remix-run/react'
+import { useLoaderData, useActionData, Form } from '@remix-run/react'
 import AverageRating from '~/components/AverageRating'
 import {
   LoaderFunctionArgs,
@@ -13,7 +13,7 @@ import ReviewForm from '~/components/ReviewForm'
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
   const targetId = String(params.id)
-  const targetType = 'SONG'
+  const targetType = 'ARTIST'
 
   if (!targetId || !['SONG', 'ALBUM', 'ARTIST'].includes(targetType))
     throw notFound()
@@ -31,17 +31,17 @@ export async function action({ request, params }: ActionFunctionArgs) {
     const formData = await request.formData()
 
     const targetId = String(params.id)
-    const targetType = 'SONG'
+    const targetType = 'ARTIST'
     const intent = formData.get('intent')
 
     if (!targetId) return new Response('Invalid action', { status: 400 })
 
     if (intent === 'rate') {
       await handleRatingAction(targetId, targetType, formData, request)
-      return redirect(`/song/${targetId}`)
+      return redirect(`/artist/${targetId}`)
     } else if (intent === 'review') {
       await handleReviewAction(targetId, targetType, formData, request)
-      return redirect(`/song/${targetId}`)
+      return redirect(`/artist/${targetId}`)
     }
 
     return new Response('Invalid action', { status: 400 })
@@ -51,29 +51,25 @@ export async function action({ request, params }: ActionFunctionArgs) {
   }
 }
 
-export default function Song() {
+export default function Artist() {
   const { targetData, hasRated, averageRating, reviews } =
     useLoaderData<typeof loader>()
 
   return (
     <div>
       <h1>{targetData.name}</h1>
-      <Link to={`/artist/${targetData.artistId}`}>
-        <h2>{targetData.artist.name ?? 'Artist Name not found'}</h2>
-      </Link>
-
       <img src={targetData.imageUrl ?? ''} alt={targetData.name} />
       <AverageRating averageRating={averageRating} />
 
       <RatingForm
         targetId={targetData.id}
-        targetType='SONG'
+        targetType='ARTIST'
         hasRated={hasRated}
       />
 
       <h2>Leave a review</h2>
 
-      <ReviewForm targetId={targetData.id} targetType='SONG' />
+      <ReviewForm targetId={targetData.id} targetType='ARTIST' />
 
       <h2>Reviews</h2>
       <ul>

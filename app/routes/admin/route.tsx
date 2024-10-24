@@ -103,11 +103,11 @@ export const action: ActionFunction = async ({ request }) => {
 
   for (const item of playlistTracks) {
     const track = item.track
-    const artistNames = track.artists.map((artist: any) => artist.name)
+    const artistSpotifyId = track.artists.map((artist: any) => artist.id)
 
     const artistIds = []
-    for (const name of artistNames) {
-      const artist = await findOrCreateArtist(name)
+    for (const id of artistSpotifyId) {
+      const artist = await findOrCreateArtist(id, accessToken)
       artistIds.push(artist.id)
     }
 

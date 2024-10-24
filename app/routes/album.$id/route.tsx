@@ -58,7 +58,10 @@ export default function Album() {
 
   return (
     <div>
-      <h1>{targetData.name}</h1>
+      <h1>{targetData.name ?? 'Artist Name not found'}</h1>
+      <Link to={`/artist/${targetData.artistId}`}>
+        <h2>{targetData.artist.name ?? 'Artist Name not found'}</h2>
+      </Link>
       <img src={targetData.imageUrl ?? ''} alt={targetData.name} />
       {targetData.songs.map((song: any) => (
         <Link to={`/song/${song.id}`} key={song.id}>
@@ -73,13 +76,13 @@ export default function Album() {
 
       <RatingForm
         targetId={targetData.id}
-        targetType='SONG'
+        targetType='ALBUM'
         hasRated={hasRated}
       />
 
       <h2>Leave a review</h2>
 
-      <ReviewForm targetId={targetData.id} targetType='SONG' />
+      <ReviewForm targetId={targetData.id} targetType='ALBUM' />
 
       <h2>Reviews</h2>
       <ul>
