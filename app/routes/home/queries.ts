@@ -1,28 +1,34 @@
-import { prisma } from "~/db/prisma";
+import { prisma } from '~/db/prisma'
 
-export async function deleteItem(itemId: number, accountId: string) {
-  return prisma.item.delete({
-    where: { id: itemId, accountId },
-  });
+export async function getCollectedSongs() {
+  console.log('Getting collected songs...')
+  return await prisma.song.findMany()
 }
 
-export async function createItem(userId: string, name: string) {
-  return prisma.item.create({
-    data: {
-      name,
-      Account: {
-        connect: {
-          id: userId,
-        },
-      },
-    },
-  });
+export async function getArtists() {
+  console.log('Getting artists...')
+  return await prisma.artist.findMany()
 }
 
-export async function getHomeData(userId: string) {
-  return prisma.item.findMany({
-    where: {
-      accountId: userId,
+export async function getArtistSongs(artistId: string) {
+  console.log('Getting artist songs...')
+  return await prisma.song.findMany({ where: { artistId } })
+}
+
+export async function getAlbums() {
+  console.log('Getting albums with songs...')
+  return await prisma.album.findMany({
+    include: {
+      songs: true,
     },
-  });
+  })
+}
+export async function getAlbumSongs(albumId: string) {
+  console.log('Getting album songs...')
+  return await prisma.song.findMany({ where: { albumId } })
+}
+
+export async function getSingleSongs() {
+  console.log('Getting single songs...')
+  return await prisma.song.findMany({ where: { albumId: null } })
 }

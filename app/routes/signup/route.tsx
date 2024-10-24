@@ -11,7 +11,7 @@ import { createAccount } from './queries'
 export const loader = redirectIfLoggedInLoader
 
 export const meta = () => {
-  return [{ title: 'Trellix Signup' }]
+  return [{ title: 'Signup' }]
 }
 
 export async function action({ request }: ActionFunctionArgs) {
@@ -19,13 +19,26 @@ export async function action({ request }: ActionFunctionArgs) {
 
   let email = String(formData.get('email') || '')
   let password = String(formData.get('password') || '')
+  let username = String(formData.get('username') || '')
+  let firstName = String(formData.get('firstName') || '')
+  let lastName = String(formData.get('lastName') || '')
+  let description = String(formData.get('description') || '')
+  let profileImageUrl = String(formData.get('profileImageUrl') || '')
 
-  let errors = await validate(email, password)
+  let errors = await validate(email, password, username)
   if (errors) {
     return json({ ok: false, errors }, 400)
   }
 
-  let user = await createAccount(email, password)
+  let user = await createAccount(
+    email,
+    password,
+    username,
+    firstName,
+    lastName,
+    description,
+    profileImageUrl,
+  )
   return setAuthOnResponse(redirect('/home'), user.id)
 }
 
@@ -82,14 +95,125 @@ export default function Signup() {
                 name='password'
                 type='password'
                 autoComplete='current-password'
-                aria-describedby='password-error'
+                aria-describedby={
+                  actionResult?.errors?.password ? 'password-error' : undefined
+                }
                 required
               />
             </div>
 
-            <Button type='submit'>Sign in</Button>
+            <div>
+              <Label htmlFor='username'>
+                Username{' '}
+                {actionResult?.errors?.username && (
+                  <span id='username-error' className='text-brand-red'>
+                    {actionResult.errors.username}
+                  </span>
+                )}
+              </Label>
+              <Input
+                id='username'
+                name='username'
+                type='text'
+                autoComplete='username'
+                aria-describedby={
+                  actionResult?.errors?.username ? 'username-error' : undefined
+                }
+                required
+              />
+            </div>
 
-            <div className='text-sm text-slate-500'>
+            <div>
+              <Label htmlFor='firstName'>
+                First Name{' '}
+                {actionResult?.errors?.firstName && (
+                  <span id='firstName-error' className='text-brand-red'>
+                    {actionResult.errors.firstName}
+                  </span>
+                )}
+              </Label>
+              <Input
+                id='firstName'
+                name='firstName'
+                type='text'
+                autoComplete='given-name'
+                aria-describedby={
+                  actionResult?.errors?.firstName
+                    ? 'firstName-error'
+                    : undefined
+                }
+                required
+              />
+            </div>
+
+            <div>
+              <Label htmlFor='lastName'>
+                Last Name{' '}
+                {actionResult?.errors?.lastName && (
+                  <span id='lastName-error' className='text-brand-red'>
+                    {actionResult.errors.lastName}
+                  </span>
+                )}
+              </Label>
+              <Input
+                id='lastName'
+                name='lastName'
+                type='text'
+                autoComplete='family-name'
+                aria-describedby={
+                  actionResult?.errors?.lastName ? 'lastName-error' : undefined
+                }
+                required
+              />
+            </div>
+
+            <div>
+              <Label htmlFor='description'>
+                Description{' '}
+                {actionResult?.errors?.description && (
+                  <span id='description-error' className='text-brand-red'>
+                    {actionResult.errors.description}
+                  </span>
+                )}
+              </Label>
+              <textarea
+                id='description'
+                name='description'
+                rows={4}
+                className='mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm'
+                aria-describedby={
+                  actionResult?.errors?.description
+                    ? 'description-error'
+                    : undefined
+                }
+              />
+            </div>
+
+            <div>
+              <Label htmlFor='profileImageUrl'>
+                Profile Image URL{' '}
+                {actionResult?.errors?.profileImageUrl && (
+                  <span id='profileImageUrl-error' className='text-brand-red'>
+                    {actionResult.errors.profileImageUrl}
+                  </span>
+                )}
+              </Label>
+              <Input
+                id='profileImageUrl'
+                name='profileImageUrl'
+                type='url'
+                autoComplete='url'
+                aria-describedby={
+                  actionResult?.errors?.profileImageUrl
+                    ? 'profileImageUrl-error'
+                    : undefined
+                }
+              />
+            </div>
+
+            <Button type='submit'>Sign up</Button>
+
+            <div className='text-gray text-sm'>
               Already have an account?{' '}
               <Link className='underline' to='/login'>
                 Log in
@@ -108,7 +232,7 @@ export default function Signup() {
           <h3 className='font-bold text-black'>Terms of Service</h3>
           <p>
             This is a demo app, there are no terms of service. Don't be
-            surprised if your data dissappears.
+            surprised if your data disappears.
           </p>
         </div>
       </div>

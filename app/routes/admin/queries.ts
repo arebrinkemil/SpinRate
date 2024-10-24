@@ -18,6 +18,7 @@ export async function findOrCreateAlbum(
   type: AlbumType,
   spotifyUrl: string,
   albumId: string,
+  imageUrl: string,
 ) {
   console.log('Finding or creating album...')
   let album = await prisma.album.findFirst({
@@ -31,6 +32,7 @@ export async function findOrCreateAlbum(
         releaseDate: new Date(releaseDate),
         type,
         spotifyUrl,
+        imageUrl,
       },
     })
 
@@ -71,6 +73,7 @@ export async function addSongsToDatabase(
   songs: any[],
   artistId: string,
   albumId?: string,
+  artistName?: string,
 ) {
   console.log('Adding songs to database...')
   for (const song of songs) {
@@ -83,6 +86,7 @@ export async function addSongsToDatabase(
       song.release_date,
       song.external_urls.spotify,
       imageUrl,
+      artistName,
     )
   }
 }
@@ -100,6 +104,7 @@ export async function findOrCreateSong(
   releaseDate: string,
   spotifyUrl: string,
   imageUrl: string,
+  artistName?: string,
 ) {
   let song = await prisma.song.findFirst({
     where: { name, artistId },
@@ -117,6 +122,7 @@ export async function findOrCreateSong(
         releaseDate: validReleaseDate,
         spotifyUrl,
         imageUrl,
+        artistName,
       },
     })
     console.log('Created song: ' + song.name)

@@ -5,14 +5,22 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+  
 }
 model Account {
   id       String   @id @default(uuid())
   email    String   @unique
-  items    Item[]
+  username String
+  firstName String?
+  lastName String?
+  description String?
+  profileImageUrl String?
+  experincePoints   Int?      @default(0)
+  favorites Favorite[]
   ratings  Rating[]
   reviews  Review[]
   Password Password?
+  comments Comment[]
 }
 
 model Password {
@@ -23,12 +31,16 @@ model Password {
   accountId String   @unique
 }
 
-model Item {
-  id        Int      @id @default(autoincrement())
-  name      String
-  createdAt DateTime @default(now())
-  Account   Account  @relation(fields: [accountId], references: [id])
-  accountId String
+model Favorite {
+  id       String    @id @default(uuid())
+  user     Account   @relation(fields: [userId], references: [id])
+  userId   String
+  album    Album?    @relation(fields: [albumId], references: [id])
+  albumId  String?
+  song     Song?     @relation(fields: [songId], references: [id])
+  songId   String?
+  artist   Artist?   @relation(fields: [artistId], references: [id])
+  artistId String?
 }
 
 model Artist {
@@ -38,6 +50,9 @@ model Artist {
   songs    Song[]
   ratings  Rating[]     
   reviews  Review[]
+  favorites Favorite[]
+  imageUrl String?
+
 }
 
 model Album {
@@ -50,6 +65,7 @@ model Album {
   songs          Song[]
   ratings        Rating[]
   reviews        Review[]
+  favorites      Favorite[]
   spotifyUrl     String     @unique
   imageUrl       String?
 }
@@ -61,11 +77,13 @@ model Song {
   releaseDate    DateTime   // Includes release date for singles
   album          Album?     @relation(fields: [albumId], references: [id])
   albumId        String?
+  artistName     String?
   artist         Artist     @relation(fields: [artistId], references: [id])
   artistId       String
   isSingle       Boolean    @default(false) // Identifies if the song is a single
   ratings        Rating[]
   reviews        Review[]
+  favorites      Favorite[]
   spotifyUrl     String     @unique
   imageUrl       String?
 }
@@ -93,7 +111,19 @@ model Review {
   songId       String?
   artist       Artist?  @relation(fields: [artistId], references: [id])
   artistId     String?
+  comments     Comment[]
 }
+
+model Comment {
+  id        String   @id @default(uuid())
+  content   String   @db.Text
+  createdAt DateTime @default(now())
+  user      Account  @relation(fields: [userId], references: [id])
+  userId    String
+  review    Review   @relation(fields: [reviewId], references: [id])
+  reviewId  String
+}
+
 
 enum AlbumType {
   ALBUM

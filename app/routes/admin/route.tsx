@@ -10,7 +10,10 @@ import {
   getArtistSongs,
   getArtists,
 } from './queries'
-import { getAverageRating } from '~/utils/averageRating'
+import { getAverageSongRating } from '~/utils/averageRating'
+import { motion } from 'framer-motion'
+import { truncateText } from '~/utils/truncate'
+import CornerMarkings from '~/components/CornerMarkings'
 
 type LoaderData = {
   accessToken: string
@@ -53,8 +56,14 @@ async function fetchPlaylistTracks(playlistId: string, accessToken: string) {
 export const loader: LoaderFunction = async ({ request }) => {
   const userId = await requireAuthCookie(request)
   const accessToken = await getAccessToken()
-  const playlistId = '4erzmKG4dT6khLDqq2tIqE'
-  const playlistTracks = await fetchPlaylistTracks(playlistId, accessToken)
+
+  const playlistId = '4Dp9GntziqpMwIs1oAoMUC'
+
+  let playlistTracks = []
+  if (playlistId) {
+    playlistTracks = await fetchPlaylistTracks(playlistId, accessToken)
+  }
+
   const collectedSongs = await getCollectedSongs()
   const getArtistsData = await getArtists()
 
@@ -68,7 +77,7 @@ export const loader: LoaderFunction = async ({ request }) => {
 
       await Promise.all(
         songs.map(async song => {
-          ratings[song.id] = await getAverageRating(song.id)
+          ratings[song.id] = await getAverageSongRating(song.id)
         }),
       )
     }),
@@ -87,7 +96,10 @@ export const loader: LoaderFunction = async ({ request }) => {
 export const action: ActionFunction = async ({ request }) => {
   const formData = await request.formData()
   const accessToken = formData.get('accessToken') as string
-  const playlistTracks = JSON.parse(formData.get('playlistTracks') as string)
+  const playlistId = formData.get('playlistId') as string
+  const addAlbum = formData.get('addFromAlbum') as string
+
+  const playlistTracks = await fetchPlaylistTracks(playlistId, accessToken)
 
   for (const item of playlistTracks) {
     const track = item.track
@@ -100,7 +112,9 @@ export const action: ActionFunction = async ({ request }) => {
     }
 
     const albumName = track.album.name
-    if (track.album.album_type !== 'single') {
+    const artistName = track.artists[0].name
+
+    if (track.album.album_type !== 'single' && addAlbum) {
       const album = await findOrCreateAlbum(
         albumName,
         artistIds[0],
@@ -109,6 +123,7 @@ export const action: ActionFunction = async ({ request }) => {
         track.album.album_type,
         track.album.external_urls.spotify,
         track.album.id,
+        track.album.images[0].url,
       )
       await findOrCreateSong(
         track.name,
@@ -118,6 +133,7 @@ export const action: ActionFunction = async ({ request }) => {
         track.album.release_date,
         track.external_urls.spotify,
         track.album.images[0].url,
+        artistName,
       )
     } else {
       await findOrCreateSong(
@@ -128,6 +144,7 @@ export const action: ActionFunction = async ({ request }) => {
         track.album.release_date,
         track.external_urls.spotify,
         track.album.images[0].url,
+        artistName,
       )
     }
   }
@@ -148,16 +165,30 @@ export default function SpotifyPlaylistTracks() {
   const actionData = useActionData<{ success: boolean }>()
 
   return (
-    <div>
-      <h2>Spotify Playlist Tracks</h2>
+    <div className='px-10'>
+      <h1 className='text-2xl'>Add songs to database</h1>
       <Form method='post'>
-        <input type='hidden' name='accessToken' value={accessToken} />
-        <input
-          type='hidden'
-          name='playlistTracks'
-          value={JSON.stringify(playlistTracks)}
-        />
-        <button type='submit'>Process Playlist</button>
+        <div className='flex flex-col'>
+          <div className='flex flex-row'>
+            <label htmlFor='playlistId'>Enter Spotify Playlist ID:</label>
+            <input type='text' name='playlistId' id='playlistId' required />
+          </div>
+          <label>
+            <input type='checkbox' name='addFromAlbum' value='true' /> Add all
+            songs from related albums
+          </label>{' '}
+          <input type='hidden' name='accessToken' value={accessToken} />
+          <input
+            type='hidden'
+            name='playlistTracks'
+            value={JSON.stringify(playlistTracks)}
+          />
+          <CornerMarkings hoverEffect={false} className='aspect-square w-1/3'>
+            <button className='p-2' type='submit'>
+              Process Playlist
+            </button>
+          </CornerMarkings>
+        </div>
       </Form>
       {actionData?.success && (
         <p>Playlist processed and saved to the database!</p>
@@ -165,30 +196,38 @@ export default function SpotifyPlaylistTracks() {
 
       <div>
         <h3>Artists</h3>
-        <ul className='grid grid-cols-3 gap-4'>
+        <ul className='grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3'>
           {getArtistsData.map((artist: any) => (
-            <li className='bg-slate-600' key={artist.id}>
-              <h1 className='text-2xl text-white'>{artist.name}</h1>
-              <ul className='grid grid-cols-2 gap-2'>
-                {artistSongs[artist.id].map((song: any) => (
-                  <Link
-                    to={`/song/${song.id}`}
-                    className='rounded border-b-8 bg-white p-1 shadow hover:shadow-lg'
-                    key={song.id}
-                  >
-                    <li className='flex flex-row items-center gap-5 bg-slate-800 p-2 text-white'>
-                      {song.name} by {song.artist} and rating{' '}
-                      <AverageRating averageRating={ratings[song.id]} />{' '}
-                      <img
-                        className='h-10 w-10'
-                        src={song.imageUrl}
-                        alt={song.name}
-                      />
-                    </li>
-                  </Link>
-                ))}
-              </ul>
-            </li>
+            <CornerMarkings
+              className='aspect-square'
+              key={artist.id}
+              hoverEffect={true}
+            >
+              <li className='h-full bg-black'>
+                <h1 className='text-platinum text-2xl'>{artist.name}</h1>
+                <ul className='grid grid-cols-2 gap-2 p-4'>
+                  {artistSongs[artist.id].map((song: any) => (
+                    <Link to={`/song/${song.id}`} key={song.id}>
+                      <li
+                        className='bg-blue hover:bg-hallon relative flex h-full flex-col items-center justify-between gap-5 p-2 text-white'
+                        style={{
+                          backgroundImage: `url(${song.imageUrl})`,
+                          backgroundSize: 'cover',
+                          backgroundPosition: 'center',
+                        }}
+                      >
+                        <div className='rounded bg-black bg-opacity-50 p-2'>
+                          {truncateText(song.name, 16)}
+                        </div>
+                        <div className='rounded bg-black bg-opacity-50 p-2'>
+                          <AverageRating averageRating={ratings[song.id]} />
+                        </div>
+                      </li>
+                    </Link>
+                  ))}
+                </ul>
+              </li>
+            </CornerMarkings>
           ))}
         </ul>
       </div>
