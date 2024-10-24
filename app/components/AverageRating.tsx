@@ -21,6 +21,7 @@ export default function AverageRating({
   const strokeDasharray = `${(angle / 180) * circumference} ${circumference}`
 
   return (
+
     <div className={mergedClasses}>
       <div className='w-full max-w-[200px]'>
         <svg className='aspect-square h-auto w-full' viewBox='0 0 120 60'>
@@ -42,6 +43,7 @@ export default function AverageRating({
       <h3 className='-mt-8 lg:text-2xl xl:text-xl'>
         {averageRating !== null ? averageRating.toFixed(1) : '-'}
       </h3>
+
     </div>
   )
 }
