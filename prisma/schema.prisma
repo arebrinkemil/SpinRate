@@ -20,6 +20,7 @@ model Account {
   ratings  Rating[]
   reviews  Review[]
   Password Password?
+  comments Comment[]
 }
 
 model Password {
@@ -110,7 +111,19 @@ model Review {
   songId       String?
   artist       Artist?  @relation(fields: [artistId], references: [id])
   artistId     String?
+  comments     Comment[]
 }
+
+model Comment {
+  id        String   @id @default(uuid())
+  content   String   @db.Text
+  createdAt DateTime @default(now())
+  user      Account  @relation(fields: [userId], references: [id])
+  userId    String
+  review    Review   @relation(fields: [reviewId], references: [id])
+  reviewId  String
+}
+
 
 enum AlbumType {
   ALBUM

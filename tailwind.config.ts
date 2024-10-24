@@ -22,6 +22,8 @@ export default {
         current: 'currentColor',
         black: '#121212',
         gray: '#857885',
+        silver: '#B3B2AE',
+        lightsilver: '#C1C1BA',
         platinum: '#E9E9E6',
         blue: '#1F7A8C',
         hallon: '#CE2D4F',
