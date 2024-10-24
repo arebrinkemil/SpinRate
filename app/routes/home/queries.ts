@@ -20,15 +20,22 @@ export async function getAlbums() {
   return await prisma.album.findMany({
     include: {
       songs: true,
+      artist: true,
     },
   })
 }
 export async function getAlbumSongs(albumId: string) {
   console.log('Getting album songs...')
-  return await prisma.song.findMany({ where: { albumId } })
+  return await prisma.song.findMany({
+    where: { albumId },
+    include: { artist: true },
+  })
 }
 
 export async function getSingleSongs() {
   console.log('Getting single songs...')
-  return await prisma.song.findMany({ where: { albumId: null } })
+  return await prisma.song.findMany({
+    where: { albumId: null },
+    include: { artist: true },
+  })
 }

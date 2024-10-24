@@ -58,6 +58,10 @@ export default function Song() {
   return (
     <div>
       <h1>{targetData.name}</h1>
+      <Link to={`/artist/${targetData.artistId}`}>
+        <h2>{targetData.artist.name ?? 'Artist Name not found'}</h2>
+      </Link>
+
       <img src={targetData.imageUrl ?? ''} alt={targetData.name} />
       <AverageRating averageRating={averageRating} />
 

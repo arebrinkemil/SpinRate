@@ -6,11 +6,11 @@ import { Link } from '@remix-run/react'
 import { truncateText } from '~/utils/truncate'
 
 interface AlbumBoxProps {
-  album: Album & { averageRating: number; artistName: string }
+  album: Album & { averageRating: number; artist: { name: string } }
 }
 
 interface SongBoxProps {
-  song: Song & { averageRating: number; artistName: string }
+  song: Song & { averageRating: number; artist: { name: string } }
 }
 
 export function AlbumBox({ album }: AlbumBoxProps) {
@@ -33,7 +33,7 @@ export function AlbumBox({ album }: AlbumBoxProps) {
             {' '}
             {truncateText(album.name, 24)}
           </h1>
-          <p className='text-lg text-white'>{album.artistName}</p>
+          <p className='text-lg text-white'>{album.artist.name}</p>
         </li>
       </CornerMarkings>
     </Link>
@@ -58,7 +58,7 @@ export function SongBox({ song }: SongBoxProps) {
           </div>
           <h1 className='text-platinum text-xl'>{song.name}</h1>
 
-          <p className='text-lg text-white'>{song.artistName}</p>
+          <p className='text-lg text-white'>{song.artist.name}</p>
         </li>
       </CornerMarkings>
     </Link>
