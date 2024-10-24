@@ -1,10 +1,32 @@
-import { Album, AlbumType } from '@prisma/client'
+import { Album, AlbumType, Artist } from '@prisma/client'
 import { prisma } from '~/db/prisma'
 
-export async function findOrCreateArtist(name: string) {
-  let artist = await prisma.artist.findFirst({ where: { name } })
+// export async function findOrCreateArtist(name: string) {
+//   let artist = await prisma.artist.findFirst({ where: { name } })
+//   if (!artist) {
+//     const artistData = await fetch(
+//       `https://api.spotify.com/v1/search?q=${name}&type=artist`,
+//       {
+//         headers: { Authorization: `Bearer ${accessToken}` },
+//       },
+//     )
+
+//     artist = await prisma.artist.create({ data: { name } })
+//     console.log('Created artist: ' + artist.name)
+//   }
+//   return artist
+// }
+
+export async function findOrCreateArtist(id: string, accessToken: string) {
+  let artist = await prisma.artist.findFirst({ where: { id } })
   if (!artist) {
-    artist = await prisma.artist.create({ data: { name } })
+    const artistData = await fetch(`https://api.spotify.com/v1/artists/${id}`, {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    })
+    const data = await artistData.json()
+    artist = await prisma.artist.create({
+      data: { id, name: data.name, imageUrl: data.images[0].url },
+    })
     console.log('Created artist: ' + artist.name)
   }
   return artist

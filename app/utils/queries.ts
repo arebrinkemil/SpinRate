@@ -4,6 +4,9 @@ import { prisma } from '~/db/prisma'
 export async function getSongData(id: string) {
   return await prisma.song.findFirst({
     where: { id: id },
+    include: {
+      artist: true,
+    },
   })
 }
 
@@ -12,6 +15,7 @@ export async function getAlbumData(id: string) {
     where: { id: id },
     include: {
       songs: true,
+      artist: true,
     },
   })
 }
