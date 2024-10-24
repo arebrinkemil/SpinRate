@@ -4,10 +4,7 @@ import { requireAuthCookie } from '~/auth/auth'
 import { getAlbums, getSingleSongs } from './queries'
 import { truncateText } from '~/utils/truncate'
 
-import {
-  getAverageAlbumRating,
-  getAverageSongRating,
-} from '~/utils/averageRating'
+import { getAverageRating } from '~/utils/ratingLogic'
 import { AlbumBox, SongBox } from '~/components/ContentBoxes'
 
 export const meta: MetaFunction = () => {
@@ -27,14 +24,14 @@ export const loader: LoaderFunction = async ({ request }) => {
 
   const albumsWithRatings = await Promise.all(
     albums.map(async album => {
-      const averageRating = await getAverageAlbumRating(album.id)
+      const averageRating = await getAverageRating(album.id, 'ALBUM')
       return { ...album, averageRating }
     }),
   )
 
   const songsWithRatings = await Promise.all(
     songs.map(async song => {
-      const averageRating = await getAverageSongRating(song.id)
+      const averageRating = await getAverageRating(song.id, 'SONG')
       return { ...song, averageRating }
     }),
   )
