@@ -1,53 +1,66 @@
 import { useLoaderData, useActionData, Form, Link } from '@remix-run/react'
-import type { LoaderFunctionArgs, ActionFunctionArgs } from '@remix-run/node'
-import { redirect } from '@remix-run/node'
-import { notFound } from '~/http/bad-request'
-import { getAlbumData, giveRating, hasUserRated } from './queries'
-import { requireAuthCookie } from '~/auth/auth'
 import AverageRating from '~/components/AverageRating'
+import {
+  LoaderFunctionArgs,
+  ActionFunctionArgs,
+  redirect,
+} from '@remix-run/node'
+import { loadReviewData } from '~/utils/reviewLoader'
+import { handleRatingAction, handleReviewAction } from '~/utils/reviewAction'
+import { notFound } from '~/http/bad-request'
+import RatingForm from '~/components/RatingForm'
+import ReviewForm from '~/components/ReviewForm'
 import { truncateText } from '~/utils/truncate'
-import { getAverageAlbumRating } from '~/utils/averageRating'
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
-  const accountId = await requireAuthCookie(request)
-  console.log('accountId', accountId)
-  const albumId = String(params.id)
+  const targetId = String(params.id)
+  const targetType = 'ALBUM'
 
-  if (!params.id) throw notFound()
+  if (!targetId || !['SONG', 'ALBUM', 'ARTIST'].includes(targetType))
+    throw notFound()
 
-  const album = await getAlbumData(albumId)
-  if (!album) throw notFound()
-
-  const hasRated = await hasUserRated(albumId, accountId)
-  const averageRating = await getAverageAlbumRating(albumId)
-
-  return { album, hasRated, averageRating }
+  const data = await loadReviewData(
+    request,
+    targetId,
+    targetType as 'SONG' | 'ALBUM' | 'ARTIST',
+  )
+  return data
 }
 
 export async function action({ request, params }: ActionFunctionArgs) {
-  const accountId = await requireAuthCookie(request)
-  const formData = await request.formData()
-  const ratingValue = parseInt(formData.get('rating') as string, 10)
+  try {
+    const formData = await request.formData()
 
-  if (isNaN(ratingValue) || ratingValue < 1 || ratingValue > 10) {
-    return new Response('Invalid rating', { status: 400 })
+    const targetId = String(params.id)
+    const targetType = 'ALBUM'
+    const intent = formData.get('intent')
+
+    if (!targetId) return new Response('Invalid action', { status: 400 })
+
+    if (intent === 'rate') {
+      await handleRatingAction(targetId, targetType, formData, request)
+      return redirect(`/album/${targetId}`)
+    } else if (intent === 'review') {
+      await handleReviewAction(targetId, targetType, formData, request)
+      return redirect(`/album/${targetId}`)
+    }
+
+    return new Response('Invalid action', { status: 400 })
+  } catch (error) {
+    console.error('Action Error:', error)
+    return new Response('Internal Server Error', { status: 500 })
   }
-
-  const albumId = String(params.id)
-  await giveRating(albumId, ratingValue, accountId)
-
-  return redirect(`/album/${albumId}`)
 }
 
 export default function Album() {
-  const { album, hasRated, averageRating } = useLoaderData<typeof loader>()
-  const actionData = useActionData()
+  const { targetData, hasRated, averageRating, reviews } =
+    useLoaderData<typeof loader>()
 
   return (
     <div>
-      <h1>{album.name}</h1>
-      <img src={album.imageUrl ?? ''} alt={album.name} />
-      {album.songs.map((song: any) => (
+      <h1>{targetData.name}</h1>
+      <img src={targetData.imageUrl ?? ''} alt={targetData.name} />
+      {targetData.songs.map((song: any) => (
         <Link to={`/song/${song.id}`} key={song.id}>
           <li className='bg-blue hover:bg-hallon relative flex h-full flex-col items-center justify-between gap-5 p-2 text-white'>
             <div className='rounded bg-black bg-opacity-50 p-2'>
@@ -56,18 +69,27 @@ export default function Album() {
           </li>
         </Link>
       ))}
-      <AverageRating averageRating={averageRating} />{' '}
-      {hasRated ? (
-        <p>You have already rated this album.</p>
-      ) : (
-        <Form method='post'>
-          <label>
-            Rate this album (1-10):
-            <input type='number' name='rating' min='1' max='10' required />
-          </label>
-          <button type='submit'>Submit Rating</button>
-        </Form>
-      )}
+      <AverageRating averageRating={averageRating} />
+
+      <RatingForm
+        targetId={targetData.id}
+        targetType='SONG'
+        hasRated={hasRated}
+      />
+
+      <h2>Leave a review</h2>
+
+      <ReviewForm targetId={targetData.id} targetType='SONG' />
+
+      <h2>Reviews</h2>
+      <ul>
+        {reviews.map(review => (
+          <li key={review.id}>
+            <p>{review.content}</p>
+            <p>By: {review.user.username}</p>
+          </li>
+        ))}
+      </ul>
     </div>
   )
 }

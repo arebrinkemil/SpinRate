@@ -10,7 +10,7 @@ import {
   getArtistSongs,
   getArtists,
 } from './queries'
-import { getAverageSongRating } from '~/utils/averageRating'
+import { getAverageRating } from '~/utils/ratingLogic'
 import { motion } from 'framer-motion'
 import { truncateText } from '~/utils/truncate'
 import CornerMarkings from '~/components/CornerMarkings'
@@ -77,7 +77,7 @@ export const loader: LoaderFunction = async ({ request }) => {
 
       await Promise.all(
         songs.map(async song => {
-          ratings[song.id] = await getAverageSongRating(song.id)
+          ratings[song.id] = await getAverageRating(song.id, 'SONG')
         }),
       )
     }),
