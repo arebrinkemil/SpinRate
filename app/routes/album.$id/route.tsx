@@ -11,6 +11,7 @@ import { notFound } from '~/http/bad-request'
 import RatingForm from '~/components/RatingForm'
 import ReviewForm from '~/components/ReviewForm'
 import { truncateText } from '~/utils/truncate'
+import CornerMarkings from '~/components/CornerMarkings'
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
   const targetId = String(params.id)
@@ -58,21 +59,41 @@ export default function Album() {
 
   return (
     <div>
-      <h1>{targetData.name ?? 'Artist Name not found'}</h1>
-      <Link to={`/artist/${targetData.artistId}`}>
-        <h2>{targetData.artist.name ?? 'Artist Name not found'}</h2>
-      </Link>
-      <img src={targetData.imageUrl ?? ''} alt={targetData.name} />
-      {targetData.songs.map((song: any) => (
-        <Link to={`/song/${song.id}`} key={song.id}>
-          <li className='bg-blue hover:bg-hallon relative flex h-full flex-col items-center justify-between gap-5 p-2 text-white'>
-            <div className='rounded bg-black bg-opacity-50 p-2'>
-              {truncateText(song.name, 16)}
-            </div>
-          </li>
-        </Link>
-      ))}
-      <AverageRating averageRating={averageRating} />
+      <h1 className='mx-4 text-3xl'>Album</h1>
+
+      <div className='m-8 flex flex-row justify-between'>
+        <div className='flex flex-row gap-4'>
+          <CornerMarkings className='aspect-square w-1/4' hoverEffect={true}>
+            <img
+              className='aspect-square'
+              src={targetData.imageUrl ?? ''}
+              alt={targetData.name}
+            />
+          </CornerMarkings>
+          <div>
+            <h1>{targetData.name ?? 'Artist Name not found'}</h1>
+            <Link to={`/artist/${targetData.artistId}`}>
+              <h2>{targetData.artist.name ?? 'Artist Name not found'}</h2>
+            </Link>
+          </div>
+        </div>
+        <AverageRating averageRating={averageRating} />
+      </div>
+      <h1 className='mx-4 text-3xl'>Songs</h1>
+      <CornerMarkings className=' mx-4' hoverEffect={false}>
+        {targetData.songs.map((song: any) => (
+          <Link to={`/song/${song.id}`} key={song.id}>
+            <li className='hover:bg-lightsilver mx-4 flex flex-row items-center justify-between px-2 py-2'>
+              <div className=''>{truncateText(song.name, 40)}</div>
+              <img
+                className='aspect-square w-10'
+                src={song.imageUrl ?? ''}
+                alt={song.name}
+              />
+            </li>
+          </Link>
+        ))}
+      </CornerMarkings>
 
       <RatingForm
         targetId={targetData.id}
@@ -87,9 +108,14 @@ export default function Album() {
       <h2>Reviews</h2>
       <ul>
         {reviews.map(review => (
-          <li key={review.id}>
+          <li className='flex w-full flex-row gap-4' key={review.id}>
             <p>{review.content}</p>
             <p>By: {review.user.username}</p>
+            <img
+              src={review.user.profileImageUrl ?? ''}
+              alt={review.user.username}
+              className='aspect-square w-10 object-cover'
+            />
           </li>
         ))}
       </ul>

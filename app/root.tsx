@@ -13,6 +13,7 @@ import { redirect, type DataFunctionArgs } from '@remix-run/node'
 import { getAuthFromRequest } from './auth/auth'
 import { NavBar } from './components/NavBar'
 import './tailwind.css'
+import { NextUIProvider } from '@nextui-org/react'
 
 export async function loader({ request }: DataFunctionArgs) {
   let auth = await getAuthFromRequest(request)
@@ -44,16 +45,18 @@ export default function App() {
         <Links />
       </head>
       <body className='bg-silver h-screen text-black'>
-        <div className='flex h-full min-h-0 flex-col'>
-          <NavBar userId={userId} />
+        <NextUIProvider>
+          <div className='flex h-full min-h-0 flex-col'>
+            <NavBar userId={userId} />
 
-          <div className='h-full min-h-0 flex-grow'>
-            <Outlet />
+            <div className='h-full min-h-0 flex-grow'>
+              <Outlet />
+            </div>
           </div>
-        </div>
 
-        <ScrollRestoration />
-        <Scripts />
+          <ScrollRestoration />
+          <Scripts />
+        </NextUIProvider>
       </body>
     </html>
   )
