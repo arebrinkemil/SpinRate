@@ -1,4 +1,5 @@
 import { Form } from '@remix-run/react'
+import { Slider } from '@nextui-org/react'
 
 interface RatingFormProps {
   targetId: string
@@ -17,7 +18,18 @@ export default function RatingForm({
     <Form method='post'>
       <label>
         Rate this {targetType.toLowerCase()} (1-10):
-        <input type='number' name='rating' min='1' max='10' required />
+        <Slider
+          size='lg'
+          step={1}
+          color='foreground'
+          label='Rating'
+          showSteps={true}
+          maxValue={10}
+          minValue={1}
+          defaultValue={5}
+          className='max-w-md'
+          name='rating'
+        />
       </label>
       <input type='hidden' name='intent' value='rate' />
       <input type='hidden' name='type' value={targetType} />

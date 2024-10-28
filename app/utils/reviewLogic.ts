@@ -13,6 +13,11 @@ export async function getAllReviews(id: string, type: reviewType) {
         },
         include: {
           user: true,
+          comments: {
+            include: {
+              user: true,
+            },
+          },
         },
       })
       break
@@ -23,6 +28,11 @@ export async function getAllReviews(id: string, type: reviewType) {
         },
         include: {
           user: true,
+          comments: {
+            include: {
+              user: true,
+            },
+          },
         },
       })
       break
@@ -33,6 +43,11 @@ export async function getAllReviews(id: string, type: reviewType) {
         },
         include: {
           user: true,
+          comments: {
+            include: {
+              user: true,
+            },
+          },
         },
       })
       break
@@ -84,4 +99,15 @@ export async function addReview(
   }
 
   return reviewData
+}
+
+export async function getReviewById(reviewId: string) {
+  return await prisma.review.findUnique({
+    where: {
+      id: reviewId,
+    },
+    include: {
+      user: true,
+    },
+  })
 }

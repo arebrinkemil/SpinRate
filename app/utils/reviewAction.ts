@@ -1,6 +1,8 @@
 import { requireAuthCookie } from '~/auth/auth'
 import { giveRating } from './ratingLogic'
 import { addReview } from './reviewLogic'
+import { addComment } from './commentLogic'
+import exp from 'constants'
 
 export async function handleRatingAction(
   targetId: string,
@@ -48,6 +50,27 @@ export async function handleReviewAction(
     await addReview(targetId, targetType, reviewContent as string, accountId)
   } catch (error) {
     console.error('handleReviewAction Error:', error)
+    throw error
+  }
+}
+
+export async function handleCommentAction(
+  targetId: string,
+  formData: FormData,
+  request: Request,
+) {
+  try {
+    const accountId = await requireAuthCookie(request)
+    const commentContent = formData.get('comment')
+
+    if (!commentContent) {
+      throw new Error('Comment content is missing')
+    }
+
+    console.log('Processing comment:', commentContent)
+    await addComment(targetId, commentContent as string, accountId)
+  } catch (error) {
+    console.error('handleCommentAction Error:', error)
     throw error
   }
 }

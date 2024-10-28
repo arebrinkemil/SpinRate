@@ -1,56 +1,55 @@
-import { useLoaderData, useActionData, Form, Link } from '@remix-run/react'
-import AverageRating from '~/components/AverageRating'
+import { useLoaderData, Form, Link } from '@remix-run/react'
 import {
   LoaderFunctionArgs,
   ActionFunctionArgs,
   redirect,
 } from '@remix-run/node'
+import AverageRating from '~/components/AverageRating'
 import { loadReviewData } from '~/utils/reviewLoader'
-import { handleRatingAction, handleReviewAction } from '~/utils/reviewAction'
+import {
+  handleRatingAction,
+  handleReviewAction,
+  handleCommentAction,
+} from '~/utils/reviewAction'
 import { notFound } from '~/http/bad-request'
 import RatingForm from '~/components/RatingForm'
 import ReviewForm from '~/components/ReviewForm'
-import { truncateText } from '~/utils/truncate'
 import CornerMarkings from '~/components/CornerMarkings'
+import CommentForm from '~/components/Comment'
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
   const targetId = String(params.id)
   const targetType = 'ALBUM'
 
-  if (!targetId || !['SONG', 'ALBUM', 'ARTIST'].includes(targetType))
-    throw notFound()
+  if (!targetId) throw notFound()
 
-  const data = await loadReviewData(
-    request,
-    targetId,
-    targetType as 'SONG' | 'ALBUM' | 'ARTIST',
-  )
+  const data = await loadReviewData(request, targetId, targetType)
+
   return data
 }
 
 export async function action({ request, params }: ActionFunctionArgs) {
-  try {
-    const formData = await request.formData()
+  const formData = await request.formData()
+  const targetId = String(params.id)
+  const targetType = 'ALBUM'
+  const intent = formData.get('intent')
+  const reviewId = String(formData.get('reviewId'))
 
-    const targetId = String(params.id)
-    const targetType = 'ALBUM'
-    const intent = formData.get('intent')
+  if (!targetId) return new Response('Invalid action', { status: 400 })
 
-    if (!targetId) return new Response('Invalid action', { status: 400 })
-
-    if (intent === 'rate') {
-      await handleRatingAction(targetId, targetType, formData, request)
-      return redirect(`/album/${targetId}`)
-    } else if (intent === 'review') {
-      await handleReviewAction(targetId, targetType, formData, request)
-      return redirect(`/album/${targetId}`)
-    }
-
-    return new Response('Invalid action', { status: 400 })
-  } catch (error) {
-    console.error('Action Error:', error)
-    return new Response('Internal Server Error', { status: 500 })
+  if (intent === 'rate') {
+    await handleRatingAction(targetId, targetType, formData, request)
+    return redirect(`/album/${targetId}`)
+  } else if (intent === 'review') {
+    await handleReviewAction(targetId, targetType, formData, request)
+    return redirect(`/album/${targetId}`)
+  } else if (intent === 'comment') {
+    if (!reviewId) return new Response('Invalid action', { status: 400 })
+    await handleCommentAction(reviewId, formData, request)
+    return redirect(`/album/${targetId}`)
   }
+
+  return new Response('Invalid action', { status: 400 })
 }
 
 export default function Album() {
@@ -80,11 +79,11 @@ export default function Album() {
         <AverageRating averageRating={averageRating} />
       </div>
       <h1 className='mx-4 text-3xl'>Songs</h1>
-      <CornerMarkings className=' mx-4' hoverEffect={false}>
+      <CornerMarkings className='mx-4' hoverEffect={false}>
         {targetData.songs.map((song: any) => (
           <Link to={`/song/${song.id}`} key={song.id}>
             <li className='hover:bg-lightsilver mx-4 flex flex-row items-center justify-between px-2 py-2'>
-              <div className=''>{truncateText(song.name, 40)}</div>
+              <div>{song.name}</div>
               <img
                 className='aspect-square w-10'
                 src={song.imageUrl ?? ''}
@@ -95,30 +94,51 @@ export default function Album() {
         ))}
       </CornerMarkings>
 
-      <RatingForm
-        targetId={targetData.id}
-        targetType='ALBUM'
-        hasRated={hasRated}
-      />
+      <div className='mx-4 flex w-full flex-row justify-center'>
+        <div className=' flex basis-1/2 flex-col'>
+          <RatingForm
+            targetId={targetData.id}
+            targetType='ALBUM'
+            hasRated={hasRated}
+          />
 
-      <h2>Leave a review</h2>
+          <h2>Leave a review</h2>
 
-      <ReviewForm targetId={targetData.id} targetType='ALBUM' />
+          <ReviewForm targetId={targetData.id} targetType='ALBUM' />
 
-      <h2>Reviews</h2>
-      <ul>
-        {reviews.map(review => (
-          <li className='flex w-full flex-row gap-4' key={review.id}>
-            <p>{review.content}</p>
-            <p>By: {review.user.username}</p>
-            <img
-              src={review.user.profileImageUrl ?? ''}
-              alt={review.user.username}
-              className='aspect-square w-10 object-cover'
-            />
-          </li>
-        ))}
-      </ul>
+          <h2>Reviews</h2>
+        </div>
+        <ul className='mx-8 flex basis-1/2 flex-col'>
+          <h3 className=' text-xl underline'>Reviews</h3>
+
+          {reviews.map(review => (
+            <li className='flex w-full flex-col' key={review.id}>
+              <div className='flex w-full flex-row justify-between gap-4'>
+                <p>{review.content}</p>
+                <p>By: {review.user.username}</p>
+                <img
+                  src={review.user.profileImageUrl ?? ''}
+                  alt={review.user.username}
+                  className='aspect-square w-10 object-cover'
+                />
+                <CommentForm
+                  reviewId={review.id}
+                  reviewContent={review.content}
+                />
+              </div>
+              <ul className='mx-4'>
+                <h3 className=' text-xl underline'>Comments</h3>
+                {review.comments.map(comment => (
+                  <li className='flex flex-row' key={comment.id}>
+                    <p>{comment.content}</p>
+                    <p>By: {comment.user.username}</p>
+                  </li>
+                ))}
+              </ul>
+            </li>
+          ))}
+        </ul>
+      </div>
     </div>
   )
 }

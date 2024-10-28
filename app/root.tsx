@@ -44,7 +44,7 @@ export default function App() {
         <Meta />
         <Links />
       </head>
-      <body className='bg-silver h-screen text-black'>
+      <body className='bg-silver  text-black'>
         <NextUIProvider>
           <div className='flex h-full min-h-0 flex-col'>
             <NavBar userId={userId} />
