@@ -15,7 +15,7 @@ import { notFound } from '~/http/bad-request'
 import RatingForm from '~/components/RatingForm'
 import ReviewForm from '~/components/ReviewForm'
 import CornerMarkings from '~/components/CornerMarkings'
-import CommentForm from '~/components/Comment'
+import ReviewDisplay from '~/components/ReviewDisplay'
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
   const targetId = String(params.id)
@@ -64,7 +64,7 @@ export default function Album() {
         <div className='flex flex-row gap-4'>
           <CornerMarkings className='aspect-square w-1/4' hoverEffect={true}>
             <img
-              className='aspect-square'
+              className='aspect-square object-cover'
               src={targetData.imageUrl ?? ''}
               alt={targetData.name}
             />
@@ -95,7 +95,7 @@ export default function Album() {
       </CornerMarkings>
 
       <div className='mx-4 flex w-full flex-row justify-center'>
-        <div className=' flex basis-1/2 flex-col'>
+        <div className='flex basis-1/2 flex-col'>
           <RatingForm
             targetId={targetData.id}
             targetType='ALBUM'
@@ -109,33 +109,9 @@ export default function Album() {
           <h2>Reviews</h2>
         </div>
         <ul className='mx-8 flex basis-1/2 flex-col'>
-          <h3 className=' text-xl underline'>Reviews</h3>
-
+          <h3 className='text-xl underline'>Reviews</h3>
           {reviews.map(review => (
-            <li className='flex w-full flex-col' key={review.id}>
-              <div className='flex w-full flex-row justify-between gap-4'>
-                <p>{review.content}</p>
-                <p>By: {review.user.username}</p>
-                <img
-                  src={review.user.profileImageUrl ?? ''}
-                  alt={review.user.username}
-                  className='aspect-square w-10 object-cover'
-                />
-                <CommentForm
-                  reviewId={review.id}
-                  reviewContent={review.content}
-                />
-              </div>
-              <ul className='mx-4'>
-                <h3 className=' text-xl underline'>Comments</h3>
-                {review.comments.map(comment => (
-                  <li className='flex flex-row' key={comment.id}>
-                    <p>{comment.content}</p>
-                    <p>By: {comment.user.username}</p>
-                  </li>
-                ))}
-              </ul>
-            </li>
+            <ReviewDisplay key={review.id} review={review} />
           ))}
         </ul>
       </div>

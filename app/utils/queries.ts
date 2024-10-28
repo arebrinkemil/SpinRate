@@ -23,5 +23,13 @@ export async function getAlbumData(id: string) {
 export async function getArtistData(id: string) {
   return await prisma.artist.findFirst({
     where: { id: id },
+    include: {
+      albums: {
+        include: {
+          songs: true,
+        },
+      },
+      songs: true,
+    },
   })
 }

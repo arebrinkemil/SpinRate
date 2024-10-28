@@ -14,6 +14,7 @@ import { getAuthFromRequest } from './auth/auth'
 import { NavBar } from './components/NavBar'
 import './tailwind.css'
 import { NextUIProvider } from '@nextui-org/react'
+import { Footer } from './components/Footer'
 
 export async function loader({ request }: DataFunctionArgs) {
   let auth = await getAuthFromRequest(request)
@@ -44,14 +45,15 @@ export default function App() {
         <Meta />
         <Links />
       </head>
-      <body className='bg-silver  text-black'>
+      <body className='bg-silver text-black'>
         <NextUIProvider>
-          <div className='flex h-full min-h-0 flex-col'>
+          <div className='flex h-full  min-h-screen flex-col'>
             <NavBar userId={userId} />
 
             <div className='h-full min-h-0 flex-grow'>
               <Outlet />
             </div>
+            <Footer />
           </div>
 
           <ScrollRestoration />
