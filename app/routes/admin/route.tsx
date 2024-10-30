@@ -209,7 +209,9 @@ export default function SpotifyPlaylistTracks() {
               hoverEffect={true}
             >
               <li className='h-full bg-black'>
-                <h1 className='text-platinum text-2xl'>{artist.name}</h1>
+                <Link to={`/artist/${artist.id}`}>
+                  <h1 className='text-platinum text-2xl'>{artist.name}</h1>
+                </Link>
                 <ul className='grid grid-cols-2 gap-2 p-4'>
                   {artistSongs[artist.id].map((song: any) => (
                     <Link to={`/song/${song.id}`} key={song.id}>

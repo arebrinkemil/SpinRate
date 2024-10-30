@@ -31,6 +31,7 @@ export default {
         platinum: '#E9E9E6',
         blue: '#1F7A8C',
         hallon: '#CE2D4F',
+        orange: '#ffa400',
       },
     },
   },
