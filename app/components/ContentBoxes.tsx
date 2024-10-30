@@ -35,10 +35,16 @@ export function AlbumBox({
               alt={album.name}
               className='h-full w-4/6 object-cover'
             />
-            <AverageRating
-              className='flex h-full w-2/6 items-center justify-center text-white'
-              averageRating={album.averageRating}
-            />
+            <div className='flex h-full w-2/6 flex-col items-center justify-center'>
+              <AverageRating
+                className=' text-white'
+                averageRating={album.averageRating}
+              />
+              <AverageRating
+                className=' text-white'
+                averageRating={album.averageRating}
+              />
+            </div>
           </div>
           <h1 className='text-platinum text-xl'>
             {' '}
@@ -66,10 +72,16 @@ export function SongBox({ song }: SongBoxProps) {
               alt={song.name}
               className='h-full w-4/6 object-cover'
             />
-            <AverageRating
-              className='flex h-full w-2/6 items-center justify-center text-white'
-              averageRating={song.averageRating}
-            />
+            <div className='flex h-full w-2/6 flex-col items-center justify-center'>
+              <AverageRating
+                className=' text-white'
+                averageRating={song.averageRating}
+              />
+              <AverageRating
+                className=' text-white'
+                averageRating={song.averageRating}
+              />
+            </div>
           </div>
           <h1 className='text-platinum text-xl'>{song.name}</h1>
 
@@ -95,10 +107,16 @@ export function ArtistBox({ artist }: ArtistBoxProps) {
               alt={artist.name}
               className='h-full w-4/6 object-cover'
             />
-            <AverageRating
-              className='flex h-full w-2/6 items-center justify-center text-white'
-              averageRating={artist.averageRating}
-            />
+            <div className='flex h-full w-2/6 flex-col items-center justify-center'>
+              <AverageRating
+                className=' text-white'
+                averageRating={artist.averageRating}
+              />
+              <AverageRating
+                className=' text-white'
+                averageRating={artist.averageRating}
+              />
+            </div>
           </div>
           <h1 className='text-platinum text-xl'>{artist.name}</h1>
         </li>

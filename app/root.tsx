@@ -63,23 +63,3 @@ export default function App() {
     </html>
   )
 }
-
-function IconLink({
-  icon,
-  href,
-  label,
-}: {
-  icon: string
-  href: string
-  label: string
-}) {
-  return (
-    <a
-      href={href}
-      className='text-gray text-center text-xs font-bold uppercase'
-    >
-      <img src={icon} aria-hidden className='inline-block h-8' />
-      <span className='mt-2 block'>{label}</span>
-    </a>
-  )
-}

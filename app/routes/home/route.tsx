@@ -119,7 +119,7 @@ export default function Home() {
         </button>
       </div>
 
-      <div className='grid grid-flow-row-dense grid-cols-2 gap-4 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6'>
+      <div className='grid grid-flow-row-dense grid-cols-2 gap-4 md:grid-cols-2 lg:grid-cols-4 2xl:grid-cols-6'>
         {filteredData.map(item => {
           if (item.type === 'album') {
             return (

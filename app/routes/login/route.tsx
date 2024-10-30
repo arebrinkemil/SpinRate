@@ -1,12 +1,15 @@
 import { json, redirect, type DataFunctionArgs } from '@remix-run/node'
 import { Form, Link, useActionData } from '@remix-run/react'
+import React from 'react'
 
 import { redirectIfLoggedInLoader, setAuthOnResponse } from '~/auth/auth'
 import { Button } from '~/components/button'
-import { Input, Label } from '~/components/input'
-
+import { Label } from '~/components/input'
+import { Input } from '@nextui-org/react'
 import { validate } from './validate'
 import { login } from './queries'
+import { EyeFilledIcon } from '~/components/EyeFilledIcon'
+import { EyeSlashFilledIcon } from '~/components/EyeSlashFilledIcon'
 
 export const loader = redirectIfLoggedInLoader
 
@@ -35,6 +38,9 @@ export async function action({ request }: DataFunctionArgs) {
 
 export default function Signup() {
   let actionResult = useActionData<typeof action>()
+  const [isVisible, setIsVisible] = React.useState(false)
+
+  const toggleVisibility = () => setIsVisible(!isVisible)
 
   return (
     <div className='mt-20 flex min-h-full flex-1 flex-col sm:px-6 lg:px-8'>
@@ -59,16 +65,24 @@ export default function Signup() {
                   </span>
                 )}
               </Label>
+
               <Input
                 autoFocus
+                isClearable
                 id='email'
                 name='email'
-                type='email'
                 autoComplete='email'
+                type='email'
+                label='Email'
+                variant='bordered'
+                placeholder='Enter your email'
+                defaultValue='junior@nextui.org'
                 aria-describedby={
                   actionResult?.errors?.email ? 'email-error' : 'login-header'
                 }
-                required
+                onClear={() => console.log('input cleared')}
+                className=''
+                radius='none'
               />
             </div>
 
@@ -81,18 +95,40 @@ export default function Signup() {
                   </span>
                 )}
               </Label>
+
               <Input
                 id='password'
                 name='password'
-                type='password'
+                label='Password'
+                variant='bordered'
+                placeholder='Enter your password'
+                endContent={
+                  <button
+                    className='focus:outline-none'
+                    type='button'
+                    onClick={toggleVisibility}
+                    aria-label='toggle password visibility'
+                  >
+                    {isVisible ? (
+                      <EyeSlashFilledIcon className='text-default-400 pointer-events-none text-2xl' />
+                    ) : (
+                      <EyeFilledIcon className='text-default-400 pointer-events-none text-2xl' />
+                    )}
+                  </button>
+                }
+                type={isVisible ? 'text' : 'password'}
                 autoComplete='current-password'
                 aria-describedby='password-error'
+                radius='none'
                 required
+                className=''
               />
             </div>
 
             <div>
-              <Button type='submit'>Sign in</Button>
+              <Button className='rounded-none text-black' type='submit'>
+                Sign in
+              </Button>
             </div>
             <div className='text-gray text-sm'>
               Don't have an account?{' '}
