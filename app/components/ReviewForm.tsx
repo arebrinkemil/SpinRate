@@ -9,7 +9,8 @@ import {
   useDisclosure,
 } from '@nextui-org/react'
 import { Textarea } from '@nextui-org/input'
-
+import Lottie from 'lottie-react'
+import soundwave from '~/assets/soundwave.json'
 interface ReviewFormProps {
   targetId: string
   targetType: 'SONG' | 'ALBUM' | 'ARTIST'
@@ -18,37 +19,59 @@ interface ReviewFormProps {
 export default function ReviewForm({ targetId, targetType }: ReviewFormProps) {
   const { isOpen, onOpen, onOpenChange } = useDisclosure()
 
+  let buttonClass = 'bg-lightsilver'
+  switch (targetType) {
+    case 'ARTIST':
+      buttonClass = 'bg-orange'
+      break
+    case 'ALBUM':
+      buttonClass = 'bg-blue'
+      break
+    case 'SONG':
+      buttonClass = 'bg-hallon'
+      break
+    default:
+      break
+  }
+
   return (
     <>
-      <Button onPress={onOpen}>REVIEW</Button>
+      <Button className={`${buttonClass} rounded-none`} onPress={onOpen}>
+        REVIEW
+      </Button>
+
       <Modal
         backdrop='opaque'
         isOpen={isOpen}
         onOpenChange={onOpenChange}
         classNames={{
           backdrop:
-            'bg-gradient-to-t from-zinc-900 to-zinc-900/10 backdrop-opacity-20',
+            'bg-gradient-to-t from-zinc-900 to-zinc-900/10 backdrop-opacity-10',
         }}
+        className='bg-lightsilver rounded-none'
       >
         <ModalContent>
           {onClose => (
-            <div className='p-8'>
-              <Form method='post'>
-                <label>
-                  Your review of this {targetType.toLowerCase()}:
-                  <Textarea
-                    name='review'
-                    variant={'underlined'}
-                    label='Description'
-                    labelPlacement='outside'
-                    placeholder='Enter your review'
-                    className='col-span-12 mb-6 md:col-span-6 md:mb-0'
-                  />
-                </label>
-                <input type='hidden' name='intent' value='review' />
-                <input type='hidden' name='type' value={targetType} />
-                <button type='submit'>Submit Review</button>
-              </Form>
+            <div className=''>
+              <div className='p-8'>
+                <Form method='post'>
+                  <label>
+                    Your review of this {targetType.toLowerCase()}:
+                    <Textarea
+                      name='review'
+                      variant={'underlined'}
+                      label='Description'
+                      labelPlacement='outside'
+                      placeholder='Enter your review'
+                      className='col-span-12 mb-6 md:col-span-6 md:mb-0'
+                    />
+                  </label>
+                  <input type='hidden' name='intent' value='review' />
+                  <input type='hidden' name='type' value={targetType} />
+                  <button type='submit'>Submit Review</button>
+                </Form>
+              </div>
+              <Lottie className='px-2' animationData={soundwave} loop={true} />
             </div>
           )}
         </ModalContent>

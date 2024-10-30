@@ -30,6 +30,7 @@ export default {
         lightsilver: '#C1C1BA',
         platinum: '#E9E9E6',
         blue: '#1F7A8C',
+        lightblue: '#84B2B9',
         hallon: '#CE2D4F',
         orange: '#ffa400',
       },

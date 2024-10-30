@@ -72,7 +72,7 @@ export default function Artist() {
         <div className='flex flex-row gap-4'>
           <CornerMarkings
             mediaType='ARTIST'
-            className='aspect-square w-1/4'
+            className='aspect-square w-2/4'
             hoverEffect={true}
           >
             <img
@@ -82,7 +82,9 @@ export default function Artist() {
             />
           </CornerMarkings>
           <div>
-            <h1>{targetData.name ?? 'Artist Name not found'}</h1>
+            <h1 className='text-4xl font-bold'>
+              {targetData.name ?? 'Artist Name not found'}
+            </h1>
           </div>
         </div>
         <AverageRating averageRating={averageRating} />
