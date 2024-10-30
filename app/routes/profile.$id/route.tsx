@@ -26,6 +26,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   if (!user) throw new Response('User not found', { status: 404 })
 
   const ratings = await getUserRatings(userId)
+  // const reviews = await getUserReviews(userId) add this later
 
   return { user, ratings }
 }
