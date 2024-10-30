@@ -72,7 +72,11 @@ export default function Song() {
 
       <div className='m-8 flex flex-row justify-between'>
         <div className='flex flex-row gap-4'>
-          <CornerMarkings className='aspect-square w-1/4' hoverEffect={true}>
+          <CornerMarkings
+            mediaType='SONG'
+            className='aspect-square w-1/4'
+            hoverEffect={true}
+          >
             <img
               className='aspect-square object-cover'
               src={targetData.imageUrl ?? ''}

@@ -6,14 +6,34 @@ interface CornerMarkingsProps {
   children: React.ReactNode
   hoverEffect?: boolean
   className?: string
+  mediaType?: 'ARTIST' | 'ALBUM' | 'SONG' | 'DEFAULT'
 }
 
 const CornerMarkings: React.FC<CornerMarkingsProps> = ({
   children,
   hoverEffect = true,
   className = '',
+  mediaType,
 }) => {
   const mergedClasses = twMerge('relative p-4', className)
+
+  let cornerMarkClass = ''
+  switch (mediaType) {
+    case 'ARTIST':
+      cornerMarkClass = 'corner-mark-artist'
+      break
+    case 'ALBUM':
+      cornerMarkClass = 'corner-mark-album'
+      break
+    case 'SONG':
+      cornerMarkClass = 'corner-mark-single'
+      break
+    case 'DEFAULT':
+      cornerMarkClass = 'corner-mark'
+      break
+    default:
+      break
+  }
 
   return (
     <>
@@ -25,20 +45,16 @@ const CornerMarkings: React.FC<CornerMarkingsProps> = ({
           transition={{ duration: 0.3 }}
         >
           <div className='pointer-events-none absolute inset-0'>
-            <span className='corner-mark top-left'></span>
-            <span className='corner-mark top-right'></span>
-            <span className='corner-mark bottom-left'></span>
-            <span className='corner-mark bottom-right'></span>
+            <span className={`top-left ${cornerMarkClass}`}></span>
+            <span className={`bottom-right ${cornerMarkClass}`}></span>
           </div>
           {children}
         </motion.div>
       ) : (
         <motion.div className={mergedClasses}>
           <div className='pointer-events-none absolute inset-0'>
-            <span className='corner-mark top-left'></span>
-            <span className='corner-mark top-right'></span>
-            <span className='corner-mark bottom-left'></span>
-            <span className='corner-mark bottom-right'></span>
+            <span className={`top-left ${cornerMarkClass}`}></span>
+            <span className={`bottom-right ${cornerMarkClass}`}></span>
           </div>
           {children}
         </motion.div>

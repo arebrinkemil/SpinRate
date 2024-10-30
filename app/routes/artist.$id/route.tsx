@@ -70,7 +70,11 @@ export default function Artist() {
     <div>
       <div className='m-8 flex flex-row justify-between'>
         <div className='flex flex-row gap-4'>
-          <CornerMarkings className='aspect-square w-1/4' hoverEffect={true}>
+          <CornerMarkings
+            mediaType='ARTIST'
+            className='aspect-square w-2/4'
+            hoverEffect={true}
+          >
             <img
               className='aspect-square object-cover'
               src={targetData.imageUrl ?? ''}
@@ -78,13 +82,20 @@ export default function Artist() {
             />
           </CornerMarkings>
           <div>
-            <h1>{targetData.name ?? 'Artist Name not found'}</h1>
+            <h1 className='text-4xl font-bold'>
+              {targetData.name ?? 'Artist Name not found'}
+            </h1>
           </div>
         </div>
         <AverageRating averageRating={averageRating} />
       </div>
       {targetData.albums.map((album: any) => (
-        <CornerMarkings key={album.id} className='m-4' hoverEffect={false}>
+        <CornerMarkings
+          mediaType='ALBUM'
+          key={album.id}
+          className='m-4'
+          hoverEffect={false}
+        >
           <div className='my-4'>
             <li className='hover:bg-lightsilver mx-4 flex flex-row items-center justify-between'>
               <Link to={`/album/${album.id}`}>

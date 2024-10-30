@@ -31,10 +31,7 @@ export default function ReviewDisplay({ review }: ReviewDisplayProps) {
   return (
     <li className='flex w-full flex-col'>
       <div className='flex w-full flex-row justify-between gap-4'>
-        <CornerMarkings
-          className='mt-4 flex w-full cursor-pointer'
-          hoverEffect={true}
-        >
+        <div className='mt-4 flex w-full cursor-pointer flex-row items-center justify-between border-2 border-b-4 border-black  p-2'>
           <div
             className='flex w-full flex-row items-center justify-between'
             onClick={onOpen}
@@ -49,22 +46,19 @@ export default function ReviewDisplay({ review }: ReviewDisplayProps) {
               />
             </div>
           </div>
-        </CornerMarkings>
+        </div>
 
         <Modal
           isOpen={isOpen}
           onOpenChange={onOpenChange}
           isDismissable={true}
           isKeyboardDismissDisabled={true}
-          className='rounded-none'
+          className='bg-lightsilver rounded-none'
         >
           <ModalContent>
             {onClose => (
-              <div className='p-4'>
-                <CornerMarkings
-                  className='mt-4 flex flex-row items-center justify-between'
-                  hoverEffect={false}
-                >
+              <div className='p-4 '>
+                <div className='mt-4 flex flex-row items-center justify-between border-2 border-b-4 border-black  p-2'>
                   <p>{review.content}</p>
                   <div className='flex flex-col-reverse items-center'>
                     <p>{review.user.username}</p>
@@ -74,7 +68,7 @@ export default function ReviewDisplay({ review }: ReviewDisplayProps) {
                       className='aspect-square w-10 object-cover'
                     />
                   </div>
-                </CornerMarkings>
+                </div>
                 <ul className='mx-4'>
                   <h3 className='text-xl underline'>Comments</h3>
                   {review.comments.map(comment => (

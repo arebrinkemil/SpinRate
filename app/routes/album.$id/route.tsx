@@ -62,7 +62,11 @@ export default function Album() {
 
       <div className='m-8 flex flex-row justify-between'>
         <div className='flex flex-row gap-4'>
-          <CornerMarkings className='aspect-square w-1/4' hoverEffect={true}>
+          <CornerMarkings
+            mediaType='ALBUM'
+            className='aspect-square w-1/4'
+            hoverEffect={true}
+          >
             <img
               className='aspect-square object-cover'
               src={targetData.imageUrl ?? ''}
@@ -79,7 +83,7 @@ export default function Album() {
         <AverageRating averageRating={averageRating} />
       </div>
       <h1 className='mx-4 text-3xl'>Songs</h1>
-      <CornerMarkings className='mx-4' hoverEffect={false}>
+      <CornerMarkings mediaType='SONG' className='mx-4' hoverEffect={false}>
         {targetData.songs.map((song: any) => (
           <Link to={`/song/${song.id}`} key={song.id}>
             <li className='hover:bg-lightsilver mx-4 flex flex-row items-center justify-between px-2 py-2'>

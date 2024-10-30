@@ -6,8 +6,11 @@ export async function getCollectedSongs() {
 }
 
 export async function getArtists() {
-  console.log('Getting artists...')
-  return await prisma.artist.findMany()
+  return await prisma.artist.findMany({
+    include: {
+      reviews: true,
+    },
+  })
 }
 
 export async function getArtistSongs(artistId: string) {
@@ -24,6 +27,7 @@ export async function getAlbums() {
     },
   })
 }
+
 export async function getAlbumSongs(albumId: string) {
   console.log('Getting album songs...')
   return await prisma.song.findMany({
