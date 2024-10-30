@@ -183,7 +183,11 @@ export default function SpotifyPlaylistTracks() {
             name='playlistTracks'
             value={JSON.stringify(playlistTracks)}
           />
-          <CornerMarkings hoverEffect={false} className='aspect-square w-1/3'>
+          <CornerMarkings
+            mediaType='DEFAULT'
+            hoverEffect={false}
+            className='aspect-square w-1/3'
+          >
             <button className='p-2' type='submit'>
               Process Playlist
             </button>
@@ -199,6 +203,7 @@ export default function SpotifyPlaylistTracks() {
         <ul className='grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3'>
           {getArtistsData.map((artist: any) => (
             <CornerMarkings
+              mediaType='ARTIST'
               className='aspect-square'
               key={artist.id}
               hoverEffect={true}

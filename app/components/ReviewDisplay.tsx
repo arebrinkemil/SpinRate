@@ -32,6 +32,7 @@ export default function ReviewDisplay({ review }: ReviewDisplayProps) {
     <li className='flex w-full flex-col'>
       <div className='flex w-full flex-row justify-between gap-4'>
         <CornerMarkings
+          mediaType='DEFAULT'
           className='mt-4 flex w-full cursor-pointer'
           hoverEffect={true}
         >
@@ -62,6 +63,7 @@ export default function ReviewDisplay({ review }: ReviewDisplayProps) {
             {onClose => (
               <div className='p-4'>
                 <CornerMarkings
+                  mediaType='DEFAULT'
                   className='mt-4 flex flex-row items-center justify-between'
                   hoverEffect={false}
                 >

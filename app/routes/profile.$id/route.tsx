@@ -40,6 +40,7 @@ export default function Profile() {
   return (
     <div className='m-10 flex flex-col gap-10'>
       <CornerMarkings
+        mediaType='DEFAULT'
         hoverEffect={false}
         className='flex flex-row justify-between'
       >
@@ -68,7 +69,7 @@ export default function Profile() {
           {ratings.map((rating, index) => (
             <li key={index}>
               {rating.type === 'album' && (
-                <CornerMarkings hoverEffect={true}>
+                <CornerMarkings mediaType='ALBUM' hoverEffect={true}>
                   <div className='flex w-full flex-row justify-between'>
                     <div>
                       <h2>
@@ -85,7 +86,7 @@ export default function Profile() {
                 </CornerMarkings>
               )}
               {rating.type === 'song' && (
-                <CornerMarkings hoverEffect={true}>
+                <CornerMarkings mediaType='SONG' hoverEffect={true}>
                   <Link to={`/song/${rating.data.id}`}>
                     <div className='flex w-full flex-row justify-between'>
                       <div>
@@ -104,7 +105,7 @@ export default function Profile() {
                 </CornerMarkings>
               )}
               {rating.type === 'artist' && (
-                <CornerMarkings hoverEffect={true}>
+                <CornerMarkings mediaType='ARTIST' hoverEffect={true}>
                   <div>
                     <h2>Artist: {rating.data.name}</h2>
                     <p>Rating: {rating.ratingValue}</p>
