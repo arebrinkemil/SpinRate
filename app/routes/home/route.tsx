@@ -4,9 +4,11 @@ import { useState } from 'react'
 import { requireAuthCookie } from '~/auth/auth'
 import { getAlbums, getSingleSongs, getArtists } from './queries'
 import { truncateText } from '~/utils/truncate'
+import { SanityDocument } from '@sanity/client'
 
 import { getAverageRating } from '~/utils/ratingLogic'
 import { AlbumBox, SongBox, ArtistBox } from '~/components/ContentBoxes'
+import { client } from '~/sanity/client'
 
 export const meta: MetaFunction = () => {
   return [{ title: 'SPINRATE' }]
@@ -17,7 +19,17 @@ type LoaderData = {
   songs: any[]
   artists: any[]
   data: any[]
+  sanityData: SanityDocument[]
 }
+
+const POSTS_QUERY = `*[_type == "featuredContent"]{
+  _id,
+  _createdAt,
+  songs,
+  artists,
+  albums
+}
+`
 
 function shuffleArray<T>(array: T[] = []): T[] {
   for (let i = array.length - 1; i > 0; i--) {
@@ -70,16 +82,19 @@ export const loader: LoaderFunction = async ({ request }) => {
     ...artistsWithRatings,
   ])
 
+  const sanityData = await client.fetch<SanityDocument[]>(POSTS_QUERY)
+
   return json<LoaderData>({
     albums: albumsWithRatings,
     songs: songsWithRatings,
     artists: artistsWithRatings,
     data: combinedData,
+    sanityData: sanityData,
   })
 }
 
 export default function Home() {
-  const { data } = useLoaderData<LoaderData>()
+  const { data, sanityData } = useLoaderData<LoaderData>()
 
   const [filter, setFilter] = useState<'all' | 'album' | 'song' | 'artist'>(
     'all',
@@ -138,6 +153,43 @@ export default function Home() {
           }
           return null
         })}
+      </div>
+
+      <div>
+        <h2 className='mt-8 text-2xl font-bold'>Sanity Data</h2>
+        {sanityData.map(post => (
+          <div key={post._id} className='mt-4'>
+            <h3 className='text-xl font-semibold'>Post ID: {post._id}</h3>
+            <p>Created At: {new Date(post._createdAt).toLocaleString()}</p>
+            <div>
+              <h4 className='mt-2 font-semibold'>Songs:</h4>
+              <ul>
+                {post.songs &&
+                  post.songs.map((songId: string) => (
+                    <li key={songId}>{songId}</li>
+                  ))}
+              </ul>
+            </div>
+            <div>
+              <h4 className='mt-2 font-semibold'>Artists:</h4>
+              <ul>
+                {post.artists &&
+                  post.artists.map((artistId: string) => (
+                    <li key={artistId}>{artistId}</li>
+                  ))}
+              </ul>
+            </div>
+            <div>
+              <h4 className='mt-2 font-semibold'>Albums:</h4>
+              <ul>
+                {post.albums &&
+                  post.albums.map((albumId: string) => (
+                    <li key={albumId}>{albumId}</li>
+                  ))}
+              </ul>
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   )
