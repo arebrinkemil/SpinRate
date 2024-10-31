@@ -1,12 +1,16 @@
 import { json, type ActionFunctionArgs, redirect } from '@remix-run/node'
 import { Form, Link, useActionData } from '@remix-run/react'
+import React from 'react'
 
 import { redirectIfLoggedInLoader, setAuthOnResponse } from '~/auth/auth'
-import { Label, Input } from '~/components/input'
+import { Label } from '~/components/input'
 import { Button } from '~/components/button'
-
+import { Input } from '@nextui-org/react'
 import { validate } from './validate'
 import { createAccount } from './queries'
+import { EyeFilledIcon } from '~/components/EyeFilledIcon'
+import { EyeSlashFilledIcon } from '~/components/EyeSlashFilledIcon'
+import { Textarea } from '@nextui-org/input'
 
 export const loader = redirectIfLoggedInLoader
 
@@ -44,6 +48,9 @@ export async function action({ request }: ActionFunctionArgs) {
 
 export default function Signup() {
   let actionResult = useActionData<typeof action>()
+  const [isVisible, setIsVisible] = React.useState(false)
+
+  const toggleVisibility = () => setIsVisible(!isVisible)
 
   return (
     <div className='mt-20 flex min-h-full flex-1 flex-col sm:px-6 lg:px-8'>
@@ -68,16 +75,22 @@ export default function Signup() {
                   </span>
                 )}
               </Label>
+
               <Input
                 autoFocus
+                isClearable
                 id='email'
                 name='email'
-                type='email'
                 autoComplete='email'
+                type='email'
+                label='Email'
+                variant='bordered'
+                placeholder='Enter your email'
                 aria-describedby={
                   actionResult?.errors?.email ? 'email-error' : 'signup-header'
                 }
                 required
+                radius='none'
               />
             </div>
 
@@ -90,15 +103,35 @@ export default function Signup() {
                   </span>
                 )}
               </Label>
+
               <Input
                 id='password'
                 name='password'
-                type='password'
+                label='Password'
+                variant='bordered'
+                placeholder='Enter your password'
+                endContent={
+                  <button
+                    className='focus:outline-none'
+                    type='button'
+                    onClick={toggleVisibility}
+                    aria-label='toggle password visibility'
+                  >
+                    {isVisible ? (
+                      <EyeSlashFilledIcon className='text-default-400 pointer-events-none text-2xl' />
+                    ) : (
+                      <EyeFilledIcon className='text-default-400 pointer-events-none text-2xl' />
+                    )}
+                  </button>
+                }
+                type={isVisible ? 'text' : 'password'}
                 autoComplete='current-password'
                 aria-describedby={
                   actionResult?.errors?.password ? 'password-error' : undefined
                 }
+                radius='none'
                 required
+                className=''
               />
             </div>
 
@@ -111,15 +144,23 @@ export default function Signup() {
                   </span>
                 )}
               </Label>
+
               <Input
+                autoFocus
+                isClearable
                 id='username'
                 name='username'
                 type='text'
                 autoComplete='username'
+                label='Username'
+                variant='bordered'
                 aria-describedby={
                   actionResult?.errors?.username ? 'username-error' : undefined
                 }
                 required
+                onClear={() => console.log('input cleared')}
+                className=''
+                radius='none'
               />
             </div>
 
@@ -135,14 +176,16 @@ export default function Signup() {
               <Input
                 id='firstName'
                 name='firstName'
+                radius='none'
+                label='First Name'
                 type='text'
+                variant='bordered'
                 autoComplete='given-name'
                 aria-describedby={
                   actionResult?.errors?.firstName
                     ? 'firstName-error'
                     : undefined
                 }
-                required
               />
             </div>
 
@@ -159,11 +202,13 @@ export default function Signup() {
                 id='lastName'
                 name='lastName'
                 type='text'
+                radius='none'
+                variant='bordered'
+                label='Last Name'
                 autoComplete='family-name'
                 aria-describedby={
                   actionResult?.errors?.lastName ? 'lastName-error' : undefined
                 }
-                required
               />
             </div>
 
@@ -176,11 +221,14 @@ export default function Signup() {
                   </span>
                 )}
               </Label>
-              <textarea
+              <Textarea
                 id='description'
                 name='description'
+                radius='none'
+                label='Description'
+                variant='bordered'
                 rows={4}
-                className='mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm'
+                className=' mt-1 block w-full  focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm'
                 aria-describedby={
                   actionResult?.errors?.description
                     ? 'description-error'
@@ -198,10 +246,14 @@ export default function Signup() {
                   </span>
                 )}
               </Label>
+
               <Input
                 id='profileImageUrl'
                 name='profileImageUrl'
-                type='url'
+                type='text'
+                radius='none'
+                variant='bordered'
+                label='Profile Image URL'
                 autoComplete='url'
                 aria-describedby={
                   actionResult?.errors?.profileImageUrl

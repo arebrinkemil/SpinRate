@@ -54,7 +54,7 @@ export default function Signup() {
       </div>
 
       <div className='mt-10 sm:mx-auto sm:w-full sm:max-w-[480px]'>
-        <div className='bg-white px-6 py-12 shadow sm:rounded-lg sm:px-12'>
+        <div className='bg-lightsilver px-6 py-12  sm:px-12'>
           <Form className='space-y-6' method='post'>
             <div>
               <Label htmlFor='email'>
@@ -76,7 +76,6 @@ export default function Signup() {
                 label='Email'
                 variant='bordered'
                 placeholder='Enter your email'
-                defaultValue='junior@nextui.org'
                 aria-describedby={
                   actionResult?.errors?.email ? 'email-error' : 'login-header'
                 }
@@ -126,8 +125,8 @@ export default function Signup() {
             </div>
 
             <div>
-              <Button className='rounded-none text-black' type='submit'>
-                Sign in
+              <Button className='bg-blue' type='submit'>
+                <p className='text-black'>Sign in</p>
               </Button>
             </div>
             <div className='text-gray text-sm'>
