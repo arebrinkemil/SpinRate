@@ -16,11 +16,11 @@ interface ReviewDisplayProps {
   review: {
     id: string
     content: string
-    user: { username: string; profileImageUrl: string | null }
+    user: { id: string; username: string; profileImageUrl: string | null }
     comments: Array<{
       id: string
       content: string
-      user: { username: string }
+      user: { id: string; username: string }
     }>
   }
 }
@@ -38,7 +38,9 @@ export default function ReviewDisplay({ review }: ReviewDisplayProps) {
           >
             <p>{review.content}</p>
             <div className='flex flex-col-reverse items-center'>
-              <p>{review.user.username}</p>
+              <Link to={`/profile/${review.user.id}`}>
+                {review.user.username}
+              </Link>
               <img
                 src={review.user.profileImageUrl ?? ''}
                 alt={review.user.username}
@@ -61,7 +63,9 @@ export default function ReviewDisplay({ review }: ReviewDisplayProps) {
                 <div className='mt-4 flex flex-row items-center justify-between border-2 border-b-4 border-black  p-2'>
                   <p>{review.content}</p>
                   <div className='flex flex-col-reverse items-center'>
-                    <p>{review.user.username}</p>
+                    <Link to={`/profile/${review.user.id}`}>
+                      {review.user.username}
+                    </Link>
                     <img
                       src={review.user.profileImageUrl ?? ''}
                       alt={review.user.username}
@@ -73,7 +77,9 @@ export default function ReviewDisplay({ review }: ReviewDisplayProps) {
                   <h3 className='text-xl underline'>Comments</h3>
                   {review.comments.map(comment => (
                     <li className='flex flex-row gap-1' key={comment.id}>
-                      <p>{comment.user.username}: </p>
+                      <Link to={`/profile/${comment.user.id}`}>
+                        {comment.user.username}
+                      </Link>
                       <p> {comment.content}</p>
                     </li>
                   ))}
@@ -91,7 +97,9 @@ export default function ReviewDisplay({ review }: ReviewDisplayProps) {
         <h3 className='text-xl underline'></h3>
         {review.comments.map(comment => (
           <li className='flex flex-row gap-1' key={comment.id}>
-            <p>{comment.user.username}: </p>
+            <Link to={`/profile/${comment.user.id}`}>
+              {comment.user.username}
+            </Link>
             <p> {comment.content}</p>
           </li>
         ))}
