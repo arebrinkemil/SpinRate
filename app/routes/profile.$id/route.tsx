@@ -16,27 +16,24 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const accountId = await requireAuthCookie(request)
   const userId = String(params.id)
 
-  if (accountId !== userId) {
-    return redirect(`/home`)
-  }
-
   if (!params.id) throw new Response('User not found', { status: 404 })
 
   const user = await getUserData(userId)
   if (!user) throw new Response('User not found', { status: 404 })
 
   const ratings = await getUserRatings(userId)
-  // const reviews = await getUserReviews(userId) add this later
 
-  return { user, ratings }
+  const isOwner = accountId === userId
+
+  return { user, ratings, isOwner }
 }
 
 export default function Profile() {
-  const { user, ratings } = useLoaderData<{
+  const { user, ratings, isOwner } = useLoaderData<{
     user: Account
     ratings: RatingData[]
+    isOwner: boolean
   }>()
-
   return (
     <div className='m-10 flex flex-col gap-10'>
       <CornerMarkings
@@ -52,6 +49,11 @@ export default function Profile() {
             FIRSTNAME: {user.firstName} <br></br> LASTNAME: {user.lastName}
           </p>
           <p>DESCRIPTION: {user.description}</p>
+          {isOwner && (
+            <Link to={`/profile/edit`} className='btn-primary'>
+              Edit Profile
+            </Link>
+          )}
         </div>
         {user.profileImageUrl && (
           <img
