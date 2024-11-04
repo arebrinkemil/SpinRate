@@ -5,28 +5,52 @@ type RatingType = 'SONG' | 'ALBUM' | 'ARTIST'
 export async function getAverageRating(
   id: string,
   type: RatingType,
-): Promise<number | null> {
-  let ratings
+): Promise<{
+  verifiedAverage: number | null
+  unverifiedAverage: number | null
+}> {
+  let verifiedRatings, unverifiedRatings
 
   switch (type) {
     case 'SONG':
-      ratings = await prisma.rating.findMany({
+      verifiedRatings = await prisma.rating.findMany({
         where: {
           songId: id,
+          verified: true,
+        },
+      })
+      unverifiedRatings = await prisma.rating.findMany({
+        where: {
+          songId: id,
+          verified: false,
         },
       })
       break
     case 'ALBUM':
-      ratings = await prisma.rating.findMany({
+      verifiedRatings = await prisma.rating.findMany({
         where: {
           albumId: id,
+          verified: true,
+        },
+      })
+      unverifiedRatings = await prisma.rating.findMany({
+        where: {
+          albumId: id,
+          verified: false,
         },
       })
       break
     case 'ARTIST':
-      ratings = await prisma.rating.findMany({
+      verifiedRatings = await prisma.rating.findMany({
         where: {
           artistId: id,
+          verified: true,
+        },
+      })
+      unverifiedRatings = await prisma.rating.findMany({
+        where: {
+          artistId: id,
+          verified: false,
         },
       })
       break
@@ -34,10 +58,16 @@ export async function getAverageRating(
       throw new Error('Invalid rating type')
   }
 
-  if (ratings.length === 0) return null
+  const calculateAverage = (ratings: any[]) => {
+    if (ratings.length === 0) return null
+    const total = ratings.reduce((acc, rating) => acc + rating.ratingValue, 0)
+    return total / ratings.length
+  }
 
-  const total = ratings.reduce((acc, rating) => acc + rating.ratingValue, 0)
-  return total / ratings.length
+  const verifiedAverage = calculateAverage(verifiedRatings)
+  const unverifiedAverage = calculateAverage(unverifiedRatings)
+
+  return { verifiedAverage, unverifiedAverage }
 }
 
 export async function hasUserRated(
@@ -83,7 +113,8 @@ export async function giveRating(
   targetId: string,
   targetType: RatingType,
   rating: number,
-  accountId: string,
+  accountId?: string | null,
+  verified?: boolean,
 ) {
   let ratingData
 
@@ -94,6 +125,7 @@ export async function giveRating(
           ratingValue: rating,
           userId: accountId,
           songId: targetId,
+          verified: verified,
         },
       })
       break
@@ -103,6 +135,7 @@ export async function giveRating(
           ratingValue: rating,
           userId: accountId,
           albumId: targetId,
+          verified: verified,
         },
       })
       break
@@ -112,6 +145,7 @@ export async function giveRating(
           ratingValue: rating,
           userId: accountId,
           artistId: targetId,
+          verified: verified,
         },
       })
       break

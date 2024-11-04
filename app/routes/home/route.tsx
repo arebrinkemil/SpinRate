@@ -1,7 +1,6 @@
 import { json, LoaderFunction } from '@remix-run/node'
 import { useLoaderData, Link, MetaFunction } from '@remix-run/react'
 import { useState } from 'react'
-import { requireAuthCookie } from '~/auth/auth'
 import { getAlbumData, getSongData, getArtistData } from '~/utils/queries'
 import { getAverageRating } from '~/utils/ratingLogic'
 import { AlbumBox, SongBox, ArtistBox } from '~/components/ContentBoxes'
@@ -35,8 +34,6 @@ function shuffleArray<T>(array: T[] = []): T[] {
 }
 
 export const loader: LoaderFunction = async ({ request }) => {
-  await requireAuthCookie(request)
-
   const sanityData = await client.fetch<SanityDocument[]>(POSTS_QUERY)
 
   const albumsWithRatings = await Promise.all(
@@ -44,8 +41,11 @@ export const loader: LoaderFunction = async ({ request }) => {
       .flatMap(doc => doc.albums ?? [])
       .map(async id => {
         const album = await getAlbumData(id)
-        const averageRating = await getAverageRating(id, 'ALBUM')
-        return { ...album, averageRating, type: 'album' }
+        const { verifiedAverage, unverifiedAverage } = await getAverageRating(
+          id,
+          'ALBUM',
+        )
+        return { ...album, verifiedAverage, unverifiedAverage, type: 'album' }
       }),
   )
 
@@ -54,8 +54,11 @@ export const loader: LoaderFunction = async ({ request }) => {
       .flatMap(doc => doc.songs ?? [])
       .map(async id => {
         const song = await getSongData(id)
-        const averageRating = await getAverageRating(id, 'SONG')
-        return { ...song, averageRating, type: 'song' }
+        const { verifiedAverage, unverifiedAverage } = await getAverageRating(
+          id,
+          'SONG',
+        )
+        return { ...song, verifiedAverage, unverifiedAverage, type: 'song' }
       }),
   )
 
@@ -64,8 +67,11 @@ export const loader: LoaderFunction = async ({ request }) => {
       .flatMap(doc => doc.artists ?? [])
       .map(async id => {
         const artist = await getArtistData(id)
-        const averageRating = await getAverageRating(id, 'ARTIST')
-        return { ...artist, averageRating, type: 'artist' }
+        const { verifiedAverage, unverifiedAverage } = await getAverageRating(
+          id,
+          'ARTIST',
+        )
+        return { ...artist, verifiedAverage, unverifiedAverage, type: 'artist' }
       }),
   )
 
@@ -95,31 +101,38 @@ export default function Home() {
 
   return (
     <div className='px-10'>
-      <div className='mb-4 flex space-x-4'>
-        <button
-          onClick={() => setFilter('all')}
-          className={`px-4 py-2 underline decoration-black decoration-4 ${filter === 'all' ? 'bg-gray-800 text-white' : 'bg-gray-200'}`}
-        >
-          All
-        </button>
-        <button
-          onClick={() => setFilter('album')}
-          className={`decoration-hallon px-4 py-2 underline decoration-4 ${filter === 'album' ? 'text-hallon bg-gray-800' : 'bg-gray-200'}`}
-        >
-          Albums
-        </button>
-        <button
-          onClick={() => setFilter('song')}
-          className={`decoration-blue px-4 py-2 underline decoration-4 ${filter === 'song' ? 'text-blue bg-gray-800' : 'bg-gray-200'}`}
-        >
-          Songs
-        </button>
-        <button
-          onClick={() => setFilter('artist')}
-          className={`decoration-orange px-4 py-2 underline decoration-4 ${filter === 'artist' ? 'text-orange bg-gray-800' : 'bg-gray-200'}`}
-        >
-          Artists
-        </button>
+      <div className='flex flex-row items-center justify-between'>
+        <div className='mb-4 flex space-x-4'>
+          <button
+            onClick={() => setFilter('all')}
+            className={`px-4 py-2 underline decoration-black decoration-4 ${filter === 'all' ? 'bg-gray-800 text-white' : 'bg-gray-200'}`}
+          >
+            All
+          </button>
+          <button
+            onClick={() => setFilter('album')}
+            className={`decoration-hallon px-4 py-2 underline decoration-4 ${filter === 'album' ? 'text-hallon bg-gray-800' : 'bg-gray-200'}`}
+          >
+            Albums
+          </button>
+          <button
+            onClick={() => setFilter('song')}
+            className={`decoration-blue px-4 py-2 underline decoration-4 ${filter === 'song' ? 'text-blue bg-gray-800' : 'bg-gray-200'}`}
+          >
+            Songs
+          </button>
+          <button
+            onClick={() => setFilter('artist')}
+            className={`decoration-orange px-4 py-2 underline decoration-4 ${filter === 'artist' ? 'text-orange bg-gray-800' : 'bg-gray-200'}`}
+          >
+            Artists
+          </button>
+        </div>
+        {/* TODO: sort by rating */}
+        <div className='mb-4 flex flex-row gap-4 bg-black px-2'>
+          <p className='text-[#79B473]'>VERIFIED</p>
+          <p className='text-[#F4442E]'>PUBLIC</p>
+        </div>
       </div>
 
       <div className='grid grid-flow-row-dense grid-cols-2 gap-4 md:grid-cols-2 lg:grid-cols-4 2xl:grid-cols-6'>

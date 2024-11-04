@@ -63,8 +63,14 @@ export async function action({ request, params }: ActionFunctionArgs) {
 }
 
 export default function Song() {
-  const { targetData, hasRated, averageRating, reviews } =
-    useLoaderData<typeof loader>()
+  const {
+    targetData,
+    hasRated,
+    verifiedAverage,
+    unverifiedAverage,
+    reviews,
+    verified,
+  } = useLoaderData<typeof loader>()
 
   return (
     <div>
@@ -90,19 +96,28 @@ export default function Song() {
             </Link>
           </div>
         </div>
-        <AverageRating averageRating={averageRating} />
+        <div className='flex flex-col items-center'>
+          <AverageRating type='VERIFIED' averageRating={verifiedAverage} />
+          <AverageRating type='PUBLIC' averageRating={unverifiedAverage} />
+        </div>
       </div>
       <div className='mx-4 flex w-full flex-row justify-center'>
         <div className='flex basis-1/2 flex-col'>
           <RatingForm
             targetId={targetData.id}
-            targetType='ALBUM'
+            targetType='SONG'
             hasRated={hasRated}
           />
 
           <h2>Leave a review</h2>
 
-          <ReviewForm targetId={targetData.id} targetType='ALBUM' />
+          {verified ? (
+            <ReviewForm targetId={targetData.id} targetType='SONG' />
+          ) : (
+            <p>
+              Please <Link to='/login'>login</Link> to leave a review.
+            </p>
+          )}
 
           <h2>Reviews</h2>
         </div>
