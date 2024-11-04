@@ -20,6 +20,15 @@ export default function AverageRating({
   const circumference = Math.PI * radius
   const strokeDasharray = `${(angle / 180) * circumference} ${circumference}`
 
+  // const getColor = () => {
+  //   if (averageRating === null) return '#E9E9E6'
+  //   if (averageRating >= 10) return '#FFD700'
+  //   if (averageRating >= 7.5) return '#00C853'
+  //   if (averageRating >= 5) return '#8BC34A'
+  //   if (averageRating >= 2.5) return '#FF9800'
+  //   return '#F44336'
+  // } fungerar men blir för mycket färg på sidan
+
   return (
     <div className={mergedClasses}>
       <div className='w-full max-w-[200px]'>
@@ -33,7 +42,7 @@ export default function AverageRating({
           <path
             d='M 10 50 A 40 40 0 0 1 110 50'
             fill='none'
-            stroke='#CE2D4F'
+            stroke='#121212'
             strokeWidth='10'
             strokeDasharray={strokeDasharray}
           />
@@ -43,7 +52,7 @@ export default function AverageRating({
             textAnchor='middle'
             alignmentBaseline='middle'
             fontSize='20'
-            fill='#CE2D4F'
+            fill='#121212'
             fontWeight='bold'
           >
             {averageRating !== null ? averageRating.toFixed(1) : '-'}

@@ -28,7 +28,7 @@ export function AlbumBox({
         className='aspect-square'
         hoverEffect={true}
       >
-        <li className='bg-lightsilver flex h-full w-full flex-col p-4'>
+        <li className='bg-lightsilver flex h-full w-full flex-col p-4 pr-0'>
           <div className='flex h-4/6 w-full flex-row'>
             <img
               src={album.imageUrl ?? ''}
@@ -65,7 +65,7 @@ export function SongBox({ song }: SongBoxProps) {
         className='aspect-square'
         hoverEffect={true}
       >
-        <li className='bg-lightsilver flex h-full w-full flex-col p-4'>
+        <li className='bg-lightsilver flex h-full w-full flex-col p-4 pr-0'>
           <div className='flex h-4/6 w-full flex-row'>
             <img
               src={song.imageUrl ?? ''}
@@ -100,7 +100,7 @@ export function ArtistBox({ artist }: ArtistBoxProps) {
         className='aspect-square'
         hoverEffect={true}
       >
-        <li className='bg-lightsilver flex h-full w-full flex-col p-4'>
+        <li className='bg-lightsilver flex h-full w-full flex-col p-4 pr-0'>
           <div className='flex h-4/6 w-full flex-row'>
             <img
               src={artist.imageUrl ?? ''}
