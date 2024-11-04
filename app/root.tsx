@@ -50,7 +50,7 @@ export default function App() {
           <div className='flex h-full  min-h-screen flex-col'>
             <NavBar userId={userId} />
 
-            <div className='h-full min-h-0 flex-grow'>
+            <div className='mt-24 h-full min-h-0 flex-grow'>
               <Outlet />
             </div>
             <Footer />

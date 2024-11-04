@@ -6,6 +6,8 @@ import { getAverageRating } from '~/utils/ratingLogic'
 import { AlbumBox, SongBox, ArtistBox } from '~/components/ContentBoxes'
 import { client } from '~/sanity/client'
 import { SanityDocument } from '@sanity/client'
+import { S } from 'node_modules/vite/dist/node/types.d-aGj9QkWt'
+import Banner from '~/components/Banner'
 
 export const meta: MetaFunction = () => {
   return [{ title: 'SPINRATE' }]
@@ -14,6 +16,7 @@ export const meta: MetaFunction = () => {
 type LoaderData = {
   data: any[]
   sanityData: SanityDocument[]
+  bannerData: SanityDocument[]
 }
 
 const POSTS_QUERY = `*[_type == "featuredContent"]{
@@ -22,6 +25,29 @@ const POSTS_QUERY = `*[_type == "featuredContent"]{
   songs,
   artists,
   albums
+}
+`
+
+const BANNER_QUERY = `*[_type == "banner"]{
+  mainImage{
+    asset->{
+      _id,
+      url
+    },
+    hotspot
+  },
+  smallImages[]{
+    asset->{
+      _id,
+      url
+    }
+  },
+  header,
+  bodyText,
+  links[]{
+    text,
+    url
+  }
 }
 `
 
@@ -35,6 +61,8 @@ function shuffleArray<T>(array: T[] = []): T[] {
 
 export const loader: LoaderFunction = async ({ request }) => {
   const sanityData = await client.fetch<SanityDocument[]>(POSTS_QUERY)
+  const bannerData = await client.fetch<SanityDocument[]>(BANNER_QUERY)
+  console.log('bannerData', bannerData[0])
 
   const albumsWithRatings = await Promise.all(
     sanityData
@@ -84,11 +112,12 @@ export const loader: LoaderFunction = async ({ request }) => {
   return json<LoaderData>({
     data: combinedData,
     sanityData,
+    bannerData,
   })
 }
 
 export default function Home() {
-  const { data, sanityData } = useLoaderData<LoaderData>()
+  const { data, sanityData, bannerData } = useLoaderData<LoaderData>()
 
   const [filter, setFilter] = useState<'all' | 'album' | 'song' | 'artist'>(
     'all',
@@ -100,7 +129,7 @@ export default function Home() {
   })
 
   return (
-    <div className='px-10'>
+    <div className=' px-10'>
       <div className='flex flex-row items-center justify-between'>
         <div className='mb-4 flex space-x-4'>
           <button
@@ -136,6 +165,8 @@ export default function Home() {
       </div>
 
       <div className='grid grid-flow-row-dense grid-cols-2 gap-4 md:grid-cols-2 lg:grid-cols-4 2xl:grid-cols-6'>
+        <Banner data={bannerData[0]} />
+
         {filteredData.map(item => {
           if (item.type === 'album') {
             return (

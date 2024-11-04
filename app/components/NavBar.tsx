@@ -9,7 +9,7 @@ interface NavBarProps {
 export const NavBar: React.FC<NavBarProps> = ({ userId }) => {
   return (
     <>
-      <div className='box-border flex items-center justify-between bg-black px-8 py-4'>
+      <div className='fixed top-0 z-20 box-border flex w-screen items-center justify-between bg-black px-8 py-4'>
         <Link to='/' className='block w-1/3 leading-3'>
           <div className='text-platinum text-4xl font-black'>SpinRate</div>
           <div className='text-gray'>Rate music</div>

@@ -77,7 +77,8 @@ export const loader: LoaderFunction = async ({ request }) => {
 
       await Promise.all(
         songs.map(async song => {
-          ratings[song.id] = await getAverageRating(song.id, 'SONG')
+          const averageRating = await getAverageRating(song.id, 'SONG')
+          ratings[song.id] = averageRating.verifiedAverage
         }),
       )
     }),
@@ -227,7 +228,10 @@ export default function SpotifyPlaylistTracks() {
                           {truncateText(song.name, 16)}
                         </div>
                         <div className='rounded bg-black bg-opacity-50 p-2'>
-                          <AverageRating averageRating={ratings[song.id]} />
+                          <AverageRating
+                            type='SONG'
+                            averageRating={ratings[song.id]}
+                          />
                         </div>
                       </li>
                     </Link>
