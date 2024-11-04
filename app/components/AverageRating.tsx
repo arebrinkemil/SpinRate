@@ -1,9 +1,11 @@
 import { twMerge } from 'tailwind-merge'
 
 export default function AverageRating({
-  averageRating,
+  type = '',
+  averageRating = null,
   className = '',
 }: {
+  type: string
   averageRating: number | null
   className?: string
 }) {
@@ -20,14 +22,11 @@ export default function AverageRating({
   const circumference = Math.PI * radius
   const strokeDasharray = `${(angle / 180) * circumference} ${circumference}`
 
-  // const getColor = () => {
-  //   if (averageRating === null) return '#E9E9E6'
-  //   if (averageRating >= 10) return '#FFD700'
-  //   if (averageRating >= 7.5) return '#00C853'
-  //   if (averageRating >= 5) return '#8BC34A'
-  //   if (averageRating >= 2.5) return '#FF9800'
-  //   return '#F44336'
-  // } fungerar men blir för mycket färg på sidan
+  const getColor = () => {
+    if (type == 'VERIFIED') return '#79B473' //kanske är jätteful färg, tillsviadre
+    if (type == 'PUBLIC') return '#F4442E'
+    return '#F44336'
+  }
 
   return (
     <div className={mergedClasses}>
@@ -42,7 +41,7 @@ export default function AverageRating({
           <path
             d='M 10 50 A 40 40 0 0 1 110 50'
             fill='none'
-            stroke='#121212'
+            stroke={getColor()}
             strokeWidth='10'
             strokeDasharray={strokeDasharray}
           />

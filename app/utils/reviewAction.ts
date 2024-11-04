@@ -1,4 +1,4 @@
-import { requireAuthCookie } from '~/auth/auth'
+import { requireAuthCookie, getAuthFromRequest } from '~/auth/auth'
 import { giveRating } from './ratingLogic'
 import { addReview } from './reviewLogic'
 import { addComment } from './commentLogic'
@@ -11,26 +11,30 @@ export async function handleRatingAction(
   request: Request,
 ) {
   try {
-    const accountId = await requireAuthCookie(request)
+    const userId = await getAuthFromRequest(request)
+    const verified = userId !== null
+
     const ratingValue = formData.get('rating')
 
     if (!ratingValue) {
       throw new Error('Rating value is missing')
     }
 
-    console.log('Processing rating:', ratingValue)
+    console.log('Processing rating:', ratingValue, 'Verified:', verified)
 
     await giveRating(
       targetId,
       targetType,
       parseInt(ratingValue as string, 10),
-      accountId,
+      userId,
+      verified,
     )
   } catch (error) {
     console.error('handleRatingAction Error:', error)
     throw error
   }
 }
+
 export async function handleReviewAction(
   targetId: string,
   targetType: 'SONG' | 'ALBUM' | 'ARTIST',

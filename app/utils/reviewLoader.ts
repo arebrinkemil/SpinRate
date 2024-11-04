@@ -1,5 +1,5 @@
 // utils/reviewLoader.ts
-import { requireAuthCookie } from '~/auth/auth'
+import { requireAuthCookie, getAuthFromRequest } from '~/auth/auth'
 import { getSongData, getAlbumData, getArtistData } from './queries'
 import { getAverageRating, hasUserRated } from './ratingLogic'
 import { getAllReviews } from './reviewLogic'
@@ -9,7 +9,10 @@ export async function loadReviewData(
   targetId: string,
   targetType: 'SONG' | 'ALBUM' | 'ARTIST',
 ) {
-  const accountId = await requireAuthCookie(request)
+  const accountId = await getAuthFromRequest(request)
+  console.log('Account ID:', accountId)
+  const verified = accountId !== null
+  console.log('Verified:', verified)
 
   let targetData: any
   if (targetType === 'SONG') {
@@ -22,14 +25,31 @@ export async function loadReviewData(
 
   if (!targetData) throw new Error(`${targetType} not found`)
 
-  const hasRated = await hasUserRated(targetId, targetType, accountId)
-  const averageRating = await getAverageRating(targetId, targetType)
+  const { verifiedAverage, unverifiedAverage } = await getAverageRating(
+    targetId,
+    targetType,
+  )
   const reviews = await getAllReviews(targetId, targetType)
 
-  return {
-    targetData,
-    hasRated,
-    averageRating,
-    reviews,
+  if (verified) {
+    const hasRated = await hasUserRated(targetId, targetType, accountId)
+
+    return {
+      targetData,
+      hasRated,
+      verifiedAverage,
+      unverifiedAverage,
+      reviews,
+      verified: true,
+    }
+  } else {
+    return {
+      targetData,
+      hasRated: false,
+      verifiedAverage,
+      unverifiedAverage,
+      reviews,
+      verified: false,
+    }
   }
 }

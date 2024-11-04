@@ -6,15 +6,23 @@ import { Link } from '@remix-run/react'
 import { truncateText } from '~/utils/truncate'
 
 interface AlbumBoxProps {
-  album: Album & { averageRating: number; artist: { name: string } }
+  album: Album & {
+    verifiedAverage: number
+    unverifiedAverage: number
+    artist: { name: string }
+  }
 }
 
 interface SongBoxProps {
-  song: Song & { averageRating: number; artist: { name: string } }
+  song: Song & {
+    verifiedAverage: number
+    unverifiedAverage: number
+    artist: { name: string }
+  }
 }
 
 interface ArtistBoxProps {
-  artist: Artist & { averageRating: number }
+  artist: Artist & { verifiedAverage: number; unverifiedAverage: number }
 }
 
 export function AlbumBox({
@@ -37,12 +45,14 @@ export function AlbumBox({
             />
             <div className='flex h-full w-2/6 flex-col items-center justify-center'>
               <AverageRating
+                type='VERIFIED'
                 className=' text-white'
-                averageRating={album.averageRating}
+                averageRating={album.verifiedAverage}
               />
               <AverageRating
+                type='PUBLIC'
                 className=' text-white'
-                averageRating={album.averageRating}
+                averageRating={album.unverifiedAverage}
               />
             </div>
           </div>
@@ -74,12 +84,14 @@ export function SongBox({ song }: SongBoxProps) {
             />
             <div className='flex h-full w-2/6 flex-col items-center justify-center'>
               <AverageRating
+                type='VERIFIED'
                 className=' text-white'
-                averageRating={song.averageRating}
+                averageRating={song.verifiedAverage}
               />
               <AverageRating
+                type='PUBLIC'
                 className=' text-white'
-                averageRating={song.averageRating}
+                averageRating={song.unverifiedAverage}
               />
             </div>
           </div>
@@ -109,12 +121,14 @@ export function ArtistBox({ artist }: ArtistBoxProps) {
             />
             <div className='flex h-full w-2/6 flex-col items-center justify-center'>
               <AverageRating
+                type='VERIFIED'
                 className=' text-white'
-                averageRating={artist.averageRating}
+                averageRating={artist.verifiedAverage}
               />
               <AverageRating
+                type='PUBLIC'
                 className=' text-white'
-                averageRating={artist.averageRating}
+                averageRating={artist.unverifiedAverage}
               />
             </div>
           </div>
