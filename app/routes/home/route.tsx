@@ -2,22 +2,17 @@ import { json, LoaderFunction } from '@remix-run/node'
 import { useLoaderData, Link, MetaFunction } from '@remix-run/react'
 import { useState } from 'react'
 import { requireAuthCookie } from '~/auth/auth'
-import { getAlbums, getSingleSongs, getArtists } from './queries'
-import { truncateText } from '~/utils/truncate'
-import { SanityDocument } from '@sanity/client'
-
+import { getAlbumData, getSongData, getArtistData } from '~/utils/queries'
 import { getAverageRating } from '~/utils/ratingLogic'
 import { AlbumBox, SongBox, ArtistBox } from '~/components/ContentBoxes'
 import { client } from '~/sanity/client'
+import { SanityDocument } from '@sanity/client'
 
 export const meta: MetaFunction = () => {
   return [{ title: 'SPINRATE' }]
 }
 
 type LoaderData = {
-  albums: any[]
-  songs: any[]
-  artists: any[]
   data: any[]
   sanityData: SanityDocument[]
 }
@@ -42,39 +37,37 @@ function shuffleArray<T>(array: T[] = []): T[] {
 export const loader: LoaderFunction = async ({ request }) => {
   await requireAuthCookie(request)
 
-  const albums = await getAlbums()
-  const songs = await getSingleSongs()
-  const artists = await getArtists()
+  const sanityData = await client.fetch<SanityDocument[]>(POSTS_QUERY)
 
   const albumsWithRatings = await Promise.all(
-    albums.map(async album => {
-      const averageRating = await getAverageRating(album.id, 'ALBUM')
-      if (averageRating !== null && averageRating !== undefined) {
+    sanityData
+      .flatMap(doc => doc.albums ?? [])
+      .map(async id => {
+        const album = await getAlbumData(id)
+        const averageRating = await getAverageRating(id, 'ALBUM')
         return { ...album, averageRating, type: 'album' }
-      }
-      return null
-    }),
-  ).then(results => results.filter(album => album !== null))
+      }),
+  )
 
   const songsWithRatings = await Promise.all(
-    songs.map(async song => {
-      const averageRating = await getAverageRating(song.id, 'SONG')
-      if (averageRating !== null && averageRating !== undefined) {
+    sanityData
+      .flatMap(doc => doc.songs ?? [])
+      .map(async id => {
+        const song = await getSongData(id)
+        const averageRating = await getAverageRating(id, 'SONG')
         return { ...song, averageRating, type: 'song' }
-      }
-      return null
-    }),
-  ).then(results => results.filter(song => song !== null))
+      }),
+  )
 
   const artistsWithRatings = await Promise.all(
-    artists.map(async artist => {
-      const averageRating = await getAverageRating(artist.id, 'ARTIST')
-      if (averageRating !== null && averageRating !== undefined) {
+    sanityData
+      .flatMap(doc => doc.artists ?? [])
+      .map(async id => {
+        const artist = await getArtistData(id)
+        const averageRating = await getAverageRating(id, 'ARTIST')
         return { ...artist, averageRating, type: 'artist' }
-      }
-      return null
-    }),
-  ).then(results => results.filter(artist => artist !== null))
+      }),
+  )
 
   const combinedData = shuffleArray([
     ...albumsWithRatings,
@@ -82,14 +75,9 @@ export const loader: LoaderFunction = async ({ request }) => {
     ...artistsWithRatings,
   ])
 
-  const sanityData = await client.fetch<SanityDocument[]>(POSTS_QUERY)
-
   return json<LoaderData>({
-    albums: albumsWithRatings,
-    songs: songsWithRatings,
-    artists: artistsWithRatings,
     data: combinedData,
-    sanityData: sanityData,
+    sanityData,
   })
 }
 
@@ -154,69 +142,6 @@ export default function Home() {
           return null
         })}
       </div>
-
-      <div>
-        <h2 className='mt-8 text-2xl font-bold'>Sanity Data</h2>
-        {sanityData.map(post => (
-          <div key={post._id} className='mt-4'>
-            <h3 className='text-xl font-semibold'>Post ID: {post._id}</h3>
-            <p>Created At: {new Date(post._createdAt).toLocaleString()}</p>
-            <div>
-              <h4 className='mt-2 font-semibold'>Songs:</h4>
-              <ul>
-                {post.songs &&
-                  post.songs.map((songId: string) => (
-                    <li key={songId}>{songId}</li>
-                  ))}
-              </ul>
-            </div>
-            <div>
-              <h4 className='mt-2 font-semibold'>Artists:</h4>
-              <ul>
-                {post.artists &&
-                  post.artists.map((artistId: string) => (
-                    <li key={artistId}>{artistId}</li>
-                  ))}
-              </ul>
-            </div>
-            <div>
-              <h4 className='mt-2 font-semibold'>Albums:</h4>
-              <ul>
-                {post.albums &&
-                  post.albums.map((albumId: string) => (
-                    <li key={albumId}>{albumId}</li>
-                  ))}
-              </ul>
-            </div>
-          </div>
-        ))}
-      </div>
     </div>
   )
-}
-{
-  /* <div>
-  <h3>Albums</h3>
-  <ul className='grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6'>
-    {albums.map(album => (
-      <AlbumBox key={album.id} album={album} />
-    ))}
-  </ul>
-</div>
-<div>
-  <h3>Singles</h3>
-  <ul className='grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6'>
-    {songs.map(song => (
-      <SongBox key={song.id} song={song} />
-    ))}
-  </ul>
-</div>
-<div>
-  <h3>Artists</h3>
-  <ul className='grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6'>
-    {artists.map(artist => (
-      <ArtistBox key={artist.id} artist={artist} />
-    ))}
-  </ul>
-</div> */
 }
