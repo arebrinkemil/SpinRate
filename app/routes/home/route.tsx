@@ -51,6 +51,18 @@ const BANNER_QUERY = `*[_type == "banner"]{
 }
 `
 
+const HIGHLIGHT_QUERY = `*[_type == "highlight"]{
+ 
+  header,
+  bodyText,
+  highlightIDs[]{
+    text,
+    url,
+    type
+  }
+}
+`
+
 function shuffleArray<T>(array: T[] = []): T[] {
   for (let i = array.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1))
@@ -62,7 +74,8 @@ function shuffleArray<T>(array: T[] = []): T[] {
 export const loader: LoaderFunction = async ({ request }) => {
   const sanityData = await client.fetch<SanityDocument[]>(POSTS_QUERY)
   const bannerData = await client.fetch<SanityDocument[]>(BANNER_QUERY)
-  console.log('bannerData', bannerData[0])
+  const highlightedContent =
+    await client.fetch<SanityDocument[]>(HIGHLIGHT_QUERY)
 
   const albumsWithRatings = await Promise.all(
     sanityData
@@ -165,7 +178,7 @@ export default function Home() {
       </div>
 
       <div className='grid grid-flow-row-dense grid-cols-2 gap-4 md:grid-cols-2 lg:grid-cols-4 2xl:grid-cols-6'>
-        <Banner data={bannerData[0]} />
+        <Banner data={bannerData[1]} />
 
         {filteredData.map(item => {
           if (item.type === 'album') {

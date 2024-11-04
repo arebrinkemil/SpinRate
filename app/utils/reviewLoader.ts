@@ -10,9 +10,7 @@ export async function loadReviewData(
   targetType: 'SONG' | 'ALBUM' | 'ARTIST',
 ) {
   const accountId = await getAuthFromRequest(request)
-  console.log('Account ID:', accountId)
   const verified = accountId !== null
-  console.log('Verified:', verified)
 
   let targetData: any
   if (targetType === 'SONG') {

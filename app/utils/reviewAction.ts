@@ -20,8 +20,6 @@ export async function handleRatingAction(
       throw new Error('Rating value is missing')
     }
 
-    console.log('Processing rating:', ratingValue, 'Verified:', verified)
-
     await giveRating(
       targetId,
       targetType,
@@ -49,8 +47,6 @@ export async function handleReviewAction(
       throw new Error('Review content is missing')
     }
 
-    console.log('Processing review:', reviewContent)
-
     await addReview(targetId, targetType, reviewContent as string, accountId)
   } catch (error) {
     console.error('handleReviewAction Error:', error)
@@ -71,7 +67,6 @@ export async function handleCommentAction(
       throw new Error('Comment content is missing')
     }
 
-    console.log('Processing comment:', commentContent)
     await addComment(targetId, commentContent as string, accountId)
   } catch (error) {
     console.error('handleCommentAction Error:', error)
