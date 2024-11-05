@@ -3,7 +3,12 @@ import { useLoaderData, Link, MetaFunction } from '@remix-run/react'
 import { useState } from 'react'
 import { getAlbumData, getSongData, getArtistData } from '~/utils/queries'
 import { getAverageRating } from '~/utils/ratingLogic'
-import { AlbumBox, SongBox, ArtistBox } from '~/components/ContentBoxes'
+import {
+  AlbumBox,
+  SongBox,
+  ArtistBox,
+  HighlightBox,
+} from '~/components/ContentBoxes'
 import { client } from '~/sanity/client'
 import { SanityDocument } from '@sanity/client'
 import { S } from 'node_modules/vite/dist/node/types.d-aGj9QkWt'
@@ -71,11 +76,22 @@ function shuffleArray<T>(array: T[] = []): T[] {
   return array
 }
 
+type HighlightID = {
+  text: string
+  url: string | null
+  type: 'ALBUM' | 'ARTIST' | 'SONG'
+}
+
+type Highlight = {
+  header: string
+  bodyText: string
+  highlightIDs: HighlightID[]
+}
+
 export const loader: LoaderFunction = async ({ request }) => {
   const sanityData = await client.fetch<SanityDocument[]>(POSTS_QUERY)
   const bannerData = await client.fetch<SanityDocument[]>(BANNER_QUERY)
-  const highlightedContent =
-    await client.fetch<SanityDocument[]>(HIGHLIGHT_QUERY)
+  const highlightedContent = await client.fetch<Highlight[]>(HIGHLIGHT_QUERY)
 
   const albumsWithRatings = await Promise.all(
     sanityData
@@ -112,8 +128,40 @@ export const loader: LoaderFunction = async ({ request }) => {
           id,
           'ARTIST',
         )
-        return { ...artist, verifiedAverage, unverifiedAverage, type: 'artist' }
+        return {
+          ...artist,
+          verifiedAverage,
+          unverifiedAverage,
+          type: 'artist',
+        }
       }),
+  )
+
+  const highlightsWithDetails = await Promise.all(
+    highlightedContent.map(async highlight => {
+      const detailedHighlights = await Promise.all(
+        highlight.highlightIDs.map(async highlightID => {
+          if (highlightID.type === 'ALBUM') {
+            return highlightID.text
+              ? await getAlbumData(highlightID.text)
+              : highlightID
+          }
+          if (highlightID.type === 'SONG') {
+            return highlightID.text
+              ? await getSongData(highlightID.text)
+              : highlightID
+          }
+          if (highlightID.type === 'ARTIST') {
+            return highlightID.text
+              ? await getArtistData(highlightID.text)
+              : highlightID
+          }
+          return highlightID
+        }),
+      )
+
+      return { ...highlight, highlightIDs: detailedHighlights }
+    }),
   )
 
   const combinedData = shuffleArray([
@@ -121,6 +169,18 @@ export const loader: LoaderFunction = async ({ request }) => {
     ...songsWithRatings,
     ...artistsWithRatings,
   ])
+
+  let insertIndex = 6
+  highlightsWithDetails.forEach(highlight => {
+    combinedData.splice(insertIndex, 0, {
+      ...highlight,
+      verifiedAverage: null,
+      unverifiedAverage: null,
+      type: 'highlight',
+      id: highlight.header,
+    })
+    insertIndex += 8
+  })
 
   return json<LoaderData>({
     data: combinedData,
@@ -132,9 +192,9 @@ export const loader: LoaderFunction = async ({ request }) => {
 export default function Home() {
   const { data, sanityData, bannerData } = useLoaderData<LoaderData>()
 
-  const [filter, setFilter] = useState<'all' | 'album' | 'song' | 'artist'>(
-    'all',
-  )
+  const [filter, setFilter] = useState<
+    'all' | 'album' | 'song' | 'artist' | 'highlight'
+  >('all')
 
   const filteredData = data.filter(item => {
     if (filter === 'all') return true
@@ -147,30 +207,37 @@ export default function Home() {
         <div className='mb-4 flex space-x-4'>
           <button
             onClick={() => setFilter('all')}
-            className={`px-4 py-2 underline decoration-black decoration-4 ${filter === 'all' ? 'bg-gray-800 text-white' : 'bg-gray-200'}`}
+            className={`px-4 py-2 underline decoration-black decoration-4 ${
+              filter === 'all' ? 'bg-gray-800 text-white' : 'bg-gray-200'
+            }`}
           >
             All
           </button>
           <button
             onClick={() => setFilter('album')}
-            className={`decoration-hallon px-4 py-2 underline decoration-4 ${filter === 'album' ? 'text-hallon bg-gray-800' : 'bg-gray-200'}`}
+            className={`decoration-hallon px-4 py-2 underline decoration-4 ${
+              filter === 'album' ? 'text-hallon bg-gray-800' : 'bg-gray-200'
+            }`}
           >
             Albums
           </button>
           <button
             onClick={() => setFilter('song')}
-            className={`decoration-blue px-4 py-2 underline decoration-4 ${filter === 'song' ? 'text-blue bg-gray-800' : 'bg-gray-200'}`}
+            className={`decoration-blue px-4 py-2 underline decoration-4 ${
+              filter === 'song' ? 'text-blue bg-gray-800' : 'bg-gray-200'
+            }`}
           >
             Songs
           </button>
           <button
             onClick={() => setFilter('artist')}
-            className={`decoration-orange px-4 py-2 underline decoration-4 ${filter === 'artist' ? 'text-orange bg-gray-800' : 'bg-gray-200'}`}
+            className={`decoration-orange px-4 py-2 underline decoration-4 ${
+              filter === 'artist' ? 'text-orange bg-gray-800' : 'bg-gray-200'
+            }`}
           >
             Artists
           </button>
         </div>
-        {/* TODO: sort by rating */}
         <div className='mb-4 flex flex-row gap-4 bg-black px-2'>
           <p className='text-[#79B473]'>VERIFIED</p>
           <p className='text-[#F4442E]'>PUBLIC</p>
@@ -195,6 +262,9 @@ export default function Home() {
           }
           if (item.type === 'artist') {
             return <ArtistBox key={item.id} artist={item} />
+          }
+          if (item.type === 'highlight') {
+            return <HighlightBox key={item.id} item={item} />
           }
           return null
         })}

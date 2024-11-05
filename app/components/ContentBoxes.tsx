@@ -138,3 +138,32 @@ export function ArtistBox({ artist }: ArtistBoxProps) {
     </Link>
   )
 }
+export function HighlightBox({ item }: { item: any }) {
+  return (
+    <div className='col-span-2 row-span-1 bg-black lg:col-span-3 lg:row-span-1  2xl:col-span-4 2xl:row-span-2'>
+      <div className=' flex h-full flex-col p-4'>
+        <h2 className='text-2xl font-bold text-white'>{item.header}</h2>
+        <p className='text-white'>{item.bodyText}</p>
+        <div className='flex h-full flex-col justify-center'>
+          <div className='flex flex-row space-x-4'>
+            {item.highlightIDs.map((highlight: any) => (
+              <Link key={highlight.id} to={highlight.url ?? '#'}>
+                <img
+                  src={highlight.imageUrl}
+                  alt={highlight.name}
+                  className='aspect-square'
+                />
+                <p className='text-white underline'>{highlight.name}</p>
+                {highlight.artist ? (
+                  <p className='text-white'>{highlight.artist.name}</p>
+                ) : (
+                  <p className='text-white'>{highlight.artistName}</p>
+                )}
+              </Link>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
