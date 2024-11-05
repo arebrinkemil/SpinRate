@@ -179,7 +179,7 @@ export const loader: LoaderFunction = async ({ request }) => {
       type: 'highlight',
       id: highlight.header,
     })
-    insertIndex += 8
+    insertIndex += 12
   })
 
   return json<LoaderData>({
