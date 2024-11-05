@@ -15,7 +15,11 @@ export const NavBar: React.FC<NavBarProps> = ({ userId }) => {
           <div className='text-gray'>Rate music</div>
         </Link>
         <div className='flex items-center gap-6'></div>
-        <div className='flex w-1/3 justify-center'></div>
+        <div className='flex w-1/3 justify-center'>
+          <Link to='/search' className='block text-center'>
+            <div className='text-white'>Search</div>
+          </Link>
+        </div>
         <div className='flex w-1/3 justify-end gap-4'>
           {userId ? (
             <Link to={`/profile/${userId}`} className='block text-center'>
