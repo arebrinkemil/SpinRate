@@ -18,7 +18,7 @@ const CornerMarkings: React.FC<CornerMarkingsProps> = ({
   const mergedClasses = twMerge('relative p-4', className)
 
   let cornerMarkClass = ''
-  switch (mediaType) {
+  switch (mediaType?.toUpperCase()) {
     case 'ARTIST':
       cornerMarkClass = 'corner-mark-artist'
       break

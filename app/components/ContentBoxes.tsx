@@ -167,3 +167,78 @@ export function HighlightBox({ item }: { item: any }) {
     </div>
   )
 }
+
+export function RatingBox({
+  rating,
+  type,
+}: {
+  rating: any
+  type: 'ALBUM' | 'SONG' | 'ARTIST'
+}) {
+  return (
+    <Link to={`/${type}/${rating.data.id}`}>
+      <CornerMarkings
+        mediaType={rating.type}
+        className='aspect-square'
+        hoverEffect={true}
+      >
+        <li className='bg-lightsilver flex h-full w-full flex-col p-4 pr-0'>
+          <div className='flex h-4/6 w-full flex-row'>
+            <img
+              src={rating.data.imageUrl ?? ''}
+              alt={rating.data.name}
+              className='h-full w-4/6 object-cover'
+            />
+            <div className='flex h-full w-2/6 flex-col items-center justify-center'>
+              <AverageRating
+                type='VERIFIED'
+                className=' text-white'
+                averageRating={rating.ratingValue}
+              />
+            </div>
+          </div>
+          <h1 className='text-platinum text-xl'>{rating.data.name}</h1>
+        </li>
+      </CornerMarkings>
+    </Link>
+  )
+}
+
+export function ReviewBox({
+  review,
+  type,
+}: {
+  review: any
+  type: 'ALBUM' | 'SONG' | 'ARTIST'
+}) {
+  return (
+    <Link
+      to={`/${type}/${review.data.id}`}
+      className='col-span-1 row-span-1 lg:col-span-2 lg:row-span-2 xl:col-span-2 xl:row-span-2'
+    >
+      <CornerMarkings
+        mediaType={review.type}
+        className='aspect-square'
+        hoverEffect={true}
+      >
+        <li className='bg-lightsilver flex h-full w-full flex-col p-4 pr-0'>
+          <div className='flex h-4/6 w-full flex-row'>
+            <img
+              src={review.data.imageUrl ?? ''}
+              alt={review.data.name}
+              className='h-full w-4/6 object-cover'
+            />
+            <div className='flex h-full w-2/6 flex-col items-center justify-center'></div>
+          </div>
+          <h1 className='text-platinum text-xl'>
+            {' '}
+            {truncateText(review.data.name, 24)}
+          </h1>
+          <div className=' mr-4 flex cursor-pointer flex-row items-center justify-between border-2 border-b-4 border-black p-2'>
+            <h2 className='text-platinum text-lg'>{review.reviewValue}</h2>
+          </div>
+        </li>
+      </CornerMarkings>
+    </Link>
+  )
+}
