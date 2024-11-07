@@ -8,9 +8,27 @@ export async function getUserData(id: string): Promise<Account | null> {
 }
 
 type RatingData =
-  | { type: 'album'; data: Album; ratingValue: number }
-  | { type: 'song'; data: Song; ratingValue: number }
-  | { type: 'artist'; data: Artist; ratingValue: number }
+  | {
+      kind: 'rating'
+      type: 'album'
+      data: Album
+      ratingValue: number
+      id: string
+    }
+  | {
+      kind: 'rating'
+      type: 'song'
+      data: Song
+      ratingValue: number
+      id: string
+    }
+  | {
+      kind: 'rating'
+      type: 'artist'
+      data: Artist
+      ratingValue: number
+      id: string
+    }
 
 export async function getUserRatings(id: string): Promise<RatingData[]> {
   const ratings = await prisma.rating.findMany({
@@ -26,21 +44,27 @@ export async function getUserRatings(id: string): Promise<RatingData[]> {
     .map(rating => {
       if (rating.album) {
         return {
+          kind: 'rating',
           type: 'album',
           data: rating.album,
           ratingValue: rating.ratingValue,
+          id: rating.id,
         }
       } else if (rating.song) {
         return {
+          kind: 'rating',
           type: 'song',
           data: rating.song,
           ratingValue: rating.ratingValue,
+          id: rating.id,
         }
       } else if (rating.artist) {
         return {
+          kind: 'rating',
           type: 'artist',
           data: rating.artist,
           ratingValue: rating.ratingValue,
+          id: rating.id,
         }
       }
       return null

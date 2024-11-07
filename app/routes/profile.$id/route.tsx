@@ -3,14 +3,66 @@ import type { LoaderFunctionArgs } from '@remix-run/node'
 import { redirect } from '@remix-run/node'
 import { requireAuthCookie } from '~/auth/auth'
 import { getUserData, getUserRatings } from './queries'
+import { getUserReviews } from '~/utils/reviewLogic'
 import type { Account } from '@prisma/client'
-import type { Album, Song, Artist } from '@prisma/client'
+import type { Album, Song, Artist, Review } from '@prisma/client'
 import CornerMarkings from '~/components/CornerMarkings'
+import { RatingBox, ReviewBox } from '~/components/ContentBoxes'
+import { c } from 'node_modules/vite/dist/node/types.d-aGj9QkWt'
 
 type RatingData =
-  | { type: 'album'; data: Album; ratingValue: number }
-  | { type: 'song'; data: Song; ratingValue: number }
-  | { type: 'artist'; data: Artist; ratingValue: number }
+  | {
+      kind: 'rating'
+      type: 'ALBUM'
+      data: Album
+      ratingValue: number
+      id: string
+    }
+  | {
+      kind: 'rating'
+      type: 'SONG'
+      data: Song
+      ratingValue: number
+      id: string
+    }
+  | {
+      kind: 'rating'
+      type: 'ARTIST'
+      data: Artist
+      ratingValue: number
+      id: string
+    }
+
+type ReviewData =
+  | {
+      kind: 'review'
+      type: 'ALBUM'
+      data: Album
+      reviewValue: string
+      id: string
+    }
+  | {
+      kind: 'review'
+      type: 'SONG'
+      data: Song
+      reviewValue: string
+      id: string
+    }
+  | {
+      kind: 'review'
+      type: 'ARTIST'
+      data: Artist
+      reviewValue: string
+      id: string
+    }
+
+function shuffleArray<T>(array: T[] = []): T[] {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    ;[array[i], array[j]] = [array[j], array[i]]
+  }
+  return array
+}
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
   const accountId = await requireAuthCookie(request)
@@ -22,18 +74,26 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   if (!user) throw new Response('User not found', { status: 404 })
 
   const ratings = await getUserRatings(userId)
+  const reviews = await getUserReviews(userId)
+
+  const combinedData = shuffleArray([...ratings, ...reviews])
+
+  combinedData.forEach(element => {
+    console.log(element)
+  })
 
   const isOwner = accountId === userId
 
-  return { user, ratings, isOwner }
+  return { user, isOwner, combinedData }
 }
 
 export default function Profile() {
-  const { user, ratings, isOwner } = useLoaderData<{
+  const { user, isOwner, combinedData } = useLoaderData<{
     user: Account
-    ratings: RatingData[]
     isOwner: boolean
+    combinedData: (RatingData | ReviewData)[]
   }>()
+
   return (
     <div className='m-10 flex flex-col gap-10'>
       <CornerMarkings
@@ -64,59 +124,24 @@ export default function Profile() {
         )}
       </CornerMarkings>
 
-      <div className='flex w-full flex-col justify-center'>
-        <h1>Your Ratings</h1>
+      {(isOwner && <h1 className='text-3xl'>Your Ratings and Reviews</h1>) || (
+        <h1 className='text-3xl'>Ratings and Reviews</h1>
+      )}
 
-        <ul className='flex w-2/3 flex-col gap-4'>
-          {ratings.map((rating, index) => (
-            <li key={index}>
-              {rating.type === 'album' && (
-                <CornerMarkings mediaType='ALBUM' hoverEffect={true}>
-                  <div className='flex w-full flex-row justify-between'>
-                    <div>
-                      <h2>
-                        {rating.data.name} - {rating.data.name}
-                      </h2>
-                      <p>Rating: {rating.ratingValue}</p>
-                    </div>
-                    <img
-                      src={rating.data.imageUrl ?? ''}
-                      alt={rating.data.name}
-                      className='h-20 w-20'
-                    />
-                  </div>
-                </CornerMarkings>
-              )}
-              {rating.type === 'song' && (
-                <CornerMarkings mediaType='SONG' hoverEffect={true}>
-                  <Link to={`/song/${rating.data.id}`}>
-                    <div className='flex w-full flex-row justify-between'>
-                      <div>
-                        <h2>
-                          {rating.data.name} - {rating.data.artistName}
-                        </h2>
-                        <p>Rating: {rating.ratingValue}</p>
-                      </div>
-                      <img
-                        src={rating.data.imageUrl ?? ''}
-                        alt={rating.data.name}
-                        className='h-20 w-20'
-                      />
-                    </div>
-                  </Link>
-                </CornerMarkings>
-              )}
-              {rating.type === 'artist' && (
-                <CornerMarkings mediaType='ARTIST' hoverEffect={true}>
-                  <div>
-                    <h2>Artist: {rating.data.name}</h2>
-                    <p>Rating: {rating.ratingValue}</p>
-                  </div>
-                </CornerMarkings>
-              )}
-            </li>
-          ))}
-        </ul>
+      <div className='grid grid-flow-row-dense grid-cols-2 gap-4 md:grid-cols-2 lg:grid-cols-4 2xl:grid-cols-6'>
+        {combinedData.map(item => {
+          const uniqueKey = `${item.kind}-${item.data.id}`
+
+          if (item.kind === 'rating') {
+            return <RatingBox key={uniqueKey} rating={item} type={item.type} />
+          }
+
+          if (item.kind === 'review') {
+            return <ReviewBox key={uniqueKey} review={item} type={item.type} />
+          }
+
+          return null
+        })}
       </div>
     </div>
   )

@@ -3,7 +3,7 @@ import { Link } from '@remix-run/react'
 export default function Banner({ data }: { data: any }) {
   return (
     <div className='col-span-2 row-span-2 max-h-full bg-black text-white lg:col-span-4 lg:row-span-4 2xl:col-span-6 2xl:row-span-6'>
-      <Link to={data.links[2].url} className='pointer'>
+      <Link to={data.links[2]?.url ?? '#'} className='pointer'>
         <div className='flex max-h-full flex-row items-center'>
           {data.mainImage &&
           data.mainImage.asset &&
@@ -26,13 +26,9 @@ export default function Banner({ data }: { data: any }) {
 
               <div className='flex flex-row gap-4'>
                 {data.links.map((link: any) => (
-                  <a
-                    href={link.url}
-                    key={link.text}
-                    className='hover:underline'
-                  >
+                  <p key={link.text} className='hover:underline'>
                     {link.text}
-                  </a>
+                  </p>
                 ))}
               </div>
             </div>
