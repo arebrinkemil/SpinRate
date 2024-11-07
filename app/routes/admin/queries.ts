@@ -101,6 +101,7 @@ export async function addSongsToDatabase(
   for (const song of songs) {
     const imageUrl = song.album?.images?.[0]?.url || 'default_image_url'
     await findOrCreateSong(
+      song.id,
       song.name,
       artistId,
       albumId,
@@ -119,6 +120,7 @@ function isValidDate(dateString: string): boolean {
 }
 
 export async function findOrCreateSong(
+  id: string,
   name: string,
   artistId: string,
   albumId: string | null | undefined,
@@ -137,6 +139,7 @@ export async function findOrCreateSong(
       : new Date()
     song = await prisma.song.create({
       data: {
+        id,
         name,
         artistId,
         albumId,
