@@ -18,7 +18,7 @@ export default function Banner({ data }: { data: any }) {
           )}
           <div className='max-h-full'>
             <h1 className='text-hallon w-full px-8 text-right'>
-              Album of the day
+              THE ALBUM OF THE DAY!
             </h1>
             <div className='px-4'>
               <h2 className='text-4xl'>{data.header}</h2>
