@@ -9,8 +9,7 @@ import {
   useDisclosure,
 } from '@nextui-org/react'
 import { Textarea } from '@nextui-org/input'
-import Lottie from 'lottie-react'
-import soundwave from '~/assets/soundwave.json'
+
 interface ReviewFormProps {
   targetId: string
   targetType: 'SONG' | 'ALBUM' | 'ARTIST'
@@ -71,7 +70,6 @@ export default function ReviewForm({ targetId, targetType }: ReviewFormProps) {
                   <button type='submit'>Submit Review</button>
                 </Form>
               </div>
-              <Lottie className='px-2' animationData={soundwave} loop={true} />
             </div>
           )}
         </ModalContent>
