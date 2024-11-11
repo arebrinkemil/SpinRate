@@ -1,28 +1,28 @@
-import { json, LoaderFunction } from '@remix-run/node'
-import { useLoaderData, Link, MetaFunction } from '@remix-run/react'
-import { useState } from 'react'
-import { getAlbumData, getSongData, getArtistData } from '~/utils/queries'
-import { getAverageRating } from '~/utils/ratingLogic'
+import { json, LoaderFunction } from "@remix-run/node";
+import { useLoaderData, Link, MetaFunction } from "@remix-run/react";
+import { useState } from "react";
+import { getAlbumData, getSongData, getArtistData } from "~/utils/queries";
+import { getAverageRating } from "~/utils/ratingLogic";
 import {
   AlbumBox,
   SongBox,
   ArtistBox,
   HighlightBox,
-} from '~/components/ContentBoxes'
-import { client } from '~/sanity/client'
-import { SanityDocument } from '@sanity/client'
-import { S } from 'node_modules/vite/dist/node/types.d-aGj9QkWt'
-import Banner from '~/components/Banner'
+} from "~/components/ContentBoxes";
+import { client } from "~/sanity/client";
+import { SanityDocument } from "@sanity/client";
+import { S } from "node_modules/vite/dist/node/types.d-aGj9QkWt";
+import Banner from "~/components/Banner";
 
 export const meta: MetaFunction = () => {
-  return [{ title: 'SPINRATE' }]
-}
+  return [{ title: "SPINRATE" }];
+};
 
 type LoaderData = {
-  data: any[]
-  sanityData: SanityDocument[]
-  bannerData: SanityDocument[]
-}
+  data: any[];
+  sanityData: SanityDocument[];
+  bannerData: SanityDocument[];
+};
 
 const POSTS_QUERY = `*[_type == "featuredContent"]{
   _id,
@@ -31,7 +31,7 @@ const POSTS_QUERY = `*[_type == "featuredContent"]{
   artists,
   albums
 }
-`
+`;
 
 const BANNER_QUERY = `*[_type == "banner"]{
   mainImage{
@@ -48,13 +48,14 @@ const BANNER_QUERY = `*[_type == "banner"]{
     }
   },
   header,
+  textColor,
   bodyText,
   links[]{
     text,
     url
   }
 }
-`
+`;
 
 const HIGHLIGHT_QUERY = `*[_type == "highlight"]{
  
@@ -66,209 +67,209 @@ const HIGHLIGHT_QUERY = `*[_type == "highlight"]{
     type
   }
 }
-`
+`;
 
 function shuffleArray<T>(array: T[] = []): T[] {
   for (let i = array.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1))
-    ;[array[i], array[j]] = [array[j], array[i]]
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
   }
-  return array
+  return array;
 }
 
 type HighlightID = {
-  text: string
-  url: string | null
-  type: 'ALBUM' | 'ARTIST' | 'SONG'
-}
+  text: string;
+  url: string | null;
+  type: "ALBUM" | "ARTIST" | "SONG";
+};
 
 type Highlight = {
-  header: string
-  bodyText: string
-  highlightIDs: HighlightID[]
-}
+  header: string;
+  bodyText: string;
+  highlightIDs: HighlightID[];
+};
 
 export const loader: LoaderFunction = async ({ request }) => {
-  const sanityData = await client.fetch<SanityDocument[]>(POSTS_QUERY)
-  const bannerData = await client.fetch<SanityDocument[]>(BANNER_QUERY)
-  const highlightedContent = await client.fetch<Highlight[]>(HIGHLIGHT_QUERY)
+  const sanityData = await client.fetch<SanityDocument[]>(POSTS_QUERY);
+  const bannerData = await client.fetch<SanityDocument[]>(BANNER_QUERY);
+  const highlightedContent = await client.fetch<Highlight[]>(HIGHLIGHT_QUERY);
 
   const albumsWithRatings = await Promise.all(
     sanityData
-      .flatMap(doc => doc.albums ?? [])
-      .map(async id => {
-        const album = await getAlbumData(id)
+      .flatMap((doc) => doc.albums ?? [])
+      .map(async (id) => {
+        const album = await getAlbumData(id);
         const { verifiedAverage, unverifiedAverage } = await getAverageRating(
           id,
-          'ALBUM',
-        )
-        return { ...album, verifiedAverage, unverifiedAverage, type: 'album' }
-      }),
-  )
+          "ALBUM"
+        );
+        return { ...album, verifiedAverage, unverifiedAverage, type: "album" };
+      })
+  );
 
   const songsWithRatings = await Promise.all(
     sanityData
-      .flatMap(doc => doc.songs ?? [])
-      .map(async id => {
-        const song = await getSongData(id)
+      .flatMap((doc) => doc.songs ?? [])
+      .map(async (id) => {
+        const song = await getSongData(id);
         const { verifiedAverage, unverifiedAverage } = await getAverageRating(
           id,
-          'SONG',
-        )
-        return { ...song, verifiedAverage, unverifiedAverage, type: 'song' }
-      }),
-  )
+          "SONG"
+        );
+        return { ...song, verifiedAverage, unverifiedAverage, type: "song" };
+      })
+  );
 
   const artistsWithRatings = await Promise.all(
     sanityData
-      .flatMap(doc => doc.artists ?? [])
-      .map(async id => {
-        const artist = await getArtistData(id)
+      .flatMap((doc) => doc.artists ?? [])
+      .map(async (id) => {
+        const artist = await getArtistData(id);
         const { verifiedAverage, unverifiedAverage } = await getAverageRating(
           id,
-          'ARTIST',
-        )
+          "ARTIST"
+        );
         return {
           ...artist,
           verifiedAverage,
           unverifiedAverage,
-          type: 'artist',
-        }
-      }),
-  )
+          type: "artist",
+        };
+      })
+  );
 
   const highlightsWithDetails = await Promise.all(
-    highlightedContent.map(async highlight => {
+    highlightedContent.map(async (highlight) => {
       const detailedHighlights = await Promise.all(
-        highlight.highlightIDs.map(async highlightID => {
-          if (highlightID.type === 'ALBUM') {
+        highlight.highlightIDs.map(async (highlightID) => {
+          if (highlightID.type === "ALBUM") {
             return highlightID.text
               ? await getAlbumData(highlightID.text)
-              : highlightID
+              : highlightID;
           }
-          if (highlightID.type === 'SONG') {
+          if (highlightID.type === "SONG") {
             return highlightID.text
               ? await getSongData(highlightID.text)
-              : highlightID
+              : highlightID;
           }
-          if (highlightID.type === 'ARTIST') {
+          if (highlightID.type === "ARTIST") {
             return highlightID.text
               ? await getArtistData(highlightID.text)
-              : highlightID
+              : highlightID;
           }
-          return highlightID
-        }),
-      )
+          return highlightID;
+        })
+      );
 
-      return { ...highlight, highlightIDs: detailedHighlights }
-    }),
-  )
+      return { ...highlight, highlightIDs: detailedHighlights };
+    })
+  );
 
   const combinedData = shuffleArray([
     ...albumsWithRatings,
     ...songsWithRatings,
     ...artistsWithRatings,
-  ])
+  ]);
 
-  let insertIndex = 6
-  highlightsWithDetails.forEach(highlight => {
+  let insertIndex = 6;
+  highlightsWithDetails.forEach((highlight) => {
     combinedData.splice(insertIndex, 0, {
       ...highlight,
       verifiedAverage: null,
       unverifiedAverage: null,
-      type: 'highlight',
+      type: "highlight",
       id: highlight.header,
-    })
-    insertIndex += 12
-  })
+    });
+    insertIndex += 12;
+  });
 
   return json<LoaderData>({
     data: combinedData,
     sanityData,
     bannerData,
-  })
-}
+  });
+};
 
 export default function Home() {
-  const { data, sanityData, bannerData } = useLoaderData<LoaderData>()
+  const { data, sanityData, bannerData } = useLoaderData<LoaderData>();
 
   const [filter, setFilter] = useState<
-    'all' | 'album' | 'song' | 'artist' | 'highlight'
-  >('all')
+    "all" | "album" | "song" | "artist" | "highlight"
+  >("all");
 
-  const filteredData = data.filter(item => {
-    if (filter === 'all') return true
-    return item.type === filter
-  })
+  const filteredData = data.filter((item) => {
+    if (filter === "all") return true;
+    return item.type === filter;
+  });
 
   return (
-    <div className=' px-10'>
-      <div className='flex flex-row items-center justify-between'>
-        <div className='mb-4 flex space-x-4'>
+    <div className="w-full px-4 lg:px-10">
+      <div className="flex flex-col-reverse lg:flex-row items-center justify-between">
+        <div className="mb-1 lg:mb-4 flex space-x-1 lg:space-x-4">
           <button
-            onClick={() => setFilter('all')}
+            onClick={() => setFilter("all")}
             className={`px-4 py-2 underline decoration-black decoration-4 ${
-              filter === 'all' ? 'bg-gray-800 text-white' : 'bg-gray-200'
+              filter === "all" ? "bg-gray-800 text-white" : "bg-gray-200"
             }`}
           >
             All
           </button>
           <button
-            onClick={() => setFilter('album')}
+            onClick={() => setFilter("album")}
             className={`decoration-hallon px-4 py-2 underline decoration-4 ${
-              filter === 'album' ? 'text-hallon bg-gray-800' : 'bg-gray-200'
+              filter === "album" ? "text-hallon bg-gray-800" : "bg-gray-200"
             }`}
           >
             Albums
           </button>
           <button
-            onClick={() => setFilter('song')}
+            onClick={() => setFilter("song")}
             className={`decoration-blue px-4 py-2 underline decoration-4 ${
-              filter === 'song' ? 'text-blue bg-gray-800' : 'bg-gray-200'
+              filter === "song" ? "text-blue bg-gray-800" : "bg-gray-200"
             }`}
           >
             Songs
           </button>
           <button
-            onClick={() => setFilter('artist')}
+            onClick={() => setFilter("artist")}
             className={`decoration-orange px-4 py-2 underline decoration-4 ${
-              filter === 'artist' ? 'text-orange bg-gray-800' : 'bg-gray-200'
+              filter === "artist" ? "text-orange bg-gray-800" : "bg-gray-200"
             }`}
           >
             Artists
           </button>
         </div>
-        <div className='mb-4 flex flex-row gap-4 bg-black px-2'>
-          <p className='text-[#79B473]'>VERIFIED</p>
-          <p className='text-[#F4442E]'>PUBLIC</p>
+        <div className="mb-1 lg:mb-4 flex flex-row gap-4 bg-black px-2">
+          <p className="text-[#79B473]">VERIFIED</p>
+          <p className="text-[#F4442E]">PUBLIC</p>
         </div>
       </div>
 
-      <div className='grid grid-flow-row-dense grid-cols-2 gap-4 md:grid-cols-2 lg:grid-cols-4 2xl:grid-cols-6'>
-        <Banner data={bannerData[1]} />
+      <div className="grid grid-flow-row-dense grid-cols-2 gap-2 lg:gap-4 md:grid-cols-2 lg:grid-cols-4 2xl:grid-cols-6">
+        <Banner data={bannerData[0]} />
 
-        {filteredData.map(item => {
-          if (item.type === 'album') {
+        {filteredData.map((item) => {
+          if (item.type === "album") {
             return (
               <AlbumBox
                 key={item.id}
                 album={item}
-                className='col-span-1 row-span-1 lg:col-span-2 lg:row-span-2 xl:col-span-2 xl:row-span-2'
+                className="col-span-1 row-span-1 lg:col-span-2 lg:row-span-2 xl:col-span-2 xl:row-span-2"
               />
-            )
+            );
           }
-          if (item.type === 'song') {
-            return <SongBox key={item.id} song={item} />
+          if (item.type === "song") {
+            return <SongBox key={item.id} song={item} />;
           }
-          if (item.type === 'artist') {
-            return <ArtistBox key={item.id} artist={item} />
+          if (item.type === "artist") {
+            return <ArtistBox key={item.id} artist={item} />;
           }
-          if (item.type === 'highlight') {
-            return <HighlightBox key={item.id} item={item} />
+          if (item.type === "highlight") {
+            return <HighlightBox key={item.id} item={item} />;
           }
-          return null
+          return null;
         })}
       </div>
     </div>
-  )
+  );
 }
