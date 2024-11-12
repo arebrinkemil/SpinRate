@@ -101,7 +101,7 @@ export default function Song() {
           <AverageRating type='PUBLIC' averageRating={unverifiedAverage} />
         </div>
         <iframe
-          src='https://open.spotify.com/embed/track/1Es7AUAhQvapIcoh3qMKDL?utm_source=generator&theme=0'
+          src={`https://open.spotify.com/embed/track/${targetData.id}?utm_source=generator&theme=0`}
           width='100%'
           height='152'
           frameBorder='0'
