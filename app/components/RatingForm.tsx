@@ -1,5 +1,5 @@
 import { Form } from '@remix-run/react'
-import { Slider } from '@nextui-org/react'
+import { Slider, Button } from '@nextui-org/react'
 
 interface RatingFormProps {
   targetId: string
@@ -13,27 +13,32 @@ export default function RatingForm({
   hasRated,
 }: RatingFormProps) {
   return hasRated ? (
-    <p>You have already rated this {targetType.toLowerCase()}.</p>
+    <p className='text-platinum min-h-24 md:text-black'>
+      You have already rated this {targetType.toLowerCase()}.
+    </p>
   ) : (
-    <Form method='post'>
+    <Form method='post' className='w-full'>
       <label>
-        Rate this {targetType.toLowerCase()} (1-10):
+        <h3 className='text-platinum md:text-black'>
+          Rate this {targetType.toLowerCase()}
+        </h3>
         <Slider
           size='lg'
           step={1}
           color='foreground'
-          label='Rating'
           showSteps={true}
           maxValue={10}
           minValue={1}
           defaultValue={5}
-          className='max-w-md'
+          className='w-full'
           name='rating'
         />
       </label>
       <input type='hidden' name='intent' value='rate' />
       <input type='hidden' name='type' value={targetType} />
-      <button type='submit'>Submit Rating</button>
+      <Button className='bg-hallon w-full rounded-none' type='submit'>
+        Submit Rating
+      </Button>
     </Form>
   )
 }
