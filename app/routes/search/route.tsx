@@ -4,6 +4,7 @@ import { Form, Link, useLoaderData } from '@remix-run/react'
 import { motion } from 'framer-motion'
 import { useEffect, useState } from 'react'
 import { Input } from '@nextui-org/react'
+import { truncateText } from '~/utils/truncate'
 
 type SearchLoaderData = {
   artists: { id: string; name: string }[]
@@ -52,6 +53,8 @@ export default function Search() {
     return () => clearTimeout(timer)
   }, [])
 
+  const limit = 25
+
   return (
     <motion.div
       className='text-silver mt-[-44px] bg-black'
@@ -86,9 +89,14 @@ export default function Search() {
         <div>
           <h2>Artists</h2>
           <ul>
-            {artists.map(artist => (
+            {artists.slice(0, limit).map(artist => (
               <li key={artist.id} className='hover:text-white hover:underline'>
-                <Link to={`/artist/${artist.id}`}>{artist.name}</Link>
+                <Link className='block lg:hidden' to={`/artist/${artist.id}`}>
+                  {truncateText(artist.name, 16)}
+                </Link>
+                <Link className='hidden lg:block' to={`/artist/${artist.id}`}>
+                  {artist.name}
+                </Link>
               </li>
             ))}
           </ul>
@@ -98,7 +106,12 @@ export default function Search() {
           <ul>
             {albums.map(album => (
               <li key={album.id} className='hover:text-white hover:underline'>
-                <Link to={`/album/${album.id}`}>{album.name}</Link>
+                <Link className='block lg:hidden' to={`/album/${album.id}`}>
+                  {truncateText(album.name, 16)}
+                </Link>
+                <Link className='hidden lg:block' to={`/song/${album.id}`}>
+                  {album.name}
+                </Link>
               </li>
             ))}
           </ul>
@@ -108,7 +121,12 @@ export default function Search() {
           <ul>
             {songs.map(song => (
               <li key={song.id} className='hover:text-white hover:underline'>
-                <Link to={`/song/${song.id}`}>{song.name}</Link>
+                <Link className='block lg:hidden' to={`/song/${song.id}`}>
+                  {truncateText(song.name, 16)}
+                </Link>
+                <Link className='hidden lg:block' to={`/song/${song.id}`}>
+                  {song.name}
+                </Link>
               </li>
             ))}
           </ul>
