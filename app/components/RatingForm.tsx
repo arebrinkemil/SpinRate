@@ -17,11 +17,11 @@ export default function RatingForm({
       You have already rated this {targetType.toLowerCase()}.
     </p>
   ) : (
-    <Form method='post' className='w-full'>
+    <Form method='post' className='flex w-full flex-col'>
+      <h4 className='text-platinum md:text-black'>
+        Rate this {targetType.toLowerCase()}
+      </h4>
       <label>
-        <h3 className='text-platinum md:text-black'>
-          Rate this {targetType.toLowerCase()}
-        </h3>
         <Slider
           size='lg'
           step={1}

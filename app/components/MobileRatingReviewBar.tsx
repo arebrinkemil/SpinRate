@@ -23,7 +23,7 @@ export default function MobileRatingReviewBar({
       animate={{ y: 0 }}
       transition={{ type: 'tween', stiffness: 100 }}
     >
-      <div className='flex items-center justify-between gap-4'>
+      <div className='flex items-end justify-between gap-4'>
         <div className='basis-3/5'>
           <RatingForm
             targetId={targetId}
@@ -32,7 +32,7 @@ export default function MobileRatingReviewBar({
           />
         </div>
         <div className='basis-2/5'>
-          <h3 className='text-platinum mb-10 md:text-black'>Leave a review</h3>
+          <h4 className='text-platinum mb-10 md:text-black'></h4>
           {verified ? (
             <ReviewForm targetId={targetId} targetType={targetType} />
           ) : (

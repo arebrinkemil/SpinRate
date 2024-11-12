@@ -36,7 +36,7 @@ export function AlbumBox({
         className='aspect-square'
         hoverEffect={true}
       >
-        <li className='bg-lightsilver flex h-full w-full flex-col p-4 pr-0'>
+        <li className='bg-lightsilver flex h-full w-full flex-col p-2 pr-0 lg:p-4'>
           <div className='flex h-4/6 w-full flex-row'>
             <img
               src={album.imageUrl ?? ''}
@@ -56,11 +56,37 @@ export function AlbumBox({
               />
             </div>
           </div>
-          <h1 className='text-platinum text-lg'>
-            {' '}
-            {truncateText(album.name, 24)}
-          </h1>
-          <p className='text-lg text-white'>{album.artist.name}</p>
+          <div className='hidden lg:block'>
+            {album.name.length > 15 ? (
+              <h1 className='group relative mr-4 overflow-hidden whitespace-nowrap text-xl text-black'>
+                <span className='group-hover:animate-marquee block'>
+                  {album.name}
+                </span>
+              </h1>
+            ) : (
+              <h1 className='mr-4 text-xl text-black'>{album.name}</h1>
+            )}
+
+            {album.artist.name.length > 15 ? (
+              <p className='group relative  mr-4 overflow-hidden whitespace-nowrap text-base text-black md:text-lg'>
+                <span className='group-hover:animate-marquee block'>
+                  {album.artist.name}
+                </span>
+              </p>
+            ) : (
+              <p className='mr-4 text-base text-black md:text-lg'>
+                {album.artist.name}
+              </p>
+            )}
+          </div>
+          <div className='block lg:hidden'>
+            <h1 className='text-base leading-none md:text-lg'>
+              {truncateText(album.name, 24)}
+            </h1>
+            <p className='text-base leading-none text-black md:text-lg'>
+              {truncateText(album.artist.name, 12)}
+            </p>
+          </div>
         </li>
       </CornerMarkings>
     </Link>
@@ -75,7 +101,7 @@ export function SongBox({ song }: SongBoxProps) {
         className='aspect-square'
         hoverEffect={true}
       >
-        <li className='bg-lightsilver flex h-full w-full flex-col p-4 pr-0'>
+        <li className='bg-lightsilver flex h-full w-full flex-col p-2 pr-0 lg:p-4'>
           <div className='flex h-4/6 w-full flex-row'>
             <img
               src={song.imageUrl ?? ''}
@@ -95,9 +121,37 @@ export function SongBox({ song }: SongBoxProps) {
               />
             </div>
           </div>
-          <h1 className='text-platinum text-xl'>{song.name}</h1>
+          <div className='hidden lg:block'>
+            {song.name.length > 15 ? (
+              <h1 className='group relative mr-4 overflow-hidden whitespace-nowrap text-base text-black md:text-lg'>
+                <span className='group-hover:animate-marquee block'>
+                  {song.name}
+                </span>
+              </h1>
+            ) : (
+              <h1 className='mr-4 text-base md:text-lg'>{song.name}</h1>
+            )}
 
-          <p className='text-lg text-white'>{song.artist.name}</p>
+            {song.artist.name.length > 15 ? (
+              <p className='group relative mr-4 overflow-hidden whitespace-nowrap text-base text-black md:text-lg'>
+                <span className='group-hover:animate-marquee block'>
+                  {song.artist.name}
+                </span>
+              </p>
+            ) : (
+              <p className='mr-4 text-base text-black md:text-lg'>
+                {song.artist.name}
+              </p>
+            )}
+          </div>
+          <div className='block lg:hidden'>
+            <h1 className='text-base leading-none md:text-lg'>
+              {truncateText(song.name, 20)}
+            </h1>
+            <p className='text-base leading-none text-black md:text-lg'>
+              {truncateText(song.artist.name, 12)}
+            </p>
+          </div>
         </li>
       </CornerMarkings>
     </Link>
@@ -112,7 +166,7 @@ export function ArtistBox({ artist }: ArtistBoxProps) {
         className='aspect-square'
         hoverEffect={true}
       >
-        <li className='bg-lightsilver flex h-full w-full flex-col p-4 pr-0'>
+        <li className='bg-lightsilver flex h-full w-full flex-col p-2 pr-0 lg:p-4'>
           <div className='flex h-4/6 w-full flex-row'>
             <img
               src={artist.imageUrl ?? ''}
@@ -132,7 +186,31 @@ export function ArtistBox({ artist }: ArtistBoxProps) {
               />
             </div>
           </div>
-          <h1 className='text-platinum text-xl'>{artist.name}</h1>
+          <div className='hidden lg:hidden'>
+            {artist.name.length > 15 ? (
+              <h1 className='group relative mr-4 overflow-hidden whitespace-nowrap text-xl text-black'>
+                <span className='group-hover:animate-marquee block'>
+                  {artist.name}
+                </span>
+              </h1>
+            ) : (
+              <h1 className='mr-4 text-xl text-black'>{artist.name}</h1>
+            )}
+          </div>
+          <div className='hidden lg:block'>
+            {artist.name.length > 15 ? (
+              <h1 className='group relative mr-4 overflow-hidden whitespace-nowrap text-xl text-black'>
+                <span className='group-hover:animate-marquee block'>
+                  {artist.name}
+                </span>
+              </h1>
+            ) : (
+              <h1 className='mr-4 text-xl text-black'>{artist.name}</h1>
+            )}
+          </div>
+          <div className='block lg:hidden'>
+            <h1 className='text-xl text-black'>{artist.name}</h1>
+          </div>
         </li>
       </CornerMarkings>
     </Link>
