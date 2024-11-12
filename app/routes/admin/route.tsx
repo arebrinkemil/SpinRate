@@ -42,6 +42,7 @@ async function getAccessToken() {
   const data = await response.json()
   return data.access_token
 }
+
 async function fetchPlaylistTracks(playlistId: string, accessToken: string) {
   const response = await fetch(
     `https://api.spotify.com/v1/playlists/${playlistId}/tracks`,
@@ -126,7 +127,9 @@ export const action: ActionFunction = async ({ request }) => {
         track.album.id,
         track.album.images[0].url,
       )
+
       await findOrCreateSong(
+        track.id,
         track.name,
         artistIds[0],
         album.id,
@@ -138,9 +141,10 @@ export const action: ActionFunction = async ({ request }) => {
       )
     } else {
       await findOrCreateSong(
+        track.id,
         track.name,
         artistIds[0],
-        null,
+        'single',
         track.duration_ms,
         track.album.release_date,
         track.external_urls.spotify,
