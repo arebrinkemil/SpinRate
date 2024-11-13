@@ -87,6 +87,7 @@ export function AlbumBox({
               {truncateText(album.artist.name, 12)}
             </p>
           </div>
+
         </li>
       </CornerMarkings>
     </Link>
@@ -152,6 +153,7 @@ export function SongBox({ song }: SongBoxProps) {
               {truncateText(song.artist.name, 12)}
             </p>
           </div>
+
         </li>
       </CornerMarkings>
     </Link>
@@ -167,6 +169,7 @@ export function ArtistBox({ artist }: ArtistBoxProps) {
         hoverEffect={true}
       >
         <li className='bg-lightsilver flex h-full w-full flex-col p-2 pr-0 lg:p-4'>
+
           <div className='flex h-4/6 w-full flex-row'>
             <img
               src={artist.imageUrl ?? ''}
@@ -186,6 +189,7 @@ export function ArtistBox({ artist }: ArtistBoxProps) {
               />
             </div>
           </div>
+
           <div className='hidden lg:hidden'>
             {artist.name.length > 15 ? (
               <h1 className='group relative mr-4 overflow-hidden whitespace-nowrap text-xl text-black'>
@@ -211,6 +215,7 @@ export function ArtistBox({ artist }: ArtistBoxProps) {
           <div className='block lg:hidden'>
             <h1 className='text-xl text-black'>{artist.name}</h1>
           </div>
+
         </li>
       </CornerMarkings>
     </Link>
@@ -225,6 +230,7 @@ export function HighlightBox({ item }: { item: any }) {
         <p className='text-white lg:max-2xl:hidden'>{item.bodyText}</p>
 
         <div className='hidden h-full flex-col justify-center 2xl:flex'>
+
           <div className='flex flex-row space-x-4'>
             {item.highlightIDs.map((highlight: any) => (
               <Link key={highlight.id} to={highlight.url ?? '#'}>
@@ -234,6 +240,7 @@ export function HighlightBox({ item }: { item: any }) {
                   className='aspect-square'
                 />
                 <p className='font-bold text-white'>{highlight.name}</p>
+
                 {highlight.artist ? (
                   <p className='text-white'>{highlight.artist.name}</p>
                 ) : (
@@ -316,12 +323,14 @@ export function RatingBox({
             <img
               src={item.imageUrl ?? ''}
               alt={item.name}
+
               className='h-full w-4/6 object-cover'
             />
             <div className='flex h-full w-2/6 flex-col items-center justify-center'>
               <AverageRating
                 type='VERIFIED'
                 className='text-white'
+
                 averageRating={rating.ratingValue}
               />
             </div>
@@ -358,6 +367,7 @@ export function RatingBox({
               </p>
             )}
           </div>
+
         </li>
       </CornerMarkings>
     </Link>
@@ -428,6 +438,7 @@ export function ReviewBox({
             <p className=' text-black'>
               {truncateText(review.reviewValue, 50)}
             </p>
+
           </div>
         </li>
       </CornerMarkings>
