@@ -35,7 +35,7 @@ export default function ReviewForm({ targetId, targetType }: ReviewFormProps) {
 
   return (
     <>
-      <Button className={`${buttonClass} rounded-none`} onPress={onOpen}>
+      <Button className={`${buttonClass} w-full rounded-none`} onPress={onOpen}>
         REVIEW
       </Button>
 

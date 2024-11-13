@@ -73,3 +73,10 @@ export async function getUserRatings(id: string): Promise<RatingData[]> {
 
   return userRatings
 }
+
+export async function updateUserData(id: string, data: Partial<Account>) {
+  return await prisma.account.update({
+    where: { id: id },
+    data: data,
+  })
+}

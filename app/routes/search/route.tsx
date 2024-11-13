@@ -4,6 +4,7 @@ import { Form, Link, useLoaderData } from '@remix-run/react'
 import { motion } from 'framer-motion'
 import { useEffect, useState } from 'react'
 import { Input } from '@nextui-org/react'
+import { truncateText } from '~/utils/truncate'
 
 type SearchLoaderData = {
   artists: { id: string; name: string }[]
@@ -52,16 +53,18 @@ export default function Search() {
     return () => clearTimeout(timer)
   }, [])
 
+  const limit = 40
+
   return (
     <motion.div
-      className='text-silver mt-[-44px] bg-black'
+      className='text-silver mt-[-44px] overflow-x-hidden bg-black'
       initial={{ y: '-100%' }}
       animate={{ y: '0%' }}
       exit={{ y: '100%' }}
       transition={{ duration: 0.8, ease: 'easeInOut' }}
     >
       <Form
-        className='flex w-full justify-center pb-10 pt-20'
+        className='flex w-full flex-col justify-center pb-10 pt-20 md:flex-row'
         method='get'
         action='/search'
       >
@@ -75,20 +78,31 @@ export default function Search() {
           name='q'
           placeholder='Search for artists, songs, albums...'
           onClear={() => console.log('input cleared')}
-          className='input-white dark w-1/4 border-white text-white'
+          className='input-white dark border-white text-white md:w-1/4'
           radius='none'
         />
 
         <button type='submit'>Search</button>
       </Form>
 
-      <div className='mx-8 flex min-h-screen w-full flex-row justify-around'>
+      <div className='mx-8 flex min-h-screen w-full flex-col justify-around gap-8 md:flex-row'>
         <div>
           <h2>Artists</h2>
           <ul>
-            {artists.map(artist => (
-              <li key={artist.id} className='hover:text-white hover:underline'>
-                <Link to={`/artist/${artist.id}`}>{artist.name}</Link>
+            {artists.slice(0, limit).map(artist => (
+              <li
+                key={artist.id}
+                className='overflow-x-hidden hover:text-white hover:underline'
+              >
+                <Link className='hidden md:block' to={`/artist/${artist.id}`}>
+                  {truncateText(artist.name, 16)}
+                </Link>
+                <Link
+                  className='block md:hidden lg:block'
+                  to={`/artist/${artist.id}`}
+                >
+                  {artist.name}
+                </Link>
               </li>
             ))}
           </ul>
@@ -96,9 +110,20 @@ export default function Search() {
         <div>
           <h2>Albums</h2>
           <ul>
-            {albums.map(album => (
-              <li key={album.id} className='hover:text-white hover:underline'>
-                <Link to={`/album/${album.id}`}>{album.name}</Link>
+            {albums.slice(0, limit).map(album => (
+              <li
+                key={album.id}
+                className='overflow-x-hidden hover:text-white hover:underline'
+              >
+                <Link className='hidden md:block' to={`/album/${album.id}`}>
+                  {truncateText(album.name, 16)}
+                </Link>
+                <Link
+                  className='block md:hidden lg:block'
+                  to={`/song/${album.id}`}
+                >
+                  {album.name}
+                </Link>
               </li>
             ))}
           </ul>
@@ -106,9 +131,20 @@ export default function Search() {
         <div>
           <h2>Songs</h2>
           <ul>
-            {songs.map(song => (
-              <li key={song.id} className='hover:text-white hover:underline'>
-                <Link to={`/song/${song.id}`}>{song.name}</Link>
+            {songs.slice(0, limit).map(song => (
+              <li
+                key={song.id}
+                className='overflow-x-hidden hover:text-white hover:underline'
+              >
+                <Link className='hidden md:block' to={`/song/${song.id}`}>
+                  {truncateText(song.name, 16)}
+                </Link>
+                <Link
+                  className='block md:hidden lg:block'
+                  to={`/song/${song.id}`}
+                >
+                  {song.name}
+                </Link>
               </li>
             ))}
           </ul>

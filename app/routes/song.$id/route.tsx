@@ -16,6 +16,8 @@ import RatingForm from '~/components/RatingForm'
 import ReviewForm from '~/components/ReviewForm'
 import ReviewDisplay from '~/components/ReviewDisplay'
 import CornerMarkings from '~/components/CornerMarkings'
+import MobileRatingReviewBar from '~/components/MobileRatingReviewBar'
+import { truncateText } from '~/utils/truncate'
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
   const targetId = String(params.id)
@@ -62,6 +64,11 @@ export async function action({ request, params }: ActionFunctionArgs) {
   }
 }
 
+function formatDuration(durationMs: number): string {
+  const minutes = Math.floor(durationMs / 60000)
+  const seconds = Math.floor((durationMs % 60000) / 1000)
+  return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`
+}
 export default function Song() {
   const {
     targetData,
@@ -76,66 +83,135 @@ export default function Song() {
     <div>
       <h1 className='mx-4 text-3xl'>Song</h1>
 
-      <div className='m-8 flex flex-row justify-between'>
-        <div className='flex flex-row gap-4'>
-          <CornerMarkings
-            mediaType='SONG'
-            className='aspect-square w-1/4'
-            hoverEffect={true}
-          >
-            <img
-              className='aspect-square object-cover'
-              src={targetData.imageUrl ?? ''}
-              alt={targetData.name}
-            />
-          </CornerMarkings>
-          <div>
-            <h1>{targetData.name ?? 'Artist Name not found'}</h1>
-            <Link to={`/artist/${targetData.artistId}`}>
-              <h2>{targetData.artist.name ?? 'Artist Name not found'}</h2>
-            </Link>
+      <div className='m-4 flex flex-col justify-between md:m-8'>
+        <div className='hidden flex-row gap-4 md:flex'>
+          <div className='w-96 shrink'>
+            <CornerMarkings mediaType='SONG' className='' hoverEffect={true}>
+              <img
+                className='aspect-square object-cover'
+                src={targetData.imageUrl ?? ''}
+                alt={targetData.name}
+              />
+            </CornerMarkings>
+          </div>
+
+          <div className='flex basis-3/4 flex-row justify-between'>
+            <div className='flex flex-col'>
+              <h2>{targetData.name ?? 'Artist Name not found'}</h2>
+              <Link to={`/artist/${targetData.artistId}`}>
+                <h3>{targetData.artist.name ?? 'Artist Name not found'}</h3>
+              </Link>
+              {targetData.albumId && (
+                <Link to={`/album/${targetData.albumId}`}>
+                  <p className='underline'>Go to Album</p>
+                </Link>
+              )}
+              <p>
+                Release Date:{' '}
+                {targetData.releaseDate ?? 'Release Date not found'}
+              </p>
+              <p>Duration: {formatDuration(targetData.duration)}</p>
+            </div>
+            <div className='flex flex-row items-center md:flex-col'>
+              <AverageRating type='VERIFIED' averageRating={verifiedAverage} />
+              <AverageRating type='PUBLIC' averageRating={unverifiedAverage} />
+            </div>
           </div>
         </div>
-        <div className='flex flex-col items-center'>
-          <AverageRating type='VERIFIED' averageRating={verifiedAverage} />
-          <AverageRating type='PUBLIC' averageRating={unverifiedAverage} />
+
+        <div className='flex flex-col md:hidden'>
+          <div className='flex w-full gap-4'>
+            <div className='shrink basis-2/5'>
+              <CornerMarkings mediaType='SONG' className='' hoverEffect={true}>
+                <img
+                  className='aspect-square object-cover'
+                  src={targetData.imageUrl ?? ''}
+                  alt={targetData.name}
+                />
+              </CornerMarkings>
+            </div>
+
+            <div className='flex basis-3/5 flex-row justify-between'>
+              <div className='flex flex-col'>
+                <h2>{targetData.name ?? 'Artist Name not found'}</h2>
+                <Link to={`/artist/${targetData.artistId}`}>
+                  <h3>{targetData.artist.name ?? 'Artist Name not found'}</h3>
+                </Link>
+                {targetData.albumId && (
+                  <Link to={`/album/${targetData.albumId}`}>
+                    <p className='underline'>Go to Album</p>
+                  </Link>
+                )}
+                <p>
+                  Release Date:{' '}
+                  {truncateText(
+                    targetData.releaseDate ?? 'Release Date not found',
+                    16,
+                  )}
+                </p>
+                <p>Duration: {formatDuration(targetData.duration)}</p>
+              </div>
+            </div>
+          </div>
+          <div className='flex w-full flex-row md:flex-col'>
+            <AverageRating type='VERIFIED' averageRating={verifiedAverage} />
+            <AverageRating type='PUBLIC' averageRating={unverifiedAverage} />
+          </div>
         </div>
-        <iframe
-          src='https://open.spotify.com/embed/track/1Es7AUAhQvapIcoh3qMKDL?utm_source=generator&theme=0'
-          width='100%'
-          height='152'
-          frameBorder='0'
-          allow='autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture'
-          loading='lazy'
-        ></iframe>
-      </div>
-      <div className='mx-4 flex w-full flex-row justify-center'>
-        <div className='flex basis-1/2 flex-col'>
-          <RatingForm
-            targetId={targetData.id}
-            targetType='SONG'
-            hasRated={hasRated}
-          />
 
-          <h2>Leave a review</h2>
+        <div className='flex w-full flex-col gap-4 md:flex-row'>
+          <div className='basis-1/2 '>
+            <div className=' mb-8 hidden w-full basis-1/2 justify-center md:flex'>
+              <RatingForm
+                targetId={targetData.id}
+                targetType='SONG'
+                hasRated={hasRated}
+              />
+            </div>
+            <div className=' bg-[#282828]'>
+              <iframe
+                src={`https://open.spotify.com/embed/track/${targetData.id}?utm_source=generator&theme=0`}
+                width='100%'
+                height='152'
+                frameBorder='0'
+                allow='autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture'
+                loading='lazy'
+              ></iframe>
+            </div>
+          </div>
+          <div className='basis-1/2'>
+            <div className='flex w-full flex-col justify-center md:mx-4'>
+              <div className='hidden flex-col md:flex'>
+                <h3 className='text-platinum mb-10 md:text-black'>
+                  Leave a review
+                </h3>
 
-          {verified ? (
-            <ReviewForm targetId={targetData.id} targetType='SONG' />
-          ) : (
-            <p>
-              Please <Link to='/login'>login</Link> to leave a review.
-            </p>
-          )}
+                {verified ? (
+                  <ReviewForm targetId={targetData.id} targetType='SONG' />
+                ) : (
+                  <p>
+                    Please <Link to='/login'>login</Link> to leave a review.
+                  </p>
+                )}
 
-          <h2>Reviews</h2>
+                <h2>Reviews</h2>
+              </div>
+              <ul className='mb-12 flex basis-1/2 flex-col md:mb-0'>
+                <h3 className='text-xl underline'>Reviews</h3>
+                {reviews.map(review => (
+                  <ReviewDisplay key={review.id} review={review} />
+                ))}
+              </ul>
+            </div>
+          </div>
         </div>
-        <ul className='mx-8 flex basis-1/2 flex-col'>
-          <h3 className='text-xl underline'>Reviews</h3>
-          {reviews.map(review => (
-            <ReviewDisplay key={review.id} review={review} />
-          ))}
-        </ul>
       </div>
+      <MobileRatingReviewBar
+        targetId={targetData.id}
+        targetType='SONG'
+        hasRated={hasRated}
+        verified={verified}
+      />
     </div>
   )
 }
