@@ -216,13 +216,15 @@ export function ArtistBox({ artist }: ArtistBoxProps) {
     </Link>
   )
 }
+
 export function HighlightBox({ item }: { item: any }) {
   return (
-    <div className='col-span-2 row-span-1 bg-black lg:col-span-3 lg:row-span-1  2xl:col-span-4 2xl:row-span-2'>
-      <div className=' flex h-full flex-col p-4'>
+    <div className='col-span-2 row-span-1 bg-black lg:col-span-3 lg:row-span-1 2xl:col-span-4 2xl:row-span-2'>
+      <div className='flex h-full flex-col p-4'>
         <h2 className='text-2xl font-bold text-white'>{item.header}</h2>
-        <p className='text-white'>{item.bodyText}</p>
-        <div className='flex h-full flex-col justify-center'>
+        <p className='text-white lg:max-2xl:hidden'>{item.bodyText}</p>
+
+        <div className='hidden h-full flex-col justify-center 2xl:flex'>
           <div className='flex flex-row space-x-4'>
             {item.highlightIDs.map((highlight: any) => (
               <Link key={highlight.id} to={highlight.url ?? '#'}>
@@ -231,7 +233,7 @@ export function HighlightBox({ item }: { item: any }) {
                   alt={highlight.name}
                   className='aspect-square'
                 />
-                <p className='text-white underline'>{highlight.name}</p>
+                <p className='font-bold text-white'>{highlight.name}</p>
                 {highlight.artist ? (
                   <p className='text-white'>{highlight.artist.name}</p>
                 ) : (
@@ -240,6 +242,54 @@ export function HighlightBox({ item }: { item: any }) {
               </Link>
             ))}
           </div>
+        </div>
+
+        <div className='hidden flex-row space-x-4 lg:flex 2xl:hidden'>
+          {item.highlightIDs.map((highlight: any) => (
+            <Link
+              key={highlight.id}
+              to={highlight.url ?? '#'}
+              className='relative aspect-square'
+            >
+              <img
+                src={highlight.imageUrl}
+                alt={highlight.name}
+                className='h-full w-full object-cover'
+              />
+              <div className='bg-silver absolute bottom-0 w-full'>
+                <p className='font-bold text-black '>{highlight.name}</p>
+                {/* <p className='text-white'>
+                  {highlight.artist
+                    ? highlight.artist.name
+                    : highlight.artistName}
+                </p> */}
+              </div>
+            </Link>
+          ))}
+        </div>
+
+        <div className='grid grid-cols-2 gap-4 lg:hidden'>
+          {item.highlightIDs.map((highlight: any) => (
+            <Link
+              key={highlight.id}
+              to={highlight.url ?? '#'}
+              className='relative aspect-square'
+            >
+              <img
+                src={highlight.imageUrl}
+                alt={highlight.name}
+                className='h-full w-full object-cover'
+              />
+              <div className='bg-silver absolute bottom-0 w-full p-2'>
+                <p className='font-bold text-black '>{highlight.name}</p>
+                <p className='text-black'>
+                  {highlight.artist
+                    ? highlight.artist.name
+                    : highlight.artistName}
+                </p>
+              </div>
+            </Link>
+          ))}
         </div>
       </div>
     </div>

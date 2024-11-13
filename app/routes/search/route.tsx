@@ -64,7 +64,7 @@ export default function Search() {
       transition={{ duration: 0.8, ease: 'easeInOut' }}
     >
       <Form
-        className='flex w-full justify-center pb-10 pt-20'
+        className='flex w-full flex-col justify-center pb-10 pt-20 md:flex-row'
         method='get'
         action='/search'
       >
@@ -78,14 +78,14 @@ export default function Search() {
           name='q'
           placeholder='Search for artists, songs, albums...'
           onClear={() => console.log('input cleared')}
-          className='input-white dark w-1/4 border-white text-white'
+          className='input-white dark border-white text-white md:w-1/4'
           radius='none'
         />
 
         <button type='submit'>Search</button>
       </Form>
 
-      <div className='mx-8 flex min-h-screen w-full flex-row justify-around'>
+      <div className='mx-8 flex min-h-screen w-full flex-col justify-around gap-8 md:flex-row'>
         <div>
           <h2>Artists</h2>
           <ul>
@@ -104,7 +104,7 @@ export default function Search() {
         <div>
           <h2>Albums</h2>
           <ul>
-            {albums.map(album => (
+            {albums.slice(0, limit).map(album => (
               <li key={album.id} className='hover:text-white hover:underline'>
                 <Link className='block lg:hidden' to={`/album/${album.id}`}>
                   {truncateText(album.name, 16)}
@@ -119,7 +119,7 @@ export default function Search() {
         <div>
           <h2>Songs</h2>
           <ul>
-            {songs.map(song => (
+            {songs.slice(0, limit).map(song => (
               <li key={song.id} className='hover:text-white hover:underline'>
                 <Link className='block lg:hidden' to={`/song/${song.id}`}>
                   {truncateText(song.name, 16)}
