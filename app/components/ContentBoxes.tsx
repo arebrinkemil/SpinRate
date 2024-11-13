@@ -303,29 +303,61 @@ export function RatingBox({
   rating: any
   type: 'ALBUM' | 'SONG' | 'ARTIST'
 }) {
+  const item = rating.data
   return (
-    <Link to={`/${type}/${rating.data.id}`}>
+    <Link to={`/${type.toLowerCase()}/${item.id}`} key={item.id}>
       <CornerMarkings
         mediaType={rating.type}
         className='aspect-square'
         hoverEffect={true}
       >
-        <li className='bg-lightsilver flex h-full w-full flex-col p-4 pr-0'>
+        <li className='bg-lightsilver flex h-full w-full flex-col p-2 pr-0 lg:p-4'>
           <div className='flex h-4/6 w-full flex-row'>
             <img
-              src={rating.data.imageUrl ?? ''}
-              alt={rating.data.name}
+              src={item.imageUrl ?? ''}
+              alt={item.name}
               className='h-full w-4/6 object-cover'
             />
             <div className='flex h-full w-2/6 flex-col items-center justify-center'>
               <AverageRating
                 type='VERIFIED'
-                className=' text-white'
+                className='text-white'
                 averageRating={rating.ratingValue}
               />
             </div>
           </div>
-          <h1 className='text-platinum text-xl'>{rating.data.name}</h1>
+          <div className='hidden lg:block'>
+            {item.name.length > 15 ? (
+              <h1 className='group relative mr-4 overflow-hidden whitespace-nowrap text-xl text-black'>
+                <span className='group-hover:animate-marquee block'>
+                  {item.name}
+                </span>
+              </h1>
+            ) : (
+              <h1 className='mr-4 text-xl text-black'>{item.name}</h1>
+            )}
+            {item.artist?.name && item.artist.name.length > 15 ? (
+              <p className='group relative mr-4 overflow-hidden whitespace-nowrap text-base text-black md:text-lg'>
+                <span className='group-hover:animate-marquee block'>
+                  {item.artist.name}
+                </span>
+              </p>
+            ) : item.artist?.name ? (
+              <p className='mr-4 text-base text-black md:text-lg'>
+                {item.artist.name}
+              </p>
+            ) : null}
+          </div>
+          <div className='block lg:hidden'>
+            <h1 className='text-base leading-none md:text-lg'>
+              {truncateText(item.name, 24)}
+            </h1>
+            {item.artist?.name && (
+              <p className='text-base leading-none text-black md:text-lg'>
+                {truncateText(item.artist.name, 12)}
+              </p>
+            )}
+          </div>
         </li>
       </CornerMarkings>
     </Link>
@@ -339,31 +371,63 @@ export function ReviewBox({
   review: any
   type: 'ALBUM' | 'SONG' | 'ARTIST'
 }) {
+  const item = review.data
   return (
     <Link
-      to={`/${type}/${review.data.id}`}
-      className='col-span-1 row-span-1 lg:col-span-2 lg:row-span-2 xl:col-span-2 xl:row-span-2'
+      to={`/${type.toLowerCase()}/${item.id}`}
+      key={item.id}
+      className='col-span-2 row-span-2'
     >
       <CornerMarkings
         mediaType={review.type}
         className='aspect-square'
         hoverEffect={true}
       >
-        <li className='bg-lightsilver flex h-full w-full flex-col p-4 pr-0'>
+        <li className='bg-lightsilver flex h-full w-full flex-col p-2 pr-0 lg:p-4'>
           <div className='flex h-4/6 w-full flex-row'>
             <img
-              src={review.data.imageUrl ?? ''}
-              alt={review.data.name}
+              src={item.imageUrl ?? ''}
+              alt={item.name}
               className='h-full w-4/6 object-cover'
             />
-            <div className='flex h-full w-2/6 flex-col items-center justify-center'></div>
           </div>
-          <h1 className='text-platinum text-xl'>
-            {' '}
-            {truncateText(review.data.name, 24)}
-          </h1>
-          <div className=' mr-4 flex cursor-pointer flex-row items-center justify-between border-2 border-b-4 border-black p-2'>
-            <h2 className='text-platinum text-lg'>{review.reviewValue}</h2>
+          <div className='hidden lg:block'>
+            {item.name.length > 15 ? (
+              <h1 className='group relative mr-4 overflow-hidden whitespace-nowrap text-xl text-black'>
+                <span className='group-hover:animate-marquee block'>
+                  {item.name}
+                </span>
+              </h1>
+            ) : (
+              <h1 className='mr-4 text-xl text-black'>{item.name}</h1>
+            )}
+            {item.artist?.name && item.artist.name.length > 15 ? (
+              <p className='group relative mr-4 overflow-hidden whitespace-nowrap text-base text-black md:text-lg'>
+                <span className='group-hover:animate-marquee block'>
+                  {item.artist.name}
+                </span>
+              </p>
+            ) : item.artist?.name ? (
+              <p className='mr-4 text-base text-black md:text-lg'>
+                {item.artist.name}
+              </p>
+            ) : null}
+          </div>
+          <div className='block lg:hidden'>
+            <h1 className='text-base leading-none md:text-lg'>
+              {truncateText(item.name, 24)}
+            </h1>
+            {item.artist?.name && (
+              <p className='text-base leading-none text-black md:text-lg'>
+                {truncateText(item.artist.name, 12)}
+              </p>
+            )}
+          </div>
+          <div className='flex h-full flex-col'>
+            <h3 className='text-black'>Review</h3>
+            <p className=' text-black'>
+              {truncateText(review.reviewValue, 50)}
+            </p>
           </div>
         </li>
       </CornerMarkings>

@@ -53,11 +53,11 @@ export default function Search() {
     return () => clearTimeout(timer)
   }, [])
 
-  const limit = 25
+  const limit = 40
 
   return (
     <motion.div
-      className='text-silver mt-[-44px] bg-black'
+      className='text-silver mt-[-44px] overflow-x-hidden bg-black'
       initial={{ y: '-100%' }}
       animate={{ y: '0%' }}
       exit={{ y: '100%' }}
@@ -90,11 +90,17 @@ export default function Search() {
           <h2>Artists</h2>
           <ul>
             {artists.slice(0, limit).map(artist => (
-              <li key={artist.id} className='hover:text-white hover:underline'>
-                <Link className='block lg:hidden' to={`/artist/${artist.id}`}>
+              <li
+                key={artist.id}
+                className='overflow-x-hidden hover:text-white hover:underline'
+              >
+                <Link className='hidden md:block' to={`/artist/${artist.id}`}>
                   {truncateText(artist.name, 16)}
                 </Link>
-                <Link className='hidden lg:block' to={`/artist/${artist.id}`}>
+                <Link
+                  className='block md:hidden lg:block'
+                  to={`/artist/${artist.id}`}
+                >
                   {artist.name}
                 </Link>
               </li>
@@ -105,11 +111,17 @@ export default function Search() {
           <h2>Albums</h2>
           <ul>
             {albums.slice(0, limit).map(album => (
-              <li key={album.id} className='hover:text-white hover:underline'>
-                <Link className='block lg:hidden' to={`/album/${album.id}`}>
+              <li
+                key={album.id}
+                className='overflow-x-hidden hover:text-white hover:underline'
+              >
+                <Link className='hidden md:block' to={`/album/${album.id}`}>
                   {truncateText(album.name, 16)}
                 </Link>
-                <Link className='hidden lg:block' to={`/song/${album.id}`}>
+                <Link
+                  className='block md:hidden lg:block'
+                  to={`/song/${album.id}`}
+                >
                   {album.name}
                 </Link>
               </li>
@@ -120,11 +132,17 @@ export default function Search() {
           <h2>Songs</h2>
           <ul>
             {songs.slice(0, limit).map(song => (
-              <li key={song.id} className='hover:text-white hover:underline'>
-                <Link className='block lg:hidden' to={`/song/${song.id}`}>
+              <li
+                key={song.id}
+                className='overflow-x-hidden hover:text-white hover:underline'
+              >
+                <Link className='hidden md:block' to={`/song/${song.id}`}>
                   {truncateText(song.name, 16)}
                 </Link>
-                <Link className='hidden lg:block' to={`/song/${song.id}`}>
+                <Link
+                  className='block md:hidden lg:block'
+                  to={`/song/${song.id}`}
+                >
                   {song.name}
                 </Link>
               </li>
