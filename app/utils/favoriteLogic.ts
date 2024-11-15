@@ -30,6 +30,7 @@ export async function addFavorite(
     data: {
       userId: accountId,
       [`${type}Id`]: targetId,
+      type: type,
     },
   })
 

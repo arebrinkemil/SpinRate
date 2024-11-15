@@ -4,11 +4,12 @@ import { json, type ActionFunctionArgs, redirect } from '@remix-run/node'
 import { requireAuthCookie } from '~/auth/auth'
 import { getUserData, getUserRatings, updateUserData } from './queries'
 import { getUserReviews } from '~/utils/reviewLogic'
-import type { Account } from '@prisma/client'
+import type { Account, Favorite } from '@prisma/client'
 import type { Album, Song, Artist, Review } from '@prisma/client'
 import CornerMarkings from '~/components/CornerMarkings'
-import { RatingBox, ReviewBox } from '~/components/ContentBoxes'
+import { RatingBox, ReviewBox, FavoriteBox } from '~/components/ContentBoxes'
 import { useDisclosure } from '@nextui-org/react'
+import { getFavorites } from '~/utils/favoriteLogic'
 import {
   Modal,
   ModalContent,
@@ -84,11 +85,12 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
   const ratings = await getUserRatings(userId)
   const reviews = await getUserReviews(userId)
+  const favorites = await getFavorites(userId)
   const combinedData = shuffleArray([...ratings, ...reviews])
 
   const isOwner = accountId === userId
 
-  return { user, isOwner, combinedData }
+  return { user, isOwner, combinedData, favorites }
 }
 
 export async function action({ request, params }: ActionFunctionArgs) {
@@ -110,10 +112,11 @@ export async function action({ request, params }: ActionFunctionArgs) {
 }
 
 export default function Profile() {
-  const { user, isOwner, combinedData } = useLoaderData<{
+  const { user, isOwner, combinedData, favorites } = useLoaderData<{
     user: Account
     isOwner: boolean
     combinedData: (RatingData | ReviewData)[]
+    favorites: any[]
   }>()
 
   const { isOpen, onOpen, onOpenChange } = useDisclosure()
@@ -344,6 +347,30 @@ export default function Profile() {
             </>
           )}
         </div>
+      </div>
+
+      {(isOwner && <h1 className='text-3xl'>Your favorites</h1>) || (
+        <h1 className='text-3xl'>{user.username} favorites</h1>
+      )}
+
+      <div className='grid grid-flow-row-dense grid-cols-2 gap-2 md:grid-cols-2 lg:grid-cols-4 lg:gap-4 2xl:grid-cols-6'>
+        {favorites.slice(0, 5).map(item => {
+          const uniqueKey = `${item.id}`
+
+          if (item.type === 'song') {
+            return <FavoriteBox key={uniqueKey} item={item} type={item.type} />
+          }
+
+          if (item.type === 'album') {
+            return <FavoriteBox key={uniqueKey} item={item} type={item.type} />
+          }
+
+          if (item.type === 'artist') {
+            return <FavoriteBox key={uniqueKey} item={item} type={item.type} />
+          }
+
+          return null
+        })}
       </div>
 
       {(isOwner && <h1 className='text-3xl'>Your Ratings and Reviews</h1>) || (

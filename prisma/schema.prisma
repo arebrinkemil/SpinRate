@@ -33,6 +33,7 @@ model Password {
 
 model Favorite {
   id       String    @id @default(uuid())
+  type     String? 
   user     Account   @relation(fields: [userId], references: [id])
   userId   String
   album    Album?    @relation(fields: [albumId], references: [id])
