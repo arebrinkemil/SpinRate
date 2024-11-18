@@ -1,5 +1,11 @@
 import { json, LoaderFunction, ActionFunction } from '@remix-run/node'
-import { useLoaderData, Form, useActionData, Link } from '@remix-run/react'
+import {
+  useLoaderData,
+  useFetcher,
+  Form,
+  useActionData,
+  Link,
+} from '@remix-run/react'
 import { requireAuthCookie } from '~/auth/auth'
 import AverageRating from '../../components/AverageRating'
 import {
@@ -14,6 +20,7 @@ import { getAverageRating } from '~/utils/ratingLogic'
 import { motion } from 'framer-motion'
 import { truncateText } from '~/utils/truncate'
 import CornerMarkings from '~/components/CornerMarkings'
+import { useEffect, useState } from 'react'
 
 type LoaderData = {
   accessToken: string
@@ -22,6 +29,7 @@ type LoaderData = {
   getArtistsData: any[]
   artistSongs: { [key: string]: any[] }
   ratings: { [key: string]: number | null }
+  hasMore: boolean
 }
 
 async function getAccessToken() {
@@ -32,9 +40,7 @@ async function getAccessToken() {
     method: 'POST',
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded',
-      Authorization: `Basic ${Buffer.from(
-        `${clientId}:${clientSecret}`,
-      ).toString('base64')}`,
+      Authorization: `Basic ${Buffer.from(`${clientId}:${clientSecret}`).toString('base64')}`,
     },
     body: 'grant_type=client_credentials',
   })
@@ -65,8 +71,12 @@ export const loader: LoaderFunction = async ({ request }) => {
     playlistTracks = await fetchPlaylistTracks(playlistId, accessToken)
   }
 
+  const url = new URL(request.url)
+  const offset = parseInt(url.searchParams.get('offset') || '0', 10)
+  const limit = 10
+
   const collectedSongs = await getCollectedSongs()
-  const getArtistsData = await getArtists()
+  const getArtistsData = await getArtists(offset, limit)
 
   const artistSongs: { [key: string]: any[] } = {}
   const ratings: { [key: string]: number | null } = {}
@@ -92,6 +102,7 @@ export const loader: LoaderFunction = async ({ request }) => {
     getArtistsData,
     artistSongs,
     ratings,
+    hasMore: getArtistsData.length === limit,
   })
 }
 
@@ -156,6 +167,7 @@ export const action: ActionFunction = async ({ request }) => {
 
   return json({ success: true })
 }
+
 function formatDuration(durationMs: number): string {
   const minutes = Math.floor(durationMs / 60000)
   const seconds = Math.floor((durationMs % 60000) / 1000)
@@ -168,11 +180,35 @@ export default function SpotifyPlaylistTracks() {
     playlistTracks,
     collectedSongs,
     getArtistsData,
-    artistSongs,
+    artistSongs: initialArtistSongs,
     ratings,
+    hasMore,
   } = useLoaderData<LoaderData>()
 
-  const actionData = useActionData<{ success: boolean }>()
+  const fetcher = useFetcher()
+  const [artists, setArtists] = useState(getArtistsData)
+  const [artistSongs, setArtistSongs] = useState(initialArtistSongs)
+  const [loading, setLoading] = useState(false)
+
+  const loadMore = () => {
+    setLoading(true)
+    const offset = artists.length
+    fetcher.load(`/admin?offset=${offset}&limit=10`)
+  }
+
+  useEffect(() => {
+    if (fetcher.data) {
+      setArtists(prev => [
+        ...prev,
+        ...(fetcher.data as LoaderData).getArtistsData,
+      ])
+      setArtistSongs(prev => ({
+        ...prev,
+        ...(fetcher.data as LoaderData).artistSongs,
+      }))
+      setLoading(false)
+    }
+  }, [fetcher.data])
 
   return (
     <div className='px-10'>
@@ -186,7 +222,7 @@ export default function SpotifyPlaylistTracks() {
           <label>
             <input type='checkbox' name='addFromAlbum' value='true' /> Add all
             songs from related albums
-          </label>{' '}
+          </label>
           <input type='hidden' name='accessToken' value={accessToken} />
           <input
             type='hidden'
@@ -204,14 +240,11 @@ export default function SpotifyPlaylistTracks() {
           </CornerMarkings>
         </div>
       </Form>
-      {actionData?.success && (
-        <p>Playlist processed and saved to the database!</p>
-      )}
 
       <div>
         <h3>Artists</h3>
         <div className='grid gap-4'>
-          {getArtistsData.map((artist: any) => (
+          {artists.map((artist: any) => (
             <div key={artist.id} className='hidden flex-row gap-4 md:flex'>
               <div className='w-96 shrink'>
                 <CornerMarkings
@@ -248,6 +281,17 @@ export default function SpotifyPlaylistTracks() {
             </div>
           ))}
         </div>
+        {hasMore && (
+          <div className='mt-4 text-center'>
+            <button
+              onClick={loadMore}
+              disabled={loading}
+              className='rounded bg-blue-500 px-4 py-2 text-white'
+            >
+              {loading ? 'Loading...' : 'Load More'}
+            </button>
+          </div>
+        )}
       </div>
     </div>
   )
