@@ -221,6 +221,12 @@ export function HighlightBox({ item }: { item: any }) {
   if (!item) {
     return null
   }
+
+  console.log(item)
+  item.highlightIDs.map((highlight: any) => {
+    console.log(highlight.imageUrl)
+  })
+
   return (
     <div className='col-span-2 row-span-1 bg-black lg:col-span-3 lg:row-span-1 2xl:col-span-4 2xl:row-span-2'>
       <div className='flex h-full flex-col p-4'>

@@ -63,7 +63,7 @@ const HIGHLIGHT_QUERY = `*[_type == "highlight"]{
   bodyText,
   highlightIDs[]{
     text,
-    url,
+    id,
     type
   }
 }
@@ -146,6 +146,7 @@ export const loader: LoaderFunction = async ({ request }) => {
     highlightedContent.map(async highlight => {
       const detailedHighlights = await Promise.all(
         highlight.highlightIDs.map(async highlightID => {
+          console.log('highlightID', highlightID.type)
           if (highlightID.type === 'ALBUM') {
             return highlightID.text
               ? await getAlbumData(highlightID.text)
@@ -157,6 +158,8 @@ export const loader: LoaderFunction = async ({ request }) => {
               : highlightID
           }
           if (highlightID.type === 'ARTIST') {
+            console.log('we are here')
+            console.log('highlightID', highlightID.text)
             return highlightID.text
               ? await getArtistData(highlightID.text)
               : highlightID
