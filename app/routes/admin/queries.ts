@@ -130,25 +130,40 @@ export async function findOrCreateSong(
   imageUrl: string,
   artistName?: string,
 ) {
+  if (albumId === 'single') {
+    albumId = null
+  }
+
+  console.log(releaseDate + ' releaseDate')
+
   let song = await prisma.song.findFirst({
     where: {
-      name,
-      artistId,
-      albumId: albumId,
+      id,
     },
   })
 
   if (!song) {
-    const validReleaseDate = isValidDate(releaseDate)
+    let validReleaseDate = isValidDate(releaseDate)
       ? new Date(releaseDate)
       : new Date()
+
+    if (albumId) {
+      const album = await prisma.album.findFirst({
+        where: { id: albumId },
+      })
+      if (album) {
+        validReleaseDate = album.releaseDate
+      }
+    }
+
+    console.log(albumId + ' albumId')
 
     song = await prisma.song.create({
       data: {
         id,
         name,
         artistId,
-        albumId: albumId,
+        albumId,
         duration,
         releaseDate: validReleaseDate,
         spotifyUrl,
