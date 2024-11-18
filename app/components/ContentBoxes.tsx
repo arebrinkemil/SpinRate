@@ -4,6 +4,7 @@ import AverageRating from './AverageRating'
 import CornerMarkings from './CornerMarkings'
 import { Link } from '@remix-run/react'
 import { truncateText } from '~/utils/truncate'
+import { json } from 'stream/consumers'
 
 interface AlbumBoxProps {
   album: Album & {
@@ -217,26 +218,29 @@ export function ArtistBox({ artist }: ArtistBoxProps) {
   )
 }
 
-export function HighlightBox({ item }: { item: any }) {
+export function HighlightBox({
+  item,
+  mediaType,
+}: {
+  item: any
+  mediaType: string
+}) {
   if (!item) {
     return null
   }
-
-  console.log(item)
-  item.highlightIDs.map((highlight: any) => {
-    console.log(highlight.imageUrl)
-  })
 
   return (
     <div className='col-span-2 row-span-1 bg-black lg:col-span-3 lg:row-span-1 2xl:col-span-4 2xl:row-span-2'>
       <div className='flex h-full flex-col p-4'>
         <h2 className='text-2xl font-bold text-white'>{item.header}</h2>
         <p className='text-white lg:max-2xl:hidden'>{item.bodyText}</p>
-
         <div className='hidden h-full flex-col justify-center 2xl:flex'>
           <div className='flex flex-row space-x-4'>
             {item.highlightIDs.map((highlight: any) => (
-              <Link key={highlight.id} to={highlight.url ?? '#'}>
+              <Link
+                key={highlight.id}
+                to={`/${highlight.mediaType.toLowerCase()}/${highlight.id}`}
+              >
                 {highlight.imageUrl && (
                   <img
                     src={highlight.imageUrl}
@@ -254,12 +258,11 @@ export function HighlightBox({ item }: { item: any }) {
             ))}
           </div>
         </div>
-
         <div className='hidden flex-row space-x-4 lg:flex 2xl:hidden'>
           {item.highlightIDs.map((highlight: any) => (
             <Link
               key={highlight.id}
-              to={highlight.url ?? '#'}
+              to={`/${highlight.mediaType.toLowerCase()}/${highlight.id}`}
               className='relative aspect-square'
             >
               {highlight.imageUrl && (
@@ -280,12 +283,11 @@ export function HighlightBox({ item }: { item: any }) {
             </Link>
           ))}
         </div>
-
         <div className='grid grid-cols-2 gap-4 lg:hidden'>
           {item.highlightIDs.map((highlight: any) => (
             <Link
               key={highlight.id}
-              to={highlight.url ?? '#'}
+              to={`/${highlight.mediaType.toLowerCase()}/${highlight.id}`}
               className='relative aspect-square'
             >
               {highlight.imageUrl && (

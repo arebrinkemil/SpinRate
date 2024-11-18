@@ -42,7 +42,6 @@ export async function findOrCreateAlbum(
   albumId: string,
   imageUrl: string,
 ) {
-  console.log('Finding or creating album...')
   let album = await prisma.album.findFirst({
     where: { name, artistId },
   })
@@ -66,8 +65,6 @@ export async function findOrCreateAlbum(
 }
 
 export async function fetchAlbumSongs(albumId: string, accessToken: string) {
-  console.log(albumId + 'albumId')
-
   const albumResponse = await fetch(
     `https://api.spotify.com/v1/albums/${albumId}`,
     {
@@ -134,8 +131,6 @@ export async function findOrCreateSong(
     albumId = null
   }
 
-  console.log(releaseDate + ' releaseDate')
-
   let song = await prisma.song.findFirst({
     where: {
       id,
@@ -155,8 +150,6 @@ export async function findOrCreateSong(
         validReleaseDate = album.releaseDate
       }
     }
-
-    console.log(albumId + ' albumId')
 
     song = await prisma.song.create({
       data: {
@@ -178,17 +171,14 @@ export async function findOrCreateSong(
 }
 
 export async function getCollectedSongs() {
-  console.log('Getting collected songs...')
   return await prisma.song.findMany()
 }
 
 export async function getArtists() {
-  console.log('Getting artists...')
   return await prisma.artist.findMany()
 }
 
 export async function getArtistSongs(artistId: string) {
-  console.log('Getting artist songs...')
   return await prisma.song.findMany({ where: { artistId } })
 }
 

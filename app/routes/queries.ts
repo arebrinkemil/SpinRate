@@ -59,7 +59,6 @@ export async function getNewMusic() {
   try {
     console.log('Getting new music...')
     const accessToken = await getAccessToken()
-    console.log('Access token obtained:', accessToken)
 
     const response = await fetch(
       `https://api.spotify.com/v1/browse/new-releases`,

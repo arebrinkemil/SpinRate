@@ -94,10 +94,6 @@ export const loader: LoaderFunction = async ({ request }) => {
   const bannerData = await client.fetch<SanityDocument[]>(BANNER_QUERY)
   const highlightedContent = await client.fetch<Highlight[]>(HIGHLIGHT_QUERY)
 
-  console.log('highlightedContent', highlightedContent)
-  console.log('bannerData', bannerData)
-  console.log('sanityData', sanityData)
-
   const albumsWithRatings = await Promise.all(
     sanityData
       .flatMap(doc => doc.albums ?? [])
@@ -146,20 +142,17 @@ export const loader: LoaderFunction = async ({ request }) => {
     highlightedContent.map(async highlight => {
       const detailedHighlights = await Promise.all(
         highlight.highlightIDs.map(async highlightID => {
-          console.log('highlightID', highlightID.type)
-          if (highlightID.type === 'ALBUM') {
+          if (highlightID.type.toUpperCase() === 'ALBUM') {
             return highlightID.text
               ? await getAlbumData(highlightID.text)
               : highlightID
           }
-          if (highlightID.type === 'SONG') {
+          if (highlightID.type.toUpperCase() === 'SONG') {
             return highlightID.text
               ? await getSongData(highlightID.text)
               : highlightID
           }
-          if (highlightID.type === 'ARTIST') {
-            console.log('we are here')
-            console.log('highlightID', highlightID.text)
+          if (highlightID.type.toUpperCase() === 'ARTIST') {
             return highlightID.text
               ? await getArtistData(highlightID.text)
               : highlightID
@@ -272,7 +265,13 @@ export default function Home() {
             return <ArtistBox key={item.id} artist={item} />
           }
           if (item.type === 'highlight') {
-            return <HighlightBox key={item.id} item={item} />
+            return (
+              <HighlightBox
+                key={item.id}
+                item={item}
+                mediaType={item.highlightIDs[0].type}
+              />
+            )
           }
           return null
         })}
