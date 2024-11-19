@@ -7,6 +7,7 @@
     --color-transparent: transparent;
     --color-current: currentColor;
     --color-black: #121212;
+    --color-darkgray: #292929;
     --color-gray: #857885;
     --color-silver: #b3b2ae;
     --color-lightsilver: #c1c1ba;
@@ -17,7 +18,7 @@
   }
 
   body {
-    font-family: 'Fragment Mono', monospace;
+    font-family: "Fragment Mono", monospace;
   }
 }
 
@@ -26,7 +27,7 @@ h1 {
 }
 
 h2 {
-  @apply mb-1 text-2xl font-semibold leading-snug sm:text-3xl md:text-4xl lg:text-5xl;
+  @apply mb-1 text-2xl font-semibold leading-tight sm:text-3xl md:text-4xl lg:text-5xl;
 }
 
 h3 {

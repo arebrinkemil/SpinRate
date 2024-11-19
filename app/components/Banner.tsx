@@ -1,7 +1,8 @@
 import { Link } from "@remix-run/react";
 
 export default function Banner({ data }: { data: any }) {
-  const textColor = data.textColor === "black" ? "text-black" : "text-white";
+  const textColor =
+    data.textColor === "black" ? "text-black dark:text-silver" : "text-white";
 
   return (
     <>
