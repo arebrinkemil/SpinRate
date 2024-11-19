@@ -17,7 +17,6 @@ import {
   getArtists,
 } from './queries'
 import { getAverageRating } from '~/utils/ratingLogic'
-import { motion } from 'framer-motion'
 import { truncateText } from '~/utils/truncate'
 import CornerMarkings from '~/components/CornerMarkings'
 import { useEffect, useState } from 'react'
@@ -33,8 +32,9 @@ type LoaderData = {
 }
 
 async function getAccessToken() {
-  const clientId = '9af521734cb2462f92441df6c7c9dd25'
-  const clientSecret = 'd2087f4f4daf44ffacf9c1c0d38b3093'
+  //Ids have been renewed and the old ones are no longer valid ;)
+  const clientId = process.env.SPOTIFY_CLIENT_ID
+  const clientSecret = process.env.SPOTIFY_CLIENT_SECRET
 
   const response = await fetch('https://accounts.spotify.com/api/token', {
     method: 'POST',
