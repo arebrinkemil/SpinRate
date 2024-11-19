@@ -20,6 +20,7 @@ import { getAverageRating } from "~/utils/ratingLogic";
 import { truncateText } from "~/utils/truncate";
 import CornerMarkings from "~/components/CornerMarkings";
 import { useEffect, useState } from "react";
+import { Button } from "@nextui-org/react";
 
 type LoaderData = {
   accessToken: string;
@@ -231,14 +232,10 @@ export default function SpotifyPlaylistTracks() {
             name="playlistTracks"
             value={JSON.stringify(playlistTracks)}
           />
-          <CornerMarkings
-            mediaType="DEFAULT"
-            hoverEffect={false}
-            className="aspect-square w-1/3"
-          >
-            <button className="p-2" type="submit">
-              Process Playlist
-            </button>
+          <CornerMarkings mediaType="DEFAULT" hoverEffect={false} className="">
+            <Button radius="none" className="p-2" type="submit">
+              PROCESS PLAYLIST
+            </Button>
           </CornerMarkings>
         </div>
       </Form>

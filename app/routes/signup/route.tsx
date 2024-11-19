@@ -1,10 +1,10 @@
 import { json, type ActionFunctionArgs, redirect } from "@remix-run/node";
 import { Form, Link, useActionData } from "@remix-run/react";
 import React from "react";
+import { Button } from "@nextui-org/react";
 
 import { redirectIfLoggedInLoader, setAuthOnResponse } from "~/auth/auth";
 import { Label } from "~/components/input";
-import { Button } from "~/components/button";
 import { Input } from "@nextui-org/react";
 import { validate } from "./validate";
 import { createAccount } from "./queries";
@@ -64,7 +64,7 @@ export default function Signup() {
       </div>
 
       <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-[480px]">
-        <div className="bg-white px-6 py-12 shadow sm:rounded-lg sm:px-12">
+        <div className="bg-lightsilver dark:bg-darkgray px-6 py-12 sm:px-12">
           <Form className="space-y-6" method="post">
             <div>
               <Label htmlFor="email">
@@ -75,7 +75,6 @@ export default function Signup() {
                   </span>
                 )}
               </Label>
-
               <Input
                 autoFocus
                 isClearable
@@ -89,7 +88,6 @@ export default function Signup() {
                 aria-describedby={
                   actionResult?.errors?.email ? "email-error" : "signup-header"
                 }
-                required
                 radius="none"
               />
             </div>
@@ -103,7 +101,6 @@ export default function Signup() {
                   </span>
                 )}
               </Label>
-
               <Input
                 id="password"
                 name="password"
@@ -131,7 +128,6 @@ export default function Signup() {
                 }
                 radius="none"
                 required
-                className=""
               />
             </div>
 
@@ -144,9 +140,7 @@ export default function Signup() {
                   </span>
                 )}
               </Label>
-
               <Input
-                autoFocus
                 isClearable
                 id="username"
                 name="username"
@@ -154,12 +148,10 @@ export default function Signup() {
                 autoComplete="username"
                 label="Username"
                 variant="bordered"
+                placeholder="Enter your username"
                 aria-describedby={
                   actionResult?.errors?.username ? "username-error" : undefined
                 }
-                required
-                onClear={() => console.log("input cleared")}
-                className=""
                 radius="none"
               />
             </div>
@@ -176,16 +168,17 @@ export default function Signup() {
               <Input
                 id="firstName"
                 name="firstName"
-                radius="none"
-                label="First Name"
                 type="text"
-                variant="bordered"
                 autoComplete="given-name"
+                label="First Name"
+                variant="bordered"
+                placeholder="Enter your first name"
                 aria-describedby={
                   actionResult?.errors?.firstName
                     ? "firstName-error"
                     : undefined
                 }
+                radius="none"
               />
             </div>
 
@@ -202,13 +195,14 @@ export default function Signup() {
                 id="lastName"
                 name="lastName"
                 type="text"
-                radius="none"
-                variant="bordered"
-                label="Last Name"
                 autoComplete="family-name"
+                label="Last Name"
+                variant="bordered"
+                placeholder="Enter your last name"
                 aria-describedby={
                   actionResult?.errors?.lastName ? "lastName-error" : undefined
                 }
+                radius="none"
               />
             </div>
 
@@ -224,11 +218,11 @@ export default function Signup() {
               <Textarea
                 id="description"
                 name="description"
-                radius="none"
                 label="Description"
                 variant="bordered"
+                placeholder="Tell us about yourself"
                 rows={4}
-                className=" mt-1 block w-full  focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                className="mt-1 block w-full focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                 aria-describedby={
                   actionResult?.errors?.description
                     ? "description-error"
@@ -246,24 +240,28 @@ export default function Signup() {
                   </span>
                 )}
               </Label>
-
               <Input
                 id="profileImageUrl"
                 name="profileImageUrl"
-                type="text"
-                radius="none"
-                variant="bordered"
-                label="Profile Image URL"
+                type="url"
                 autoComplete="url"
+                label="Profile Image URL"
+                variant="bordered"
+                placeholder="Enter a URL for your profile image"
                 aria-describedby={
                   actionResult?.errors?.profileImageUrl
                     ? "profileImageUrl-error"
                     : undefined
                 }
+                radius="none"
               />
             </div>
 
-            <Button type="submit">Sign up</Button>
+            <div>
+              <Button className="bg-blue w-full rounded-none" type="submit">
+                <p className="text-black dark:text-silver">SIGN UP</p>
+              </Button>
+            </div>
 
             <div className="text-gray text-sm">
               Already have an account?{" "}
@@ -273,23 +271,6 @@ export default function Signup() {
               .
             </div>
           </Form>
-        </div>
-        <div className="mx-2 mt-8 space-y-2">
-          <h3 className="font-bold text-black dark:text-silver">
-            Privacy Notice
-          </h3>
-          <p>
-            We won't use your email address for anything other than
-            authenticating with this demo application. This app doesn't send
-            email anyway, so you can put whatever fake email address you want.
-          </p>
-          <h3 className="font-bold text-black dark:text-silver">
-            Terms of Service
-          </h3>
-          <p>
-            This is a demo app, there are no terms of service. Don't be
-            surprised if your data disappears.
-          </p>
         </div>
       </div>
     </div>
