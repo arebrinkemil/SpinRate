@@ -18,6 +18,9 @@ import ReviewDisplay from '~/components/ReviewDisplay'
 import CornerMarkings from '~/components/CornerMarkings'
 import MobileRatingReviewBar from '~/components/MobileRatingReviewBar'
 import { truncateText } from '~/utils/truncate'
+import FavoriteButton from '~/components/FavoriteButton'
+import { hasFavorite, addFavorite, removeFavorite } from '~/utils/favoriteLogic'
+import { getAuthFromRequest } from '~/auth/auth'
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
   const targetId = String(params.id)
@@ -26,12 +29,18 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   if (!targetId || !['SONG', 'ALBUM', 'ARTIST'].includes(targetType))
     throw notFound()
 
+  const userId = await getAuthFromRequest(request)
+
+  const isFavorited = userId
+    ? await hasFavorite(targetId, userId, 'artist')
+    : false
+
   const data = await loadReviewData(
     request,
     targetId,
     targetType as 'SONG' | 'ALBUM' | 'ARTIST',
   )
-  return data
+  return { ...data, isFavorited }
 }
 
 export async function action({ request, params }: ActionFunctionArgs) {
@@ -42,6 +51,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
     const targetType = 'ARTIST'
     const intent = formData.get('intent')
     const reviewId = String(formData.get('reviewId'))
+    const userId = await getAuthFromRequest(request)
 
     if (!targetId) return new Response('Invalid action', { status: 400 })
 
@@ -54,6 +64,28 @@ export async function action({ request, params }: ActionFunctionArgs) {
     } else if (intent === 'comment') {
       if (!reviewId) return new Response('Invalid action', { status: 400 })
       await handleCommentAction(reviewId, formData, request)
+      return redirect(`/artist/${targetId}`)
+    } else if (intent === 'favorite') {
+      if (userId) {
+        await addFavorite(
+          targetId,
+          userId,
+          targetType.toLowerCase() as 'album' | 'song' | 'artist',
+        )
+      } else {
+        return new Response('User not authenticated', { status: 401 })
+      }
+      return redirect(`/artist/${targetId}`)
+    } else if (intent === 'unfavorite') {
+      if (userId) {
+        await removeFavorite(
+          targetId,
+          userId,
+          targetType.toLowerCase() as 'album' | 'song' | 'artist',
+        )
+      } else {
+        return new Response('User not authenticated', { status: 401 })
+      }
       return redirect(`/artist/${targetId}`)
     }
 
@@ -78,6 +110,7 @@ export default function Artist() {
     verifiedAverage,
     reviews,
     verified,
+    isFavorited,
   } = useLoaderData<typeof loader>()
 
   return (
@@ -98,6 +131,12 @@ export default function Artist() {
           <div className='flex basis-3/4 flex-row justify-between'>
             <div className='flex flex-col'>
               <h2>{targetData.name ?? 'Artist Name not found'}</h2>
+              <FavoriteButton
+                targetId={targetData.id}
+                targetType='ARTIST'
+                isFavorite={!!isFavorited}
+                verified={verified}
+              />
             </div>
             <div className='flex flex-row items-center md:flex-col'>
               <AverageRating type='VERIFIED' averageRating={verifiedAverage} />
@@ -163,6 +202,12 @@ export default function Artist() {
               <div className='flex flex-col'>
                 <h2>{targetData.name ?? 'Artist Name not found'}</h2>
               </div>
+              <FavoriteButton
+                targetId={targetData.id}
+                targetType='ARTIST'
+                isFavorite={!!isFavorited}
+                verified={verified}
+              />
             </div>
           </div>
           <div className='flex w-full flex-row md:flex-col'>

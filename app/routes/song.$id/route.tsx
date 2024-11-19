@@ -18,20 +18,26 @@ import ReviewDisplay from '~/components/ReviewDisplay'
 import CornerMarkings from '~/components/CornerMarkings'
 import MobileRatingReviewBar from '~/components/MobileRatingReviewBar'
 import { truncateText } from '~/utils/truncate'
+import FavoriteButton from '~/components/FavoriteButton'
+import { hasFavorite, addFavorite, removeFavorite } from '~/utils/favoriteLogic'
+import { getAuthFromRequest } from '~/auth/auth'
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
   const targetId = String(params.id)
   const targetType = 'SONG'
 
-  if (!targetId || !['SONG', 'ALBUM', 'ARTIST'].includes(targetType))
+  if (!targetId || !['SONG', 'ALBUM', 'ARTIST'].includes(targetType)) {
     throw notFound()
+  }
 
-  const data = await loadReviewData(
-    request,
-    targetId,
-    targetType as 'SONG' | 'ALBUM' | 'ARTIST',
-  )
-  return data
+  const userId = await getAuthFromRequest(request)
+
+  const isFavorited = userId
+    ? await hasFavorite(targetId, userId, 'song')
+    : false
+
+  const data = await loadReviewData(request, targetId, targetType)
+  return { ...data, isFavorited }
 }
 
 export async function action({ request, params }: ActionFunctionArgs) {
@@ -42,6 +48,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
     const targetType = 'SONG'
     const intent = formData.get('intent')
     const reviewId = String(formData.get('reviewId'))
+    const userId = await getAuthFromRequest(request)
 
     if (!targetId) return new Response('Invalid action', { status: 400 })
 
@@ -54,6 +61,28 @@ export async function action({ request, params }: ActionFunctionArgs) {
     } else if (intent === 'comment') {
       if (!reviewId) return new Response('Invalid action', { status: 400 })
       await handleCommentAction(reviewId, formData, request)
+      return redirect(`/song/${targetId}`)
+    } else if (intent === 'favorite') {
+      if (userId) {
+        await addFavorite(
+          targetId,
+          userId,
+          targetType.toLowerCase() as 'album' | 'song' | 'artist',
+        )
+      } else {
+        return new Response('User not authenticated', { status: 401 })
+      }
+      return redirect(`/song/${targetId}`)
+    } else if (intent === 'unfavorite') {
+      if (userId) {
+        await removeFavorite(
+          targetId,
+          userId,
+          targetType.toLowerCase() as 'album' | 'song' | 'artist',
+        )
+      } else {
+        return new Response('User not authenticated', { status: 401 })
+      }
       return redirect(`/song/${targetId}`)
     }
 
@@ -73,6 +102,7 @@ export default function Song() {
   const {
     targetData,
     hasRated,
+    isFavorited,
     verifiedAverage,
     unverifiedAverage,
     reviews,
@@ -111,6 +141,12 @@ export default function Song() {
                 {targetData.releaseDate ?? 'Release Date not found'}
               </p>
               <p>Duration: {formatDuration(targetData.duration)}</p>
+              <FavoriteButton
+                targetId={targetData.id}
+                targetType='SONG'
+                isFavorite={!!isFavorited}
+                verified={verified}
+              />
             </div>
             <div className='flex flex-row items-center md:flex-col'>
               <AverageRating type='VERIFIED' averageRating={verifiedAverage} />
@@ -150,6 +186,12 @@ export default function Song() {
                   )}
                 </p>
                 <p>Duration: {formatDuration(targetData.duration)}</p>
+                <FavoriteButton
+                  targetId={targetData.id}
+                  targetType='SONG'
+                  isFavorite={!!isFavorited}
+                  verified={verified}
+                />
               </div>
             </div>
           </div>
@@ -168,11 +210,11 @@ export default function Song() {
                 hasRated={hasRated}
               />
             </div>
-            <div className=' bg-[#282828]'>
+            <div className='iframe-container'>
               <iframe
                 src={`https://open.spotify.com/embed/track/${targetData.id}?utm_source=generator&theme=0`}
                 width='100%'
-                height='152'
+                height='160'
                 frameBorder='0'
                 allow='autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture'
                 loading='lazy'

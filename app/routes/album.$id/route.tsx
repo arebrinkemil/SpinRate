@@ -18,6 +18,9 @@ import CornerMarkings from '~/components/CornerMarkings'
 import ReviewDisplay from '~/components/ReviewDisplay'
 import { truncateText } from '~/utils/truncate'
 import MobileRatingReviewBar from '~/components/MobileRatingReviewBar'
+import FavoriteButton from '~/components/FavoriteButton'
+import { hasFavorite, addFavorite, removeFavorite } from '~/utils/favoriteLogic'
+import { getAuthFromRequest } from '~/auth/auth'
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
   const targetId = String(params.id)
@@ -25,9 +28,15 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
   if (!targetId) throw notFound()
 
+  const userId = await getAuthFromRequest(request)
+
+  const isFavorited = userId
+    ? await hasFavorite(targetId, userId, 'album')
+    : false
+
   const data = await loadReviewData(request, targetId, targetType)
 
-  return data
+  return { ...data, isFavorited }
 }
 
 export async function action({ request, params }: ActionFunctionArgs) {
@@ -36,6 +45,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
   const targetType = 'ALBUM'
   const intent = formData.get('intent')
   const reviewId = String(formData.get('reviewId'))
+  const userId = await getAuthFromRequest(request)
 
   if (!targetId) return new Response('Invalid action', { status: 400 })
 
@@ -48,6 +58,24 @@ export async function action({ request, params }: ActionFunctionArgs) {
   } else if (intent === 'comment') {
     if (!reviewId) return new Response('Invalid action', { status: 400 })
     await handleCommentAction(reviewId, formData, request)
+    return redirect(`/album/${targetId}`)
+  } else if (intent === 'favorite') {
+    if (userId) {
+      await addFavorite(targetId, userId, targetType.toLowerCase() as 'album')
+    } else {
+      return new Response('User not authenticated', { status: 401 })
+    }
+    return redirect(`/album/${targetId}`)
+  } else if (intent === 'unfavorite') {
+    if (userId) {
+      await removeFavorite(
+        targetId,
+        userId,
+        targetType.toLowerCase() as 'album',
+      )
+    } else {
+      return new Response('User not authenticated', { status: 401 })
+    }
     return redirect(`/album/${targetId}`)
   }
 
@@ -68,9 +96,8 @@ export default function Album() {
     verifiedAverage,
     reviews,
     verified,
+    isFavorited,
   } = useLoaderData<typeof loader>()
-
-  console.log(targetData.songs[0])
 
   return (
     <div>
@@ -98,6 +125,12 @@ export default function Album() {
                 Release Date:{' '}
                 {targetData.releaseDate ?? 'Release Date not found'}
               </p>
+              <FavoriteButton
+                targetId={targetData.id}
+                targetType='ALBUM'
+                isFavorite={!!isFavorited}
+                verified={verified}
+              />
             </div>
             <div className='flex flex-row items-center md:flex-col'>
               <AverageRating type='VERIFIED' averageRating={verifiedAverage} />
@@ -148,6 +181,12 @@ export default function Album() {
                     16,
                   )}
                 </p>
+                <FavoriteButton
+                  targetId={targetData.id}
+                  targetType='ALBUM'
+                  isFavorite={!!isFavorited}
+                  verified={verified}
+                />
               </div>
             </div>
           </div>

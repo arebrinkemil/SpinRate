@@ -1,22 +1,6 @@
 import { Album, AlbumType, Artist } from '@prisma/client'
 import { prisma } from '~/db/prisma'
 
-// export async function findOrCreateArtist(name: string) {
-//   let artist = await prisma.artist.findFirst({ where: { name } })
-//   if (!artist) {
-//     const artistData = await fetch(
-//       `https://api.spotify.com/v1/search?q=${name}&type=artist`,
-//       {
-//         headers: { Authorization: `Bearer ${accessToken}` },
-//       },
-//     )
-
-//     artist = await prisma.artist.create({ data: { name } })
-//     console.log('Created artist: ' + artist.name)
-//   }
-//   return artist
-// }
-
 export async function findOrCreateArtist(id: string, accessToken: string) {
   let artist = await prisma.artist.findFirst({ where: { id } })
   if (!artist) {
@@ -42,7 +26,6 @@ export async function findOrCreateAlbum(
   albumId: string,
   imageUrl: string,
 ) {
-  console.log('Finding or creating album...')
   let album = await prisma.album.findFirst({
     where: { name, artistId },
   })
@@ -66,8 +49,6 @@ export async function findOrCreateAlbum(
 }
 
 export async function fetchAlbumSongs(albumId: string, accessToken: string) {
-  console.log(albumId + 'albumId')
-
   const albumResponse = await fetch(
     `https://api.spotify.com/v1/albums/${albumId}`,
     {
@@ -130,25 +111,36 @@ export async function findOrCreateSong(
   imageUrl: string,
   artistName?: string,
 ) {
+  if (albumId === 'single') {
+    albumId = null
+  }
+
   let song = await prisma.song.findFirst({
     where: {
-      name,
-      artistId,
-      albumId: albumId,
+      id,
     },
   })
 
   if (!song) {
-    const validReleaseDate = isValidDate(releaseDate)
+    let validReleaseDate = isValidDate(releaseDate)
       ? new Date(releaseDate)
       : new Date()
+
+    if (albumId) {
+      const album = await prisma.album.findFirst({
+        where: { id: albumId },
+      })
+      if (album) {
+        validReleaseDate = album.releaseDate
+      }
+    }
 
     song = await prisma.song.create({
       data: {
         id,
         name,
         artistId,
-        albumId: albumId,
+        albumId,
         duration,
         releaseDate: validReleaseDate,
         spotifyUrl,
@@ -163,18 +155,28 @@ export async function findOrCreateSong(
 }
 
 export async function getCollectedSongs() {
-  console.log('Getting collected songs...')
   return await prisma.song.findMany()
 }
 
-export async function getArtists() {
-  console.log('Getting artists...')
-  return await prisma.artist.findMany()
+export async function getArtists(offset: number = 0, limit: number = 10) {
+  return await prisma.artist.findMany({
+    skip: offset,
+    take: limit,
+    orderBy: { name: 'asc' },
+  })
 }
 
-export async function getArtistSongs(artistId: string) {
-  console.log('Getting artist songs...')
-  return await prisma.song.findMany({ where: { artistId } })
+export async function getArtistSongs(
+  artistId: string,
+  offset: number = 0,
+  limit: number = 100,
+) {
+  return await prisma.song.findMany({
+    where: { artistId },
+    skip: offset,
+    take: limit,
+    orderBy: { name: 'asc' },
+  })
 }
 
 export async function getAverageRating(songId: string): Promise<number> {

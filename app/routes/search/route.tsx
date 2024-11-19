@@ -94,7 +94,10 @@ export default function Search() {
                 key={artist.id}
                 className='overflow-x-hidden hover:text-white hover:underline'
               >
-                <Link className='hidden md:block' to={`/artist/${artist.id}`}>
+                <Link
+                  className='hidden md:block lg:hidden'
+                  to={`/artist/${artist.id}`}
+                >
                   {truncateText(artist.name, 16)}
                 </Link>
                 <Link
@@ -115,7 +118,10 @@ export default function Search() {
                 key={album.id}
                 className='overflow-x-hidden hover:text-white hover:underline'
               >
-                <Link className='hidden md:block' to={`/album/${album.id}`}>
+                <Link
+                  className='hidden md:block lg:hidden'
+                  to={`/album/${album.id}`}
+                >
                   {truncateText(album.name, 16)}
                 </Link>
                 <Link
@@ -136,7 +142,10 @@ export default function Search() {
                 key={song.id}
                 className='overflow-x-hidden hover:text-white hover:underline'
               >
-                <Link className='hidden md:block' to={`/song/${song.id}`}>
+                <Link
+                  className='hidden md:block lg:hidden'
+                  to={`/song/${song.id}`}
+                >
                   {truncateText(song.name, 16)}
                 </Link>
                 <Link

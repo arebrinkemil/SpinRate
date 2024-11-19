@@ -33,6 +33,7 @@ model Password {
 
 model Favorite {
   id       String    @id @default(uuid())
+  type     String? 
   user     Account   @relation(fields: [userId], references: [id])
   userId   String
   album    Album?    @relation(fields: [albumId], references: [id])
@@ -44,16 +45,17 @@ model Favorite {
 }
 
 model Artist {
-  id       String    @id @default(uuid())
-  name     String
-  albums   Album[]
-  songs    Song[]
-  ratings  Rating[]     
-  reviews  Review[]
-  favorites Favorite[]
-  imageUrl String?
-
+  id             String     @id @default(uuid())
+  name           String
+  albums         Album[]
+  songs          Song[]
+  ratings        Rating[]     
+  reviews        Review[]
+  favorites      Favorite[]
+  imageUrl       String?
+  mediaType      String     @default("artist") 
 }
+
 
 model Album {
   id             String     @id @default(uuid())
@@ -68,25 +70,26 @@ model Album {
   favorites      Favorite[]
   spotifyUrl     String     @unique
   imageUrl       String?
+  mediaType      String     @default("album") 
 }
-
 model Song {
   id             String     @id @default(uuid())
   name           String
-  duration       Int        // Duration in milliseconds
-  releaseDate    DateTime   // Includes release date for singles
+  duration       Int        
+  releaseDate    DateTime   
   album          Album?     @relation(fields: [albumId], references: [id])
   albumId        String?
   artistName     String?
   artist         Artist     @relation(fields: [artistId], references: [id])
   artistId       String
-  isSingle       Boolean    @default(false) // Identifies if the song is a single
+  isSingle       Boolean    @default(false) 
   ratings        Rating[]
   reviews        Review[]
   favorites      Favorite[]
   spotifyUrl     String     @unique
   imageUrl       String?
-}
+  mediaType      String     @default("song") 
+} 
 
 model Rating {
   id           String   @id @default(uuid())
