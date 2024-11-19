@@ -35,7 +35,7 @@ export const NavBar: React.FC<NavBarProps> = ({ userId }) => {
       </Link>
       <div className="flex w-1/3 justify-center">
         <Link to="/search" className="block text-center">
-          <div className="text-silver">Search</div>
+          <div className="text-silver hover:text-white">SEARCH</div>
         </Link>
       </div>
       <div className="flex w-1/3 justify-end gap-4">

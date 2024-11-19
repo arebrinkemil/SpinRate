@@ -1,13 +1,14 @@
-import { Form } from '@remix-run/react'
-import { IoMusicalNotesOutline, IoMusicalNotes } from 'react-icons/io5'
-import { Tooltip } from '@nextui-org/tooltip'
+import { Form } from "@remix-run/react";
+import { IoMusicalNotesOutline, IoMusicalNotes } from "react-icons/io5";
+import { Tooltip } from "@nextui-org/tooltip";
+import { Button } from "@nextui-org/react";
 
 type FavoriteButtonProps = {
-  targetId: string
-  targetType: 'SONG' | 'ALBUM' | 'ARTIST'
-  isFavorite: boolean
-  verified: boolean
-}
+  targetId: string;
+  targetType: "SONG" | "ALBUM" | "ARTIST";
+  isFavorite: boolean;
+  verified: boolean;
+};
 
 export default function FavoriteButton({
   targetId,
@@ -18,29 +19,29 @@ export default function FavoriteButton({
   if (!verified) {
     return (
       <p>
-        Please <a href='/login'>login</a> to favorite this item.
+        Please <a href="/login">login</a> to favorite this item.
       </p>
-    )
+    );
   }
 
   return (
-    <Form method='post'>
+    <Form method="post">
       <input
-        type='hidden'
-        name='intent'
-        value={isFavorite ? 'unfavorite' : 'favorite'}
+        type="hidden"
+        name="intent"
+        value={isFavorite ? "unfavorite" : "favorite"}
       />
-      <input type='hidden' name='targetId' value={targetId} />
-      <input type='hidden' name='targetType' value={targetType} />
-      <Tooltip content='Favorite' placement='right' radius='none'>
-        <button type='submit' className='btn'>
+      <input type="hidden" name="targetId" value={targetId} />
+      <input type="hidden" name="targetType" value={targetType} />
+      <Tooltip content="Favorite" placement="right" radius="none">
+        <Button radius="none" type="submit" className="btn bg-transparent">
           {isFavorite ? (
-            <IoMusicalNotes color='yellow' size={40} />
+            <IoMusicalNotes color="yellow" size={40} />
           ) : (
             <IoMusicalNotesOutline size={40} />
           )}
-        </button>
+        </Button>
       </Tooltip>
     </Form>
-  )
+  );
 }

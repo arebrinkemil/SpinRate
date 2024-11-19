@@ -59,7 +59,6 @@ export default function ReviewForm({ targetId, targetType }: ReviewFormProps) {
                     <Textarea
                       name="review"
                       variant={"underlined"}
-                      label="Description"
                       labelPlacement="outside"
                       placeholder="Enter your review"
                       className="col-span-12 mb-6 md:col-span-6 md:mb-0"
@@ -67,7 +66,14 @@ export default function ReviewForm({ targetId, targetType }: ReviewFormProps) {
                   </label>
                   <input type="hidden" name="intent" value="review" />
                   <input type="hidden" name="type" value={targetType} />
-                  <button type="submit">Submit Review</button>
+                  <Button
+                    className="bg-transparent"
+                    radius="none"
+                    type="submit"
+                    onPress={onClose}
+                  >
+                    SUBMIT REVIEW
+                  </Button>
                 </Form>
               </div>
             </div>

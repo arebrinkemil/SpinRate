@@ -3,7 +3,7 @@ import { Form, Link, useActionData } from "@remix-run/react";
 import React from "react";
 
 import { redirectIfLoggedInLoader, setAuthOnResponse } from "~/auth/auth";
-import { Button } from "~/components/button";
+import { Button } from "@nextui-org/react";
 import { Label } from "~/components/input";
 import { Input } from "@nextui-org/react";
 import { validate } from "./validate";
@@ -105,8 +105,8 @@ export default function Signup() {
                 variant="bordered"
                 placeholder="Enter your password"
                 endContent={
-                  <button
-                    className="focus:outline-none"
+                  <Button
+                    className="focus:outline-none bg-transparent"
                     type="button"
                     onClick={toggleVisibility}
                     aria-label="toggle password visibility"
@@ -116,7 +116,7 @@ export default function Signup() {
                     ) : (
                       <EyeFilledIcon className="text-default-400 pointer-events-none text-2xl" />
                     )}
-                  </button>
+                  </Button>
                 }
                 type={isVisible ? "text" : "password"}
                 autoComplete="current-password"
@@ -128,7 +128,7 @@ export default function Signup() {
             </div>
 
             <div>
-              <Button className="bg-blue" type="submit">
+              <Button className="bg-blue w-full rounded-none" type="submit">
                 <p className="text-black dark:text-silver">Sign in</p>
               </Button>
             </div>
