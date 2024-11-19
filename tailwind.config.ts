@@ -36,6 +36,7 @@ export default {
         black: "#121212",
         gray: "#857885",
         silver: "#B3B2AE",
+        darkgray: "#292929",
         lightsilver: "#C1C1BA",
         platinum: "#E9E9E6",
         blue: "#1F7A8C",
@@ -55,6 +56,6 @@ export default {
       "2xl": "1600px",
     },
   },
-  darkMode: "class",
+  darkMode: "selector",
   plugins: [nextui()],
 } satisfies Config;
