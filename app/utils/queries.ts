@@ -1,5 +1,5 @@
-import { Song, Review } from '@prisma/client'
-import { prisma } from '~/db/prisma'
+import { Song, Review } from "@prisma/client";
+import { prisma } from "~/db/prisma";
 
 export async function getSongData(id: string) {
   return await prisma.song.findFirst({
@@ -7,7 +7,7 @@ export async function getSongData(id: string) {
     include: {
       artist: true,
     },
-  })
+  });
 }
 
 export async function getAlbumData(id: string) {
@@ -17,7 +17,7 @@ export async function getAlbumData(id: string) {
       songs: true,
       artist: true,
     },
-  })
+  });
 }
 
 export async function getArtistData(id: string) {
@@ -31,5 +31,19 @@ export async function getArtistData(id: string) {
       },
       songs: true,
     },
-  })
+  });
+}
+
+export async function getStatsFromData() {
+  const songs = await prisma.song.findMany();
+  const albums = await prisma.album.findMany();
+  const artists = await prisma.artist.findMany();
+  const reviews = await prisma.review.findMany();
+
+  return {
+    songs: songs.length,
+    albums: albums.length,
+    artists: artists.length,
+    reviews: reviews.length,
+  };
 }
