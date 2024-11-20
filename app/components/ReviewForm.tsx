@@ -70,7 +70,6 @@ export default function ReviewForm({ targetId, targetType }: ReviewFormProps) {
                     className="bg-transparent"
                     radius="none"
                     type="submit"
-                    onPress={onClose}
                   >
                     SUBMIT REVIEW
                   </Button>

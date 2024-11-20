@@ -18,7 +18,7 @@ export default function FavoriteButton({
 }: FavoriteButtonProps) {
   if (!verified) {
     return (
-      <p>
+      <p className="md:block hidden">
         Please <a href="/login">login</a> to favorite this item.
       </p>
     );

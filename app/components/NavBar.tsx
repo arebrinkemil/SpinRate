@@ -38,7 +38,7 @@ export const NavBar: React.FC<NavBarProps> = ({ userId }) => {
           <div className="text-silver hover:text-white">SEARCH</div>
         </Link>
       </div>
-      <div className="flex w-1/3 justify-end gap-4">
+      <div className="flex w-1/3 justify-end md:gap-4">
         <button
           onClick={() => setIsDark((prev) => !prev)}
           className=""

@@ -214,8 +214,8 @@ export default function Song() {
               </div>
             </div>
           </div>
-          <div className="flex w-full flex-row h-64">
-            <div className="flex flex-col h-full w-full items-center">
+          <div className="flex w-full flex-row h-64 mt-8">
+            <div className="flex flex-col h-full w-full items-center ">
               <AverageRating type="VERIFIED" averageRating={verifiedAverage} />
               <h6>VERIFIED </h6>
             </div>
