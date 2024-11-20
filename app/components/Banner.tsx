@@ -23,7 +23,7 @@ export default function Banner({ data }: { data: any }) {
         The home for music ratings and reviews.
       </p>
 
-      <div className="grid grid-cols-2 gap-4 mt-8 text-lg md:text-xl">
+      <div className="grid grid-cols-2 gap-4 my-8 text-lg md:text-xl">
         <div>
           <span className="font-bold block text-blue">Songs</span>
           {data.songs}

@@ -229,15 +229,15 @@ export default function Home() {
 
       <div className="sticky top-[4rem] z-20 bg-silver dark:bg-black w-screen px-0">
         <div className="flex flex-col-reverse items-center justify-between lg:flex-row pr-8">
-          <div className="mb-1 flex space-x-1 lg:mb-4 lg:space-x-4">
+          <div className="mb-1 flex space-x-1 lg:mb-4 lg:space-x-4 pl-8 pt-4">
             <Button
               radius="none"
               onClick={() => setFilter("all")}
-              className={`px-4 py-2 underline decoration-black decoration-4 ${
+              className={`px-4 py-2 underline decoration-black dark:decoration-silver decoration-4 ${
                 filter === "all" ? "bg-gray-800 text-white" : "bg-gray-200"
               }`}
             >
-              ALL
+              <h5>ALL</h5>
             </Button>
             <Button
               radius="none"
@@ -246,7 +246,7 @@ export default function Home() {
                 filter === "album" ? "text-hallon bg-gray-800" : "bg-gray-200"
               }`}
             >
-              ALBUMS
+              <h5>ALBUMS</h5>
             </Button>
             <Button
               radius="none"
@@ -255,7 +255,7 @@ export default function Home() {
                 filter === "song" ? "text-blue bg-gray-800" : "bg-gray-200"
               }`}
             >
-              SONGS
+              <h5>SONGS</h5>
             </Button>
             <Button
               radius="none"
@@ -264,12 +264,8 @@ export default function Home() {
                 filter === "artist" ? "text-orange bg-gray-800" : "bg-gray-200"
               }`}
             >
-              ARTISTS
+              <h5>ARTISTS</h5>
             </Button>
-          </div>
-          <div className="mb-1 flex flex-row gap-4 bg-black px-2 lg:mb-4">
-            <p className="text-[#79B473]">VERIFIED</p>
-            <p className="text-[#F4442E]">PUBLIC</p>
           </div>
         </div>
       </div>
