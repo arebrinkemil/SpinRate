@@ -86,6 +86,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const ratings = await getUserRatings(userId);
   const reviews = await getUserReviews(userId);
   const favorites = await getFavorites(userId);
+
   const combinedData = shuffleArray([...ratings, ...reviews]);
 
   const isOwner = accountId === userId;

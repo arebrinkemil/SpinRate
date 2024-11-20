@@ -1,63 +1,43 @@
-import { twMerge } from 'tailwind-merge'
+import { twMerge } from "tailwind-merge";
 
 export default function AverageRating({
-  type = '',
+  type = "",
   averageRating = null,
-  className = '',
+  className = "",
 }: {
-  type: string
-  averageRating: number | null
-  className?: string
+  type: string;
+  averageRating: number | null;
+  className?: string;
 }) {
   const mergedClasses = twMerge(
-    'text-2xl flex flex-col items-center',
-    className,
-  )
+    "flex flex-col items-center h-full w-full",
+    className
+  );
 
-  const maxValue = 10
-  const ratingPercentage = averageRating !== null ? averageRating / maxValue : 0
-  const angle = ratingPercentage * 180
-
-  const radius = 50
-  const circumference = Math.PI * radius
-  const strokeDasharray = `${(angle / 180) * circumference} ${circumference}`
-
-  const getColor = () => {
-    if (type == 'VERIFIED') return '#79B473' //kanske är jätteful färg, tillsviadre
-    if (type == 'PUBLIC') return '#F4442E'
-    return '#F44336'
-  }
+  const maxValue = 10;
+  const ratingPercentage =
+    averageRating !== null ? averageRating / maxValue : 0;
 
   return (
-    <div className={mergedClasses}>
-      <div className='w-full max-w-[200px]'>
-        <svg className='aspect-square h-auto w-full' viewBox='0 0 120 60'>
-          <path
-            d='M 10 50 A 40 40 0 0 1 110 50'
-            fill='none'
-            stroke='#E9E9E6'
-            strokeWidth='10'
-          />
-          <path
-            d='M 10 50 A 40 40 0 0 1 110 50'
-            fill='none'
-            stroke={getColor()}
-            strokeWidth='10'
-            strokeDasharray={strokeDasharray}
-          />
-          <text
-            x='60'
-            y='50'
-            textAnchor='middle'
-            alignmentBaseline='middle'
-            fontSize='20'
-            fill='#121212'
-            fontWeight='bold'
-          >
-            {averageRating !== null ? averageRating.toFixed(1) : '-'}
-          </text>
-        </svg>
+    <div className={twMerge(mergedClasses)}>
+      <div className="relative h-full w-1/2 overflow-hidden border-t-1 border-b-1 border-black dark:border-silver">
+        <div
+          className={twMerge(
+            "absolute bottom-0 left-0 w-full",
+            averageRating !== null && averageRating >= 9.5
+              ? "bg-yellow-500 dark:bg-yellow-400"
+              : averageRating !== null && averageRating < 2
+              ? "bg-red-500 dark:bg-red-400"
+              : "bg-black dark:bg-silver"
+          )}
+          style={{
+            height: `${ratingPercentage * 100}%`,
+          }}
+        ></div>
       </div>
+      <p className="mt-1 font-bold text-center text-black dark:text-white">
+        {averageRating !== null ? averageRating.toFixed(0) : "-"}
+      </p>
     </div>
-  )
+  );
 }

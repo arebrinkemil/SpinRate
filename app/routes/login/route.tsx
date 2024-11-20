@@ -8,8 +8,8 @@ import { Label } from "~/components/input";
 import { Input } from "@nextui-org/react";
 import { validate } from "./validate";
 import { login } from "./queries";
-import { EyeFilledIcon } from "~/components/EyeFilledIcon";
-import { EyeSlashFilledIcon } from "~/components/EyeSlashFilledIcon";
+
+import { TbEyeOff, TbEye } from "react-icons/tb";
 
 export const loader = redirectIfLoggedInLoader;
 
@@ -111,11 +111,7 @@ export default function Signup() {
                     onClick={toggleVisibility}
                     aria-label="toggle password visibility"
                   >
-                    {isVisible ? (
-                      <EyeSlashFilledIcon className="text-default-400 pointer-events-none text-2xl" />
-                    ) : (
-                      <EyeFilledIcon className="text-default-400 pointer-events-none text-2xl" />
-                    )}
+                    {isVisible ? <TbEye size={30} /> : <TbEyeOff size={30} />}
                   </Button>
                 }
                 type={isVisible ? "text" : "password"}

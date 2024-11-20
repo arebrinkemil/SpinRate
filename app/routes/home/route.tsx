@@ -1,7 +1,12 @@
 import { json, LoaderFunction } from "@remix-run/node";
 import { useLoaderData, Link, MetaFunction } from "@remix-run/react";
 import { useState } from "react";
-import { getAlbumData, getSongData, getArtistData } from "~/utils/queries";
+import {
+  getAlbumData,
+  getSongData,
+  getArtistData,
+  getStatsFromData,
+} from "~/utils/queries";
 import { getAverageRating } from "~/utils/ratingLogic";
 import {
   AlbumBox,
@@ -12,6 +17,7 @@ import {
 import { client } from "~/sanity/client";
 import { SanityDocument } from "@sanity/client";
 import { Button } from "@nextui-org/react";
+import Aotd from "~/components/Aotd";
 import Banner from "~/components/Banner";
 
 export const meta: MetaFunction = () => {
@@ -19,6 +25,12 @@ export const meta: MetaFunction = () => {
 };
 
 type LoaderData = {
+  statsFromData: {
+    songs: number;
+    albums: number;
+    artists: number;
+    reviews: number;
+  };
   data: any[];
   sanityData: SanityDocument[];
   bannerData: SanityDocument[];
@@ -183,7 +195,10 @@ export const loader: LoaderFunction = async ({ request }) => {
     insertIndex += 12;
   });
 
+  const statsFromData = await getStatsFromData();
+
   return json<LoaderData>({
+    statsFromData,
     data: combinedData,
     sanityData,
     bannerData,
@@ -191,7 +206,8 @@ export const loader: LoaderFunction = async ({ request }) => {
 };
 
 export default function Home() {
-  const { data, sanityData, bannerData } = useLoaderData<LoaderData>();
+  const { statsFromData, data, sanityData, bannerData } =
+    useLoaderData<LoaderData>();
 
   const [filter, setFilter] = useState<
     "all" | "album" | "song" | "artist" | "highlight"
@@ -203,55 +219,58 @@ export default function Home() {
   });
 
   return (
-    <div className="w-full px-4 lg:px-10">
-      <div className="flex flex-col-reverse items-center justify-between lg:flex-row">
-        <div className="mb-1 flex space-x-1 lg:mb-4 lg:space-x-4">
-          <Button
-            radius="none"
-            onClick={() => setFilter("all")}
-            className={`px-4 py-2 underline decoration-black decoration-4 ${
-              filter === "all" ? "bg-gray-800 text-white" : "bg-gray-200"
-            }`}
-          >
-            ALL
-          </Button>
-          <Button
-            radius="none"
-            onClick={() => setFilter("album")}
-            className={`decoration-hallon px-4 py-2 underline decoration-4 ${
-              filter === "album" ? "text-hallon bg-gray-800" : "bg-gray-200"
-            }`}
-          >
-            ALBUMS
-          </Button>
-          <Button
-            radius="none"
-            onClick={() => setFilter("song")}
-            className={`decoration-blue px-4 py-2 underline decoration-4 ${
-              filter === "song" ? "text-blue bg-gray-800" : "bg-gray-200"
-            }`}
-          >
-            SONGS
-          </Button>
-          <Button
-            radius="none"
-            onClick={() => setFilter("artist")}
-            className={`decoration-orange px-4 py-2 underline decoration-4 ${
-              filter === "artist" ? "text-orange bg-gray-800" : "bg-gray-200"
-            }`}
-          >
-            ARTISTS
-          </Button>
-        </div>
-        <div className="mb-1 flex flex-row gap-4 bg-black px-2 lg:mb-4">
-          <p className="text-[#79B473]">VERIFIED</p>
-          <p className="text-[#F4442E]">PUBLIC</p>
+    <div className="w-full overflow-x-clip">
+      <div className="w-screen relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw]">
+        <Banner data={statsFromData} />
+      </div>
+      <div className="w-screen relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw]">
+        <Aotd data={bannerData[0]} />
+      </div>
+
+      <div className="sticky top-[4rem] z-20 bg-silver dark:bg-black w-screen px-0">
+        <div className="flex flex-col-reverse items-center justify-between lg:flex-row pr-8">
+          <div className="mb-1 flex space-x-1 lg:mb-4 lg:space-x-4 pl-8 pt-4">
+            <Button
+              radius="none"
+              onClick={() => setFilter("all")}
+              className={`px-4 py-2 underline decoration-black dark:decoration-silver decoration-4 ${
+                filter === "all" ? "bg-gray-800 text-white" : "bg-gray-200"
+              }`}
+            >
+              <h5>ALL</h5>
+            </Button>
+            <Button
+              radius="none"
+              onClick={() => setFilter("album")}
+              className={`decoration-hallon px-4 py-2 underline decoration-4 ${
+                filter === "album" ? "text-hallon bg-gray-800" : "bg-gray-200"
+              }`}
+            >
+              <h5>ALBUMS</h5>
+            </Button>
+            <Button
+              radius="none"
+              onClick={() => setFilter("song")}
+              className={`decoration-blue px-4 py-2 underline decoration-4 ${
+                filter === "song" ? "text-blue bg-gray-800" : "bg-gray-200"
+              }`}
+            >
+              <h5>SONGS</h5>
+            </Button>
+            <Button
+              radius="none"
+              onClick={() => setFilter("artist")}
+              className={`decoration-orange px-4 py-2 underline decoration-4 ${
+                filter === "artist" ? "text-orange bg-gray-800" : "bg-gray-200"
+              }`}
+            >
+              <h5>ARTISTS</h5>
+            </Button>
+          </div>
         </div>
       </div>
 
-      <div className="grid grid-flow-row-dense grid-cols-2 gap-2 md:grid-cols-2 lg:grid-cols-4 lg:gap-4 2xl:grid-cols-6">
-        <Banner data={bannerData[0]} />
-
+      <div className="grid grid-flow-row-dense grid-cols-2 gap-2 md:grid-cols-2 lg:grid-cols-4 lg:gap-4 2xl:grid-cols-6  md:px-4 lg:px-10">
         {filteredData.map((item) => {
           if (item.type === "album") {
             return (

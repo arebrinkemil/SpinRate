@@ -142,9 +142,21 @@ export default function Artist() {
                 verified={verified}
               />
             </div>
-            <div className="flex flex-row items-center md:flex-col">
-              <AverageRating type="VERIFIED" averageRating={verifiedAverage} />
-              <AverageRating type="PUBLIC" averageRating={unverifiedAverage} />
+            <div className="flex flex-row gap-4 items-center w-1/4 justify-end">
+              <div className="flex flex-col h-full">
+                <AverageRating
+                  type="VERIFIED"
+                  averageRating={verifiedAverage}
+                />
+                <h6>VERIFIED </h6>
+              </div>
+              <div className="flex flex-col h-full">
+                <AverageRating
+                  type="PUBLIC"
+                  averageRating={unverifiedAverage}
+                />
+                <h6>PUBLIC </h6>
+              </div>
             </div>
           </div>
         </div>
@@ -214,9 +226,15 @@ export default function Artist() {
               />
             </div>
           </div>
-          <div className="flex w-full flex-row md:flex-col">
-            <AverageRating type="VERIFIED" averageRating={verifiedAverage} />
-            <AverageRating type="PUBLIC" averageRating={unverifiedAverage} />
+          <div className="flex w-full flex-row h-64">
+            <div className="flex flex-col h-full w-full items-center">
+              <AverageRating type="VERIFIED" averageRating={verifiedAverage} />
+              <h6>VERIFIED </h6>
+            </div>
+            <div className="flex flex-col h-full w-full items-center">
+              <AverageRating type="PUBLIC" averageRating={unverifiedAverage} />
+              <h6>PUBLIC </h6>
+            </div>
           </div>
           <h1 className="mx-4 text-3xl">Albums</h1>
           {targetData.albums.map((album: any) => (

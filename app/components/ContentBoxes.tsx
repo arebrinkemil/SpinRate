@@ -48,7 +48,7 @@ export function AlbumBox({
               alt={album.name}
               className="h-full w-4/6 object-cover"
             />
-            <div className="flex h-full w-2/6 flex-col items-center justify-center">
+            <div className="flex h-full w-2/6 flex-row items-center justify-center">
               <AverageRating
                 type="VERIFIED"
                 className=" text-white"
@@ -118,7 +118,7 @@ export function SongBox({ song }: SongBoxProps) {
               alt={song.name}
               className="h-full w-4/6 object-cover"
             />
-            <div className="flex h-full w-2/6 flex-col items-center justify-center">
+            <div className="flex h-full w-2/6 flex-row items-center justify-center">
               <AverageRating
                 type="VERIFIED"
                 className=" text-white"
@@ -186,7 +186,7 @@ export function ArtistBox({ artist }: ArtistBoxProps) {
               alt={artist.name}
               className="h-full w-4/6 object-cover"
             />
-            <div className="flex h-full w-2/6 flex-col items-center justify-center">
+            <div className="flex h-full w-2/6 flex-row items-center justify-center">
               <AverageRating
                 type="VERIFIED"
                 className=" text-white"
