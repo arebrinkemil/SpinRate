@@ -38,6 +38,7 @@ export async function getUserRatings(id: string): Promise<RatingData[]> {
       song: true,
       artist: true,
     },
+    take: 60,
   })
 
   const userRatings: RatingData[] = ratings
