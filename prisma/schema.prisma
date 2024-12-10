@@ -3,12 +3,12 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mongodb"
   url      = env("DATABASE_URL")
 }
 
 model Account {
-  id              String     @id @default(uuid())
+  id              String     @id @default(uuid()) @map("_id")
   email           String     @unique
   description     String?
   experincePoints Int?       @default(0)
@@ -24,7 +24,7 @@ model Account {
 }
 
 model Password {
-  id        String  @id @default(uuid())
+  id        String  @id @default(uuid()) @map("_id")
   salt      String
   hash      String
   accountId String  @unique
@@ -32,7 +32,7 @@ model Password {
 }
 
 model Favorite {
-  id       String  @id @default(uuid())
+  id       String  @id @default(uuid()) @map("_id")
   userId   String
   albumId  String?
   songId   String?
@@ -45,7 +45,7 @@ model Favorite {
 }
 
 model Artist {
-  id        String     @id @default(uuid())
+  id        String     @id @default(uuid()) @map("_id")
   name      String
   imageUrl  String?
   mediaType String     @default("artist")
@@ -57,7 +57,7 @@ model Artist {
 }
 
 model Album {
-  id          String     @id @default(uuid())
+  id          String     @id @default(uuid()) @map("_id")
   name        String
   releaseDate DateTime
   type        AlbumType
@@ -73,7 +73,7 @@ model Album {
 }
 
 model Song {
-  id          String     @id @default(uuid())
+  id          String     @id @default(uuid()) @map("_id")
   name        String
   duration    Int
   releaseDate DateTime
@@ -92,7 +92,7 @@ model Song {
 }
 
 model Rating {
-  id          String   @id @default(uuid())
+  id          String   @id @default(uuid()) @map("_id")
   ratingValue Int      @default(0)
   userId      String?
   albumId     String?
@@ -106,7 +106,7 @@ model Rating {
 }
 
 model Review {
-  id       String    @id @default(uuid())
+  id       String    @id @default(uuid()) @map("_id")
   content  String
   userId   String
   albumId  String?
@@ -120,7 +120,7 @@ model Review {
 }
 
 model Comment {
-  id        String   @id @default(uuid())
+  id        String   @id @default(uuid()) @map("_id")
   content   String
   createdAt DateTime @default(now())
   userId    String

@@ -324,6 +324,7 @@ export default function Profile() {
                             variant="bordered"
                             radius="none"
                           />
+
                           <Button
                             className="bg-hallon text-white"
                             radius="none"

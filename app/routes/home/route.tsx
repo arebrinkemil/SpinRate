@@ -102,6 +102,8 @@ type Highlight = {
 };
 
 export const loader: LoaderFunction = async ({ request }) => {
+  console.log("we got the data");
+
   const sanityData = await client.fetch<SanityDocument[]>(POSTS_QUERY);
   const bannerData = await client.fetch<SanityDocument[]>(BANNER_QUERY);
   const highlightedContent = await client.fetch<Highlight[]>(HIGHLIGHT_QUERY);
@@ -218,6 +220,8 @@ export default function Home() {
     return item.type === filter;
   });
 
+  console.log(filteredData);
+
   return (
     <div className="w-full overflow-x-clip">
       <div className="w-screen relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw]">
@@ -272,6 +276,8 @@ export default function Home() {
 
       <div className="grid grid-flow-row-dense grid-cols-2 gap-2 md:grid-cols-2 lg:grid-cols-4 lg:gap-4 2xl:grid-cols-6  md:px-4 lg:px-10">
         {filteredData.map((item) => {
+          console.log(item);
+
           if (item.type === "album") {
             return (
               <AlbumBox
