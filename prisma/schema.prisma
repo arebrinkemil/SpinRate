@@ -1,139 +1,152 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "mongodb"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
 model Account {
-  id              String     @id @default(uuid()) @map("_id")
-  email           String     @unique
-  description     String?
-  experincePoints Int?       @default(0)
-  firstName       String?
-  lastName        String?
-  profileImageUrl String?
-  username        String
-  comments        Comment[]
-  favorites       Favorite[]
-  Password        Password?
-  ratings         Rating[]
-  reviews         Review[]
+  id            String    @id @default(cuid())
+  userId        String
+  type          String
+  provider      String
+  providerAccountId String
+  refresh_token String?
+  access_token  String?
+  expires_at    Int?
+  token_type    String?
+  scope         String?
+  id_token      String?
+  session_state String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
 }
 
-model Password {
-  id        String  @id @default(uuid()) @map("_id")
-  salt      String
-  hash      String
-  accountId String  @unique
-  Account   Account @relation(fields: [accountId], references: [id])
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
-model Favorite {
-  id       String  @id @default(uuid()) @map("_id")
-  userId   String
-  albumId  String?
-  songId   String?
-  artistId String?
-  type     String?
-  album    Album?  @relation(fields: [albumId], references: [id])
-  artist   Artist? @relation(fields: [artistId], references: [id])
-  song     Song?   @relation(fields: [songId], references: [id])
-  user     Account @relation(fields: [userId], references: [id])
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  accounts      Account[]
+  sessions      Session[]
+  ratings       Rating[]
+  reviews       Review[]
+  comments      Comment[]
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
 }
 
 model Artist {
-  id        String     @id @default(uuid()) @map("_id")
-  name      String
-  imageUrl  String?
-  mediaType String     @default("artist")
-  albums    Album[]
-  favorites Favorite[]
-  ratings   Rating[]
-  reviews   Review[]
-  songs     Song[]
+  id          String   @id @default(cuid())
+  name        String
+  imageUrl    String
+  spotifyId   String   @unique
+  spotifyUrl  String
+  albums      Album[]
+  songs       Song[]
+  ratings     Rating[]
+  reviews     Review[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
 model Album {
-  id          String     @id @default(uuid()) @map("_id")
+  id          String   @id @default(cuid())
   name        String
-  releaseDate DateTime
-  type        AlbumType
   artistId    String
-  spotifyUrl  String     @unique
-  imageUrl    String?
-  mediaType   String     @default("album")
-  artist      Artist     @relation(fields: [artistId], references: [id])
-  favorites   Favorite[]
+  releaseDate String
+  albumType   String
+  spotifyId   String   @unique
+  spotifyUrl  String
+  imageUrl    String
+  artist      Artist   @relation(fields: [artistId], references: [id])
+  songs       Song[]
   ratings     Rating[]
   reviews     Review[]
-  songs       Song[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
 model Song {
-  id          String     @id @default(uuid()) @map("_id")
+  id          String   @id @default(cuid())
   name        String
-  duration    Int
-  releaseDate DateTime
-  albumId     String?
   artistId    String
-  isSingle    Boolean    @default(false)
-  spotifyUrl  String     @unique
-  imageUrl    String?
-  artistName  String?
-  mediaType   String     @default("song")
-  favorites   Favorite[]
+  albumId     String
+  durationMs  Int
+  releaseDate String
+  spotifyId   String   @unique
+  spotifyUrl  String
+  imageUrl    String
+  artist      Artist   @relation(fields: [artistId], references: [id])
+  album       Album    @relation(fields: [albumId], references: [id])
   ratings     Rating[]
   reviews     Review[]
-  album       Album?     @relation(fields: [albumId], references: [id])
-  artist      Artist     @relation(fields: [artistId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
 model Rating {
-  id          String   @id @default(uuid()) @map("_id")
-  ratingValue Int      @default(0)
-  userId      String?
-  albumId     String?
-  songId      String?
-  artistId    String?
-  verified    Boolean  @default(false)
-  album       Album?   @relation(fields: [albumId], references: [id])
-  artist      Artist?  @relation(fields: [artistId], references: [id])
-  song        Song?    @relation(fields: [songId], references: [id])
-  user        Account? @relation(fields: [userId], references: [id])
+  id          String   @id @default(cuid())
+  userId      String
+  ratingValue Int
+  targetId    String
+  targetType  String
+  user        User     @relation(fields: [userId], references: [id])
+  artist      Artist?  @relation(fields: [targetId], references: [id])
+  album       Album?   @relation(fields: [targetId], references: [id])
+  song        Song?    @relation(fields: [targetId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([userId, targetId, targetType])
 }
 
 model Review {
-  id       String    @id @default(uuid()) @map("_id")
-  content  String
-  userId   String
-  albumId  String?
-  songId   String?
-  artistId String?
-  comments Comment[]
-  album    Album?    @relation(fields: [albumId], references: [id])
-  artist   Artist?   @relation(fields: [artistId], references: [id])
-  song     Song?     @relation(fields: [songId], references: [id])
-  user     Account   @relation(fields: [userId], references: [id])
+  id          String    @id @default(cuid())
+  userId      String
+  content     String
+  targetId    String
+  targetType  String
+  user        User      @relation(fields: [userId], references: [id])
+  artist      Artist?   @relation(fields: [targetId], references: [id])
+  album       Album?    @relation(fields: [targetId], references: [id])
+  song        Song?     @relation(fields: [targetId], references: [id])
+  comments    Comment[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@unique([userId, targetId, targetType])
 }
 
 model Comment {
-  id        String   @id @default(uuid()) @map("_id")
-  content   String
-  createdAt DateTime @default(now())
+  id        String   @id @default(cuid())
   userId    String
   reviewId  String
+  content   String
+  user      User     @relation(fields: [userId], references: [id])
   review    Review   @relation(fields: [reviewId], references: [id])
-  user      Account  @relation(fields: [userId], references: [id])
-}
-
-enum AlbumType {
-  ALBUM
-  EP
-  COMPILATION
-  album
-  ep
-  compilation
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
