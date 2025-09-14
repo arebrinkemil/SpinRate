@@ -6,12 +6,12 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mongodb"
   url      = env("DATABASE_URL")
 }
 
 model Account {
-  id            String    @id @default(cuid())
+  id            String    @id @default(cuid()) @map("_id")
   userId        String
   type          String
   provider      String
@@ -24,21 +24,21 @@ model Account {
   id_token      String?
   session_state String?
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id])
 
   @@unique([provider, providerAccountId])
 }
 
 model Session {
-  id           String   @id @default(cuid())
+  id           String   @id @default(cuid()) @map("_id")
   sessionToken String   @unique
   userId       String
   expires      DateTime
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user         User     @relation(fields: [userId], references: [id])
 }
 
 model User {
-  id            String    @id @default(cuid())
+  id            String    @id @default(cuid()) @map("_id")
   name          String?
   email         String?   @unique
   emailVerified DateTime?
@@ -51,6 +51,7 @@ model User {
 }
 
 model VerificationToken {
+  id         String   @id @default(cuid()) @map("_id")
   identifier String
   token      String   @unique
   expires    DateTime
@@ -59,7 +60,7 @@ model VerificationToken {
 }
 
 model Artist {
-  id          String   @id @default(cuid())
+  id          String   @id @default(cuid()) @map("_id")
   name        String
   imageUrl    String
   spotifyId   String   @unique
@@ -73,7 +74,7 @@ model Artist {
 }
 
 model Album {
-  id          String   @id @default(cuid())
+  id          String   @id @default(cuid()) @map("_id")
   name        String
   artistId    String
   releaseDate String
@@ -90,7 +91,7 @@ model Album {
 }
 
 model Song {
-  id          String   @id @default(cuid())
+  id          String   @id @default(cuid()) @map("_id")
   name        String
   artistId    String
   albumId     String
@@ -108,7 +109,7 @@ model Song {
 }
 
 model Rating {
-  id          String   @id @default(cuid())
+  id          String   @id @default(cuid()) @map("_id")
   userId      String
   ratingValue Int
   targetId    String
@@ -124,7 +125,7 @@ model Rating {
 }
 
 model Review {
-  id          String    @id @default(cuid())
+  id          String    @id @default(cuid()) @map("_id")
   userId      String
   content     String
   targetId    String
@@ -141,7 +142,7 @@ model Review {
 }
 
 model Comment {
-  id        String   @id @default(cuid())
+  id        String   @id @default(cuid()) @map("_id")
   userId    String
   reviewId  String
   content   String

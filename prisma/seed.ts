@@ -6,6 +6,17 @@ const prisma = new PrismaClient();
 const accountId = "7225d367-49dd-4fa0-92a7-2dff1c42c8c2";
 
 async function main() {
+  // Ensure a user exists to reference in ratings
+  await prisma.user.upsert({
+    where: { id: accountId },
+    update: {},
+    create: {
+      id: accountId,
+      name: "Seed User",
+      email: "seed-user@example.com",
+    },
+  });
+
   const songs = await prisma.song.findMany();
   const albums = await prisma.album.findMany();
   const artists = await prisma.artist.findMany();
@@ -14,23 +25,22 @@ async function main() {
     type: "song" | "album" | "artist",
     id: string
   ) => {
-    const verifiedRating = {
+    const ratingA = {
       ratingValue: faker.number.int({ min: 1, max: 10 }),
-
-      verified: true,
       userId: accountId,
-      [`${type}Id`]: id,
+      targetId: id,
+      targetType: type,
     };
 
-    const unverifiedRating = {
+    const ratingB = {
       ratingValue: faker.number.int({ min: 1, max: 10 }),
-      verified: false,
       userId: accountId,
-      [`${type}Id`]: id,
+      targetId: id,
+      targetType: type,
     };
 
     await prisma.rating.createMany({
-      data: [verifiedRating, unverifiedRating],
+      data: [ratingA, ratingB],
     });
   };
 
