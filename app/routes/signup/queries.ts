@@ -1,6 +1,5 @@
-import crypto from 'crypto'
-
-import { prisma } from '~/db/prisma'
+import crypto from "crypto";
+import { prisma } from "~/db/prisma";
 
 export async function accountExists(email: string) {
   const user = await prisma.user.findUnique({
@@ -8,8 +7,8 @@ export async function accountExists(email: string) {
       email: email,
     },
     select: {
-      id: true
-    }
+      id: true,
+    },
   });
   return !!user;
 }
@@ -21,22 +20,27 @@ export async function createAccount(
   firstName?: string,
   lastName?: string,
   description?: string,
-  profileImageUrl?: string,
+  profileImageUrl?: string
 ) {
-  let salt = crypto.randomBytes(16).toString('hex')
+  let salt = crypto.randomBytes(16).toString("hex");
   let hash = crypto
-    .pbkdf2Sync(password, salt, 1000, 64, 'sha256')
-    .toString('hex')
+    .pbkdf2Sync(password, salt, 1000, 64, "sha256")
+    .toString("hex");
 
-  return prisma.account.create({
+  return prisma.user.create({
     data: {
       email: email,
-      Password: { create: { hash, salt } },
       username: username,
-      firstName: firstName || '',
-      lastName: lastName || '',
-      description: description || '',
-      profileImageUrl: profileImageUrl || '',
+      firstName: firstName || "",
+      lastName: lastName || "",
+      description: description || "",
+      profileImageUrl: profileImageUrl || "",
+      password: {
+        create: {
+          hash,
+          salt,
+        },
+      },
     },
-  })
+  });
 }

@@ -10,135 +10,124 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Account {
-  id            String    @id @default(cuid()) @map("_id")
-  userId        String
-  type          String
-  provider      String
-  providerAccountId String
-  refresh_token String?
-  access_token  String?
-  expires_at    Int?
-  token_type    String?
-  scope         String?
-  id_token      String?
-  session_state String?
-
-  user User @relation(fields: [userId], references: [id])
-
-  @@unique([provider, providerAccountId])
-}
-
-model Session {
-  id           String   @id @default(cuid()) @map("_id")
-  sessionToken String   @unique
-  userId       String
-  expires      DateTime
-  user         User     @relation(fields: [userId], references: [id])
-}
-
+// This is the main User model for authentication and user data
 model User {
-  id            String    @id @default(cuid()) @map("_id")
-  name          String?
-  email         String?   @unique
-  emailVerified DateTime?
-  image         String?
-  accounts      Account[]
-  sessions      Session[]
-  ratings       Rating[]
-  reviews       Review[]
-  comments      Comment[]
+  id              String    @id @default(cuid()) @map("_id")
+  email           String    @unique
+  username        String    @unique
+  firstName       String?
+  lastName        String?
+  description     String?
+  profileImageUrl String?
+  emailVerified   DateTime?
+  password        Password?
+  ratings         Rating[]
+  reviews         Review[]
+  comments        Comment[]
+  favorites       Favorite[]
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
 }
 
-model VerificationToken {
-  id         String   @id @default(cuid()) @map("_id")
-  identifier String
-  token      String   @unique
-  expires    DateTime
-
-  @@unique([identifier, token])
+model Password {
+  id     String @id @default(cuid()) @map("_id")
+  hash   String
+  salt   String
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Artist {
-  id          String   @id @default(cuid()) @map("_id")
+  id          String      @id @default(cuid()) @map("_id")
   name        String
-  imageUrl    String
-  spotifyId   String   @unique
-  spotifyUrl  String
+  imageUrl    String?
+  spotifyId   String?     @unique
+  spotifyUrl  String?
   albums      Album[]
   songs       Song[]
   ratings     Rating[]
   reviews     Review[]
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  favorites   Favorite[]
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
 }
 
 model Album {
-  id          String   @id @default(cuid()) @map("_id")
+  id          String      @id @default(cuid()) @map("_id")
   name        String
   artistId    String
-  releaseDate String
-  albumType   String
-  spotifyId   String   @unique
-  spotifyUrl  String
-  imageUrl    String
-  artist      Artist   @relation(fields: [artistId], references: [id])
+  releaseDate DateTime
+  type        AlbumType   @default(ALBUM)
+  spotifyId   String?     @unique
+  spotifyUrl  String?
+  imageUrl    String?
+  artist      Artist      @relation(fields: [artistId], references: [id])
   songs       Song[]
   ratings     Rating[]
   reviews     Review[]
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  favorites   Favorite[]
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
 }
 
 model Song {
-  id          String   @id @default(cuid()) @map("_id")
+  id          String      @id @default(cuid()) @map("_id")
   name        String
   artistId    String
-  albumId     String
-  durationMs  Int
-  releaseDate String
-  spotifyId   String   @unique
-  spotifyUrl  String
-  imageUrl    String
-  artist      Artist   @relation(fields: [artistId], references: [id])
-  album       Album    @relation(fields: [albumId], references: [id])
+  artistName  String?
+  albumId     String?
+  duration    Int
+  releaseDate DateTime
+  spotifyId   String?     @unique
+  spotifyUrl  String?
+  imageUrl    String?
+  artist      Artist      @relation(fields: [artistId], references: [id])
+  album       Album?      @relation(fields: [albumId], references: [id])
   ratings     Rating[]
   reviews     Review[]
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  favorites   Favorite[]
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
 }
 
 model Rating {
   id          String   @id @default(cuid()) @map("_id")
-  userId      String
+  userId      String?
   ratingValue Int
-  targetId    String
-  targetType  String
-  user        User     @relation(fields: [userId], references: [id])
-  artist      Artist?  @relation(fields: [targetId], references: [id])
-  album       Album?   @relation(fields: [targetId], references: [id])
-  song        Song?    @relation(fields: [targetId], references: [id])
+  verified    Boolean  @default(false)
+  songId      String?
+  albumId     String?
+  artistId    String?
+  user        User?    @relation(fields: [userId], references: [id])
+  artist      Artist?  @relation(fields: [artistId], references: [id])
+  album       Album?   @relation(fields: [albumId], references: [id])
+  song        Song?    @relation(fields: [songId], references: [id])
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  @@unique([userId, targetId, targetType])
+  @@unique([userId, songId])
+  @@unique([userId, albumId])
+  @@unique([userId, artistId])
 }
 
 model Review {
-  id          String    @id @default(cuid()) @map("_id")
-  userId      String
-  content     String
-  targetId    String
-  targetType  String
-  user        User      @relation(fields: [userId], references: [id])
-  artist      Artist?   @relation(fields: [targetId], references: [id])
-  album       Album?    @relation(fields: [targetId], references: [id])
-  song        Song?     @relation(fields: [targetId], references: [id])
-  comments    Comment[]
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  id        String    @id @default(cuid()) @map("_id")
+  userId    String
+  content   String
+  songId    String?
+  albumId   String?
+  artistId  String?
+  user      User      @relation(fields: [userId], references: [id])
+  artist    Artist?   @relation(fields: [artistId], references: [id])
+  album     Album?    @relation(fields: [albumId], references: [id])
+  song      Song?     @relation(fields: [songId], references: [id])
+  comments  Comment[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 
-  @@unique([userId, targetId, targetType])
+  @@unique([userId, songId])
+  @@unique([userId, albumId])
+  @@unique([userId, artistId])
 }
 
 model Comment {
@@ -150,4 +139,30 @@ model Comment {
   review    Review   @relation(fields: [reviewId], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model Favorite {
+  id        String   @id @default(cuid()) @map("_id")
+  userId    String
+  type      String
+  songId    String?
+  albumId   String?
+  artistId  String?
+  user      User     @relation(fields: [userId], references: [id])
+  song      Song?    @relation(fields: [songId], references: [id])
+  album     Album?   @relation(fields: [albumId], references: [id])
+  artist    Artist?  @relation(fields: [artistId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, songId])
+  @@unique([userId, albumId])
+  @@unique([userId, artistId])
+}
+
+enum AlbumType {
+  ALBUM
+  SINGLE
+  COMPILATION
+  EP
 }

@@ -121,65 +121,126 @@ export const loader: LoaderFunction = async ({ request }) => {
 };
 
 export const action: ActionFunction = async ({ request }) => {
-  const formData = await request.formData();
-  const accessToken = formData.get("accessToken") as string;
-  const playlistId = formData.get("playlistId") as string;
-  const addAlbum = formData.get("addFromAlbum") as string;
+  try {
+    const formData = await request.formData();
+    const accessToken = formData.get("accessToken") as string;
+    const playlistId = formData.get("playlistId") as string;
+    const addAlbum = formData.get("addFromAlbum") as string;
 
-  const playlistTracks = await fetchPlaylistTracks(playlistId, accessToken);
-
-  for (const item of playlistTracks) {
-    const track = item.track;
-    const artistSpotifyId = track.artists.map((artist: any) => artist.id);
-
-    const artistIds = [];
-    for (const id of artistSpotifyId) {
-      const artist = await findOrCreateArtist(id, accessToken);
-      artistIds.push(artist.id);
+    if (!accessToken || !playlistId) {
+      return json({ success: false, error: "Missing required parameters" }, 400);
     }
 
-    const albumName = track.album.name;
-    const artistName = track.artists[0].name;
+    const playlistTracks = await fetchPlaylistTracks(playlistId, accessToken);
 
-    if (track.album.album_type !== "single" && addAlbum) {
-      const album = await findOrCreateAlbum(
-        albumName,
-        artistIds[0],
-        accessToken,
-        track.album.release_date,
-        track.album.album_type,
-        track.album.external_urls.spotify,
-        track.album.id,
-        track.album.images[0].url
-      );
-
-      await findOrCreateSong(
-        track.id,
-        track.name,
-        artistIds[0],
-        album.id,
-        track.duration_ms,
-        track.album.release_date,
-        track.external_urls.spotify,
-        track.album.images[0].url,
-        artistName
-      );
-    } else {
-      await findOrCreateSong(
-        track.id,
-        track.name,
-        artistIds[0],
-        "single",
-        track.duration_ms,
-        track.album.release_date,
-        track.external_urls.spotify,
-        track.album.images[0].url,
-        artistName
-      );
+    if (!playlistTracks || !Array.isArray(playlistTracks)) {
+      return json({ success: false, error: "No tracks found in playlist" }, 400);
     }
+
+    let processedCount = 0;
+    let errorCount = 0;
+
+    for (const item of playlistTracks) {
+      try {
+        const track = item?.track;
+        if (!track || !track.artists || track.artists.length === 0) {
+          console.warn("Skipping track with missing data:", item);
+          errorCount++;
+          continue;
+        }
+
+        const artistSpotifyId = track.artists.map((artist: any) => artist.id).filter(Boolean);
+        if (artistSpotifyId.length === 0) {
+          console.warn("Skipping track with no valid artist IDs:", track.name);
+          errorCount++;
+          continue;
+        }
+
+        const artistIds = [];
+        for (const id of artistSpotifyId) {
+          try {
+            const artist = await findOrCreateArtist(id, accessToken);
+            artistIds.push(artist.id);
+          } catch (error) {
+            console.error(`Failed to create/find artist ${id}:`, error);
+            errorCount++;
+          }
+        }
+
+        if (artistIds.length === 0) {
+          console.warn("No valid artists found for track:", track.name);
+          errorCount++;
+          continue;
+        }
+
+        const albumName = track.album?.name || 'Unknown Album';
+        const artistName = track.artists[0]?.name || 'Unknown Artist';
+        const albumImageUrl = track.album?.images?.[0]?.url || null;
+        const spotifyUrl = track.external_urls?.spotify || null;
+
+        if (track.album?.album_type !== "single" && addAlbum && track.album) {
+          try {
+            const album = await findOrCreateAlbum(
+              albumName,
+              artistIds[0],
+              accessToken,
+              track.album.release_date || new Date().toISOString(),
+              track.album.album_type || 'album',
+              track.album.external_urls?.spotify || '',
+              track.album.id,
+              albumImageUrl || ''
+            );
+
+            await findOrCreateSong(
+              track.id,
+              track.name || 'Unknown Song',
+              artistIds[0],
+              album.id,
+              track.duration_ms || 0,
+              track.album.release_date || new Date().toISOString(),
+              spotifyUrl || '',
+              albumImageUrl || '',
+              artistName
+            );
+            processedCount++;
+          } catch (error) {
+            console.error(`Failed to process album track ${track.name}:`, error);
+            errorCount++;
+          }
+        } else {
+          try {
+            await findOrCreateSong(
+              track.id,
+              track.name || 'Unknown Song',
+              artistIds[0],
+              null, // single songs don't have albums
+              track.duration_ms || 0,
+              track.album?.release_date || new Date().toISOString(),
+              spotifyUrl || '',
+              albumImageUrl || '',
+              artistName
+            );
+            processedCount++;
+          } catch (error) {
+            console.error(`Failed to process single track ${track.name}:`, error);
+            errorCount++;
+          }
+        }
+      } catch (error) {
+        console.error('Error processing track:', error);
+        errorCount++;
+      }
+    }
+
+    console.log(`Playlist processing complete. Processed: ${processedCount}, Errors: ${errorCount}`);
+    return json({ 
+      success: true, 
+      message: `Processed ${processedCount} tracks successfully${errorCount > 0 ? `, ${errorCount} errors encountered` : ''}` 
+    });
+  } catch (error) {
+    console.error('Fatal error in playlist processing:', error);
+    return json({ success: false, error: 'Failed to process playlist' }, 500);
   }
-
-  return json({ success: true });
 };
 
 function formatDuration(durationMs: number): string {

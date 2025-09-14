@@ -1,17 +1,54 @@
 import { Album, AlbumType, Artist } from '@prisma/client'
 import { prisma } from '~/db/prisma'
 
-export async function findOrCreateArtist(id: string, accessToken: string) {
-  let artist = await prisma.artist.findFirst({ where: { id } })
+// Map Spotify album types to our enum
+function mapSpotifyAlbumType(spotifyType: string): AlbumType {
+  switch (spotifyType?.toLowerCase()) {
+    case 'album':
+      return AlbumType.ALBUM
+    case 'single':
+      return AlbumType.SINGLE
+    case 'compilation':
+      return AlbumType.COMPILATION
+    case 'ep':
+      return AlbumType.EP
+    default:
+      return AlbumType.ALBUM // Default fallback
+  }
+}
+
+export async function findOrCreateArtist(spotifyId: string, accessToken: string) {
+  let artist = await prisma.artist.findFirst({ where: { spotifyId } })
   if (!artist) {
-    const artistData = await fetch(`https://api.spotify.com/v1/artists/${id}`, {
-      headers: { Authorization: `Bearer ${accessToken}` },
-    })
-    const data = await artistData.json()
-    artist = await prisma.artist.create({
-      data: { id, name: data.name, imageUrl: data.images[0].url },
-    })
-    console.log('Created artist: ' + artist.name)
+    try {
+      const artistData = await fetch(`https://api.spotify.com/v1/artists/${spotifyId}`, {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      })
+      
+      if (!artistData.ok) {
+        throw new Error(`Failed to fetch artist data: ${artistData.statusText}`)
+      }
+      
+      const data = await artistData.json()
+      
+      // Handle missing data gracefully
+      const imageUrl = data.images && data.images.length > 0 ? data.images[0].url : null
+      const name = data.name || 'Unknown Artist'
+      const spotifyUrl = data.external_urls?.spotify || null
+      
+      artist = await prisma.artist.create({
+        data: { 
+          name, 
+          imageUrl, 
+          spotifyId: spotifyId,
+          spotifyUrl
+        },
+      })
+      console.log('Created artist: ' + artist.name)
+    } catch (error) {
+      console.error(`Error creating artist with Spotify ID ${spotifyId}:`, error)
+      throw error
+    }
   }
   return artist
 }
@@ -21,29 +58,49 @@ export async function findOrCreateAlbum(
   artistId: string,
   accessToken: string,
   releaseDate: string,
-  type: AlbumType,
+  spotifyAlbumType: string,
   spotifyUrl: string,
-  albumId: string,
+  spotifyAlbumId: string,
   imageUrl: string,
 ) {
   let album = await prisma.album.findFirst({
-    where: { name, artistId },
+    where: { spotifyId: spotifyAlbumId },
   })
   if (!album) {
-    album = await prisma.album.create({
-      data: {
-        name,
-        artistId,
-        releaseDate: new Date(releaseDate),
-        type,
-        spotifyUrl,
-        imageUrl,
-      },
-    })
+    try {
+      // Map Spotify album type to our enum
+      const albumType = mapSpotifyAlbumType(spotifyAlbumType)
+      
+      // Handle invalid date
+      let validReleaseDate: Date
+      try {
+        validReleaseDate = new Date(releaseDate)
+        if (isNaN(validReleaseDate.getTime())) {
+          validReleaseDate = new Date()
+        }
+      } catch {
+        validReleaseDate = new Date()
+      }
+      
+      album = await prisma.album.create({
+        data: {
+          name: name || 'Unknown Album',
+          artistId,
+          releaseDate: validReleaseDate,
+          type: albumType,
+          spotifyId: spotifyAlbumId,
+          spotifyUrl: spotifyUrl || null,
+          imageUrl: imageUrl || null,
+        },
+      })
 
-    const albumSongs = await fetchAlbumSongs(albumId, accessToken)
-    await addSongsToDatabase(albumSongs, artistId, album.id)
-    console.log('Created album: ' + album.name)
+      const albumSongs = await fetchAlbumSongs(spotifyAlbumId, accessToken)
+      await addSongsToDatabase(albumSongs, artistId, album.id)
+      console.log('Created album: ' + album.name)
+    } catch (error) {
+      console.error(`Error creating album with Spotify ID ${spotifyAlbumId}:`, error)
+      throw error
+    }
   }
   return album
 }
@@ -101,7 +158,7 @@ function isValidDate(dateString: string): boolean {
 }
 
 export async function findOrCreateSong(
-  id: string,
+  spotifySongId: string,
   name: string,
   artistId: string,
   albumId: string | null,
@@ -117,38 +174,47 @@ export async function findOrCreateSong(
 
   let song = await prisma.song.findFirst({
     where: {
-      id,
+      spotifyId: spotifySongId,
     },
   })
 
   if (!song) {
-    let validReleaseDate = isValidDate(releaseDate)
-      ? new Date(releaseDate)
-      : new Date()
-
-    if (albumId) {
-      const album = await prisma.album.findFirst({
-        where: { id: albumId },
-      })
-      if (album) {
-        validReleaseDate = album.releaseDate
+    try {
+      // Handle invalid dates
+      let validReleaseDate: Date
+      try {
+        validReleaseDate = isValidDate(releaseDate) ? new Date(releaseDate) : new Date()
+      } catch {
+        validReleaseDate = new Date()
       }
-    }
 
-    song = await prisma.song.create({
-      data: {
-        id,
-        name,
-        artistId,
-        albumId,
-        duration,
-        releaseDate: validReleaseDate,
-        spotifyUrl,
-        imageUrl,
-        artistName,
-      },
-    })
-    console.log('Created song: ' + song.name)
+      if (albumId) {
+        const album = await prisma.album.findFirst({
+          where: { id: albumId },
+        })
+        if (album) {
+          validReleaseDate = album.releaseDate
+        }
+      }
+
+      song = await prisma.song.create({
+        data: {
+          name: name || 'Unknown Song',
+          artistId,
+          albumId,
+          duration: duration || 0,
+          releaseDate: validReleaseDate,
+          spotifyId: spotifySongId,
+          spotifyUrl: spotifyUrl || null,
+          imageUrl: imageUrl || null,
+          artistName: artistName || null,
+        },
+      })
+      console.log('Created song: ' + song.name)
+    } catch (error) {
+      console.error(`Error creating song with Spotify ID ${spotifySongId}:`, error)
+      throw error
+    }
   }
 
   return song

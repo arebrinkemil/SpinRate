@@ -236,14 +236,20 @@ export default function Song() {
               />
             </div>
             <div className="iframe-container">
-              <iframe
-                src={`https://open.spotify.com/embed/track/${targetData.id}?utm_source=generator&theme=0`}
-                width="100%"
-                height="160"
-                frameBorder="0"
-                allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-                loading="lazy"
-              ></iframe>
+              {targetData.spotifyId ? (
+                <iframe
+                  src={`https://open.spotify.com/embed/track/${targetData.spotifyId}?utm_source=generator&theme=0`}
+                  width="100%"
+                  height="160"
+                  frameBorder="0"
+                  allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                  loading="lazy"
+                ></iframe>
+              ) : (
+                <p className="text-gray-500 p-4 text-center">
+                  Spotify player unavailable - no Spotify ID found for this song
+                </p>
+              )}
             </div>
           </div>
           <div className="basis-1/2">
