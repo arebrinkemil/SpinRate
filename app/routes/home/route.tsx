@@ -241,7 +241,7 @@ export default function Home() {
                 filter === "all" ? "bg-gray-800 text-white" : "bg-gray-200"
               }`}
             >
-              <h5>ALL</h5>
+              <h5>EVERYTHING</h5>
             </Button>
             <Button
               radius="none"
