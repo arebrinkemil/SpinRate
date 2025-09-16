@@ -12,9 +12,6 @@ export async function getSongs() {
       id: true,
       name: true,
     },
-    where: {
-      albumId: null,
-    },
   })
 }
 
