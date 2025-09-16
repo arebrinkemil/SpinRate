@@ -62,13 +62,7 @@ export async function loader() {
       }))
     }
 
-    return json(formattedData, {
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'GET',
-        'Access-Control-Allow-Headers': 'Content-Type',
-      },
-    })
+    return json(formattedData)
   } catch (error) {
     console.error('Error fetching data for CMS:', error)
     return json(
@@ -86,13 +80,3 @@ export async function loader() {
 }
 
 // Handle CORS preflight requests
-export async function options() {
-  return new Response(null, {
-    status: 200,
-    headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type',
-    },
-  })
-}
