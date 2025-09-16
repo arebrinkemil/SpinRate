@@ -9,6 +9,8 @@ export const Footer = () => {
 
           <li>By Emil Årebrink</li>
 
+              <li>2025 self hosted</li>
+
           <li>Contact: earebrink@gmail.com</li>
         </ul>
       </div>
