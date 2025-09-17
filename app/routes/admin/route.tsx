@@ -38,35 +38,77 @@ type LoaderData = {
 };
 
 async function getAccessToken() {
-  //Ids have been renewed and the old ones are no longer valid ;)
-  const clientId = process.env.SPOTIFY_CLIENT_ID;
-  const clientSecret = process.env.SPOTIFY_CLIENT_SECRET;
+  const clientId = process.env.SPOTIFY_CLIENT_ID!;
+  const clientSecret = process.env.SPOTIFY_CLIENT_SECRET!;
+  const refreshToken = process.env.SPOTIFY_REFRESH_TOKEN;
 
-  const response = await fetch("https://accounts.spotify.com/api/token", {
+  if (refreshToken) {
+    const body = new URLSearchParams({
+      grant_type: "refresh_token",
+      refresh_token: refreshToken,
+    });
+
+    const res = await fetch("https://accounts.spotify.com/api/token", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+        Authorization:
+          "Basic " + Buffer.from(`${clientId}:${clientSecret}`).toString("base64"),
+      },
+      body: body.toString(),
+    });
+
+    if (!res.ok) {
+      const text = await res.text();
+      console.error("Spotify refresh-token error", res.status, text);
+      throw new Error(`Spotify token error ${res.status}`);
+    }
+
+    const json = await res.json();
+    return json.access_token as string;
+  }
+
+  const ccBody = new URLSearchParams({ grant_type: "client_credentials" });
+  const ccRes = await fetch("https://accounts.spotify.com/api/token", {
     method: "POST",
     headers: {
       "Content-Type": "application/x-www-form-urlencoded",
-      Authorization: `Basic ${Buffer.from(
-        `${clientId}:${clientSecret}`
-      ).toString("base64")}`,
+      Authorization:
+        "Basic " + Buffer.from(`${clientId}:${clientSecret}`).toString("base64"),
     },
-    body: "grant_type=client_credentials",
+    body: ccBody.toString(),
   });
-
-  const data = await response.json();
-  return data.access_token;
+  if (!ccRes.ok) {
+    const text = await ccRes.text();
+    console.error("Spotify client-credentials error", ccRes.status, text);
+    throw new Error(`Spotify token error ${ccRes.status}`);
+  }
+  const ccJson = await ccRes.json();
+  return ccJson.access_token as string;
 }
+
+
 
 async function fetchPlaylistTracks(playlistId: string, accessToken: string) {
-  const response = await fetch(
-    `https://api.spotify.com/v1/playlists/${playlistId}/tracks`,
-    {
+  const items: any[] = [];
+  let url: string | null = `https://api.spotify.com/v1/playlists/${playlistId}/tracks?limit=100&offset=0`;
+  while (url) {
+    const res = await fetch(url, {
       headers: { Authorization: `Bearer ${accessToken}` },
+    });
+    if (!res.ok) {
+      const text = await res.text();
+      console.error("Spotify playlist fetch error", res.status, text);
+      throw new Error(`Spotify playlist fetch error ${res.status}`);
     }
-  );
-  const data = await response.json();
-  return data.items;
+    const data = await res.json();
+    if (Array.isArray(data.items)) items.push(...data.items);
+    url = data.next;
+  }
+  return items;
 }
+
+
 
 export const loader: LoaderFunction = async ({ request }) => {
   const userId = await requireAuthCookie(request);
